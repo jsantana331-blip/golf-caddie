@@ -30,7 +30,7 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  const par=round.holes.reduce((n,h)=>n+h.par,0);
  body=`<div class="eyebrow">COURSE OVERVIEW</div><div class="card hero"><h1>${esc(round.course)}</h1><p>${esc(fact(round.location))}</p><div class="grid">${[['Tee',round.tee],['Yardage',round.totalYards],['Par',par],['Course rating',round.rating],['Slope',round.slope],['Par 3 / 4 / 5',[3,4,5].map(p=>round.holes.filter(h=>h.par===p).length).join(' / ')]].map(([l,v])=>metric(l,fact(v))).join('')}</div></div><div class="card">${[['Course style / type',round.courseStyle],['Grass type',round.grassType],['Driving range',round.drivingRange],['Practice green',round.practiceGreen],['Weather / forecast',round.weather]].map(([l,v])=>`<div class="summaryrow"><span>${l}</span><b>${esc(fact(v))}</b></div>`).join('')}</div>`;
  }else if(p.type==='game')body=`<div class="eyebrow">TODAY’S STRATEGY</div><h1>Game Plan</h1><div class="card hero"><h2>Scoring Mission</h2><div class="strategy">${esc(round.mission)}</div></div>${round.gamePlan.map(([title,text])=>`<div class="card"><h2>${esc(title)}</h2><p>${esc(text)}</p></div>`).join('')}<div class="card"><h2>Your club distances</h2><div class="clubgrid">${round.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b>${y} yd</div>`).join('')}</div></div>`;
- else if(p.type==='hole'){const h=p.h;body=`<div class="eyebrow">HOLE ${h.n} · HCP ${h.hcp}</div><h1>Par ${h.par} · ${h.yards} yd</h1><div class="card hero"><div class="strategy">${esc(h.advice||h.plan)}</div></div><div class="card reference"><b>${esc(h.teeClub)} · ${esc(h.target)}</b><p>Avoid: ${esc(h.danger.replace(/ corridor/g,''))}</p><p>Expected: ${esc(h.expected||'Unknown')}</p></div>${tracker(h)}`}
+ else if(p.type==='hole'){const h=p.h;body=`<div class="eyebrow">HOLE ${h.n} · HCP ${h.hcp}</div><h1>Par ${h.par} · ${h.yards} yd</h1><div class="card hero"><div class="strategy">${esc(h.advice||h.plan)}</div></div><div class="card reference"><b>${esc(h.teeClub)} · ${esc(h.target)}</b><p>Avoid: ${esc(h.danger)}</p><p>Expected: ${esc(h.expected||'Unknown')}</p></div>${tracker(h)}`}
  else body=summary();
  const label=p.type==='hole'?'Hole '+p.h.n:p.type==='course'?'Course Overview':p.type==='game'?'Game Plan':'Round Summary';
  app.innerHTML=`<section class="screen"><div class="content">${body}</div><nav class="nav" aria-label="Round navigation"><button id="prev" ${idx===0?'disabled':''} aria-label="Previous page">‹</button><label class="count"><span class="sr-only">Go to page</span><select id="jump">${ps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${x.type==='hole'?'Hole '+x.h.n:x.type==='course'?'Course Overview':x.type==='game'?'Game Plan':'Round Summary'}</option>`).join('')}</select><span>${idx+1}/${ps.length}</span></label><button id="next" ${idx===ps.length-1?'disabled':''} aria-label="${p.type==='hole'&&p.h.n<18?'Next hole':'Next page'}">›</button></nav></section>`;
@@ -40,11 +40,19 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  if(p.type==='hole')bindTracker(p.h);updateStatus();
 }
 function redraw(){const y=document.querySelector('.content').scrollTop;render();document.querySelector('.content').scrollTop=y}
+function syncChoices(){
+ document.querySelectorAll('[data-value]').forEach(b=>{
+  const input=document.querySelector('[data-number="'+b.dataset.field+'"]');if(!input)return;
+  const value=Number(input.value),choice=Number(b.dataset.value);
+  const selected=input.value!==''&&(b.dataset.field==='putts'&&choice===3?value>=3:b.dataset.field==='penalties'&&choice===2?value>=2:value===choice);
+  b.setAttribute('aria-pressed',String(selected));b.classList.toggle('active',selected);
+ });
+}
 function bindTracker(h){
  const result=()=>state.results[h.n]||(state.results[h.n]={});
- document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(r[f]===v)delete r[f];else r[f]=v;persist();redraw()});
+ document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true')delete r[f];else r[f]=v;persist();redraw()});
  document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{const f=b.dataset.field,r=result(),min=f==='score'?1:f==='putts'?3:2;r[f]=Math.max(min,(r[f]??(f==='score'?h.par:min))+Number(b.dataset.step));persist();redraw()});
- document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}persist()});
+ document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}persist();syncChoices()});
  document.querySelector('#note').oninput=e=>{result().note=e.target.value;persist()};
 }
 function navigate(n){idx=n;state.page=idx;persist();render()}
