@@ -276,10 +276,10 @@
     }
   ],
   "id": "nevel-meade-blue-v1",
-  "courseStyle": null,
-  "grassType": null,
-  "drivingRange": null,
-  "practiceGreen": null,
+  "courseStyle": "Scottish-inspired links-style",
+  "grassType": "Bentgrass greens & fairways",
+  "drivingRange": "Yes · Full-service",
+  "practiceGreen": true,
   "weather": null,
   "gamePlan": [
     [
