@@ -1,4 +1,4 @@
-\
+
 let round, idx=0;
 const app=document.querySelector("#app");
 const key="caddie:"+location.pathname+":arp";
