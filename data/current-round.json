@@ -6,39 +6,297 @@
   "rating": "70.1",
   "slope": "124",
   "mission": "Arrive at your second shot with a clear view of the green. Favor attackable position over maximum distance. No hero recoveries.",
-  "swingCue": "Smooth → finish → swing.",
+  "swingCue": "Smooth â†’ finish â†’ swing.",
   "clubs": [
-    ["Driver", 255],
-    ["3H", 215],
-    ["4i", 195],
-    ["5i", 180],
-    ["6i", 170],
-    ["7i", 165],
-    ["8i", 150],
-    ["9i", 135],
-    ["PW", 120],
-    ["50°", 108],
-    ["54°", 95],
-    ["60°", 80]
+    [
+      "Driver",
+      255
+    ],
+    [
+      "3H",
+      215
+    ],
+    [
+      "4i",
+      195
+    ],
+    [
+      "5i",
+      180
+    ],
+    [
+      "6i",
+      170
+    ],
+    [
+      "7i",
+      165
+    ],
+    [
+      "8i",
+      150
+    ],
+    [
+      "9i",
+      135
+    ],
+    [
+      "PW",
+      120
+    ],
+    [
+      "50Â°",
+      108
+    ],
+    [
+      "54Â°",
+      95
+    ],
+    [
+      "60Â°",
+      80
+    ]
   ],
   "holes": [
-    {"n":1,"par":4,"yards":374,"hcp":12,"teeClub":"Driver","target":"Left-center","plan":"Stock driver leaves roughly 120. Commit to the corridor, then PW territory.","danger":"Right fairway bunker corridor."},
-    {"n":2,"par":5,"yards":545,"hcp":8,"teeClub":"Driver","target":"Center-left","plan":"Three-shot hole by default. Advance safely and build the third shot around 80–100 yards.","danger":"Do not force the second shot."},
-    {"n":3,"par":4,"yards":398,"hcp":2,"teeClub":"Driver","target":"Center / slight right","plan":"Position first. Expect roughly 8i–9i and favor middle green.","danger":"Avoid turning a hard hole into a recovery hole."},
-    {"n":4,"par":4,"yards":362,"hcp":18,"teeClub":"Driver","target":"Center-left","plan":"Good drive creates a short wedge approach.","danger":"Right-side bunkering."},
-    {"n":5,"par":3,"yards":124,"hcp":16,"teeClub":"PW","target":"Middle / right-center","plan":"Stock PW. Green first, pin second.","danger":"Left bunker."},
-    {"n":6,"par":4,"yards":285,"hcp":14,"teeClub":"3H","target":"Center-right","plan":"3H leaves roughly 70 yards and keeps the hole simple.","danger":"Driver brings left water near green into play."},
-    {"n":7,"par":5,"yards":480,"hcp":4,"teeClub":"Driver","target":"Center-right","plan":"Default layup after drive; build a comfortable wedge third.","danger":"Attack in two only from a perfect lie and lane."},
-    {"n":8,"par":3,"yards":199,"hcp":10,"teeClub":"4i","target":"Center-left","plan":"Center-green mentality.","danger":"Right bunker."},
-    {"n":9,"par":4,"yards":390,"hcp":6,"teeClub":"Driver","target":"Center-right","plan":"Good drive leaves about 9i.","danger":"Left bunker around driver corridor; right green bunkering."},
-    {"n":10,"par":4,"yards":367,"hcp":13,"teeClub":"Driver","target":"Center","plan":"Commit through staggered fairway bunkers; wedge approach.","danger":"Do not steer the tee ball."},
-    {"n":11,"par":4,"yards":400,"hcp":1,"teeClub":"Driver","target":"Left-center","plan":"Play for position, then middle green. Bogey is acceptable.","danger":"Avoid defensive indecision."},
-    {"n":12,"par":4,"yards":419,"hcp":3,"teeClub":"Driver","target":"Right-center","plan":"Driver clears long left bunker; expect around 7i.","danger":"Long left bunker / recovery angle."},
-    {"n":13,"par":3,"yards":125,"hcp":17,"teeClub":"PW","target":"Center-right","plan":"Stock PW and take the middle.","danger":"Left bunker."},
-    {"n":14,"par":5,"yards":519,"hcp":7,"teeClub":"Driver","target":"Center","plan":"Intentional three-shot plan. Lay up to a preferred wedge number.","danger":"Do not let reachable-looking yardage force aggression."},
-    {"n":15,"par":3,"yards":170,"hcp":9,"teeClub":"6i","target":"Center-right","plan":"Slight uphill. Smooth 5i if conditions make 6i marginal.","danger":"Left bunker."},
-    {"n":16,"par":4,"yards":291,"hcp":11,"teeClub":"3H","target":"Center","plan":"3H leaves about 75–80, near your 60° stock.","danger":"Driver creates awkward pitch / greenside bunker risk."},
-    {"n":17,"par":4,"yards":377,"hcp":5,"teeClub":"Driver","target":"Center-left","plan":"Uphill. Good drive leaves PW/9i range.","danger":"Right bunker near green."},
-    {"n":18,"par":5,"yards":428,"hcp":15,"teeClub":"Driver","target":"Center-left","plan":"Good drive may leave ~175. Attack only with clean lie; otherwise wedge setup.","danger":"3H can fall into staggered bunker corridor."}
+    {
+      "n": 1,
+      "par": 4,
+      "yards": 374,
+      "hcp": 12,
+      "teeClub": "Driver",
+      "target": "Left-center",
+      "plan": "Stock driver leaves roughly 120. Commit to the corridor, then PW territory.",
+      "danger": "Right fairway bunker corridor.",
+      "advice": "Driver here. Favor the left half; the right fairway bunker is the trouble to avoid. A solid drive leaves around a PW.",
+      "expected": "~120 yd in"
+    },
+    {
+      "n": 2,
+      "par": 5,
+      "yards": 545,
+      "hcp": 8,
+      "teeClub": "Driver",
+      "target": "Center-left",
+      "plan": "Three-shot hole by default. Advance safely and build the third shot around 80â€“100 yards.",
+      "danger": "Do not force the second shot.",
+      "advice": "Let’s play this in three. Driver toward center-left, then advance safely to leave an 80–100 yard third. There’s no need to force the second.",
+      "expected": "80–100 yd third"
+    },
+    {
+      "n": 3,
+      "par": 4,
+      "yards": 398,
+      "hcp": 2,
+      "teeClub": "Driver",
+      "target": "Center / slight right",
+      "plan": "Position first. Expect roughly 8iâ€“9i and favor middle green.",
+      "danger": "Avoid turning a hard hole into a recovery hole.",
+      "advice": "This is one of the tougher holes. Driver toward the center, just a little right. You’ll have roughly an 8i or 9i; take the middle of the green.",
+      "expected": "8i–9i in"
+    },
+    {
+      "n": 4,
+      "par": 4,
+      "yards": 362,
+      "hcp": 18,
+      "teeClub": "Driver",
+      "target": "Center-left",
+      "plan": "Good drive creates a short wedge approach.",
+      "danger": "Right-side bunkering.",
+      "advice": "Driver toward the left-center. Keep the right-side bunkers out of the picture and a good drive gives you a short wedge.",
+      "expected": "Short wedge in"
+    },
+    {
+      "n": 5,
+      "par": 3,
+      "yards": 124,
+      "hcp": 16,
+      "teeClub": "PW",
+      "target": "Middle / right-center",
+      "plan": "Stock PW. Green first, pin second.",
+      "danger": "Left bunker.",
+      "advice": "Stock PW. Favor the middle or right-center of the green, away from the left bunker. Get on the green before thinking about the pin.",
+      "expected": "Green first"
+    },
+    {
+      "n": 6,
+      "par": 4,
+      "yards": 285,
+      "hcp": 14,
+      "teeClub": "3H",
+      "target": "Center-right",
+      "plan": "3H leaves roughly 70 yards and keeps the hole simple.",
+      "danger": "Driver brings left water near green into play.",
+      "advice": "3H is plenty here. Aim center-right and leave about 70 yards. Driver brings the water left of the green into play; we don’t need it.",
+      "expected": "~70 yd in"
+    },
+    {
+      "n": 7,
+      "par": 5,
+      "yards": 480,
+      "hcp": 4,
+      "teeClub": "Driver",
+      "target": "Center-right",
+      "plan": "Default layup after drive; build a comfortable wedge third.",
+      "danger": "Attack in two only from a perfect lie and lane.",
+      "advice": "Driver toward center-right, then plan on a layup to a comfortable wedge. Only think about going in two if the lie and line are both perfect.",
+      "expected": "Wedge third"
+    },
+    {
+      "n": 8,
+      "par": 3,
+      "yards": 199,
+      "hcp": 10,
+      "teeClub": "4i",
+      "target": "Center-left",
+      "plan": "Center-green mentality.",
+      "danger": "Right bunker.",
+      "advice": "4i toward the left-center of the green. The right bunker is the one to avoid; the middle of the green is a good result.",
+      "expected": "Middle of green"
+    },
+    {
+      "n": 9,
+      "par": 4,
+      "yards": 390,
+      "hcp": 6,
+      "teeClub": "Driver",
+      "target": "Center-right",
+      "plan": "Good drive leaves about 9i.",
+      "danger": "Left bunker around driver corridor; right green bunkering.",
+      "advice": "Driver toward center-right to stay away from the left fairway bunker. A good one leaves about a 9i. Remember the bunkers right of the green on the approach.",
+      "expected": "9i in"
+    },
+    {
+      "n": 10,
+      "par": 4,
+      "yards": 367,
+      "hcp": 13,
+      "teeClub": "Driver",
+      "target": "Center",
+      "plan": "Commit through staggered fairway bunkers; wedge approach.",
+      "danger": "Do not steer the tee ball.",
+      "advice": "Driver down the center. Choose your line through the staggered fairway bunkers and commit. A good drive leaves a wedge.",
+      "expected": "Wedge in"
+    },
+    {
+      "n": 11,
+      "par": 4,
+      "yards": 400,
+      "hcp": 1,
+      "teeClub": "Driver",
+      "target": "Left-center",
+      "plan": "Play for position, then middle green. Bogey is acceptable.",
+      "danger": "Avoid defensive indecision.",
+      "advice": "This is the toughest hole today. Driver toward left-center, then middle of the green. Five is fine; don’t chase four after a bad shot.",
+      "expected": "Position, then middle green"
+    },
+    {
+      "n": 12,
+      "par": 4,
+      "yards": 419,
+      "hcp": 3,
+      "teeClub": "Driver",
+      "target": "Right-center",
+      "plan": "Driver clears long left bunker; expect around 7i.",
+      "danger": "Long left bunker / recovery angle.",
+      "advice": "Driver toward right-center. The plan is to get past the long left bunker and leave around a 7i. Keep yourself a clear approach.",
+      "expected": "~7i in"
+    },
+    {
+      "n": 13,
+      "par": 3,
+      "yards": 125,
+      "hcp": 17,
+      "teeClub": "PW",
+      "target": "Center-right",
+      "plan": "Stock PW and take the middle.",
+      "danger": "Left bunker.",
+      "advice": "Stock PW toward center-right. Stay away from the left bunker and take the middle of the green.",
+      "expected": "Middle of green"
+    },
+    {
+      "n": 14,
+      "par": 5,
+      "yards": 519,
+      "hcp": 7,
+      "teeClub": "Driver",
+      "target": "Center",
+      "plan": "Intentional three-shot plan. Lay up to a preferred wedge number.",
+      "danger": "Do not let reachable-looking yardage force aggression.",
+      "advice": "Play this in three. Driver down the center, then lay up to your preferred wedge distance. Don’t let the yardage talk you into forcing the second.",
+      "expected": "Preferred wedge third"
+    },
+    {
+      "n": 15,
+      "par": 3,
+      "yards": 170,
+      "hcp": 9,
+      "teeClub": "6i",
+      "target": "Center-right",
+      "plan": "Slight uphill. Smooth 5i if conditions make 6i marginal.",
+      "danger": "Left bunker.",
+      "advice": "6i toward center-right, away from the left bunker. It plays a little uphill; take a smooth 5i if the conditions make 6i a stretch.",
+      "expected": "6i / smooth 5i"
+    },
+    {
+      "n": 16,
+      "par": 4,
+      "yards": 291,
+      "hcp": 11,
+      "teeClub": "3H",
+      "target": "Center",
+      "plan": "3H leaves about 75â€“80, near your 60Â° stock.",
+      "danger": "Driver creates awkward pitch / greenside bunker risk.",
+      "advice": "3H down the center leaves about 75–80 yards, close to your stock 60°. Driver risks an awkward pitch or the greenside bunker. Keep this one simple.",
+      "expected": "75–80 yd in"
+    },
+    {
+      "n": 17,
+      "par": 4,
+      "yards": 377,
+      "hcp": 5,
+      "teeClub": "Driver",
+      "target": "Center-left",
+      "plan": "Uphill. Good drive leaves PW/9i range.",
+      "danger": "Right bunker near green.",
+      "advice": "Driver toward center-left. This one is uphill; a good drive leaves PW or 9i range. Keep the right greenside bunker in mind on the approach.",
+      "expected": "PW–9i in"
+    },
+    {
+      "n": 18,
+      "par": 5,
+      "yards": 428,
+      "hcp": 15,
+      "teeClub": "Driver",
+      "target": "Center-left",
+      "plan": "Good drive may leave ~175. Attack only with clean lie; otherwise wedge setup.",
+      "danger": "3H can fall into staggered bunker corridor.",
+      "advice": "Driver toward center-left. A good one may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.",
+      "expected": "~175 yd after drive"
+    }
+  ],
+  "id": "nevel-meade-blue-v1",
+  "courseStyle": null,
+  "grassType": null,
+  "drivingRange": null,
+  "practiceGreen": null,
+  "weather": null,
+  "gamePlan": [
+    [
+      "Off the Tee",
+      "Driver when there is room for your normal shot. Choose 3H when driver brings trouble into play. Leave yourself a comfortable next shot."
+    ],
+    [
+      "Into the Green",
+      "Favor the middle of the green. On the par 5s, build a comfortable wedge approach unless the lie and line make going for it a clear choice."
+    ],
+    [
+      "After a Miss",
+      "Get back into position. Take the simple recovery and keep one bad shot from becoming two."
+    ],
+    [
+      "Today’s Focus",
+      "A clear view of the green matters more than a few extra yards. Choose your target and commit."
+    ]
   ]
 }
