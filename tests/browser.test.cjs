@@ -7,7 +7,7 @@ const {chromium}=require('playwright');
 const round=require('../data/current-round.json');
 const root=path.resolve(__dirname,'..');
 const assets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
-const baselineAssets=Object.fromEntries(assets.map(file=>[file,execFileSync('git',['show',`16dd496:${file}`],{cwd:root})]));
+const baselineAssets=Object.fromEntries(assets.map(file=>[file,execFileSync('git',['show',`21487ad:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
  const file=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/golf-caddie\//,'')||'index.html';
@@ -47,17 +47,27 @@ const server=http.createServer((req,res)=>{
  assert.equal((await saved()).results[1].putts,undefined);
  await tap('penalties',2);await page.locator('#penalties').fill('3');await tap('penalties',2);
  assert.equal((await saved()).results[1].penalties,undefined);
- await tap('score',4);await page.locator('#score').fill('5');
- assert.equal(await page.locator('[data-field="score"][data-value="4"]').getAttribute('aria-pressed'),'false');
- assert.equal(await page.locator('[data-field="score"][data-value="5"]').getAttribute('aria-pressed'),'true');
+ assert.equal(await page.locator('#score').count(),0);
+ assert.deepEqual(await page.locator('[data-field="score"][data-value]').allTextContents(),['3','4','5','6','7+']);
+ await tap('score',4);assert.equal((await saved()).results[1].score,4);assert.equal(await page.locator('#score').count(),0);
+ await tap('score',7);assert.equal((await saved()).results[1].score,7);await page.locator('#score').fill('12');
+ assert.equal((await saved()).results[1].score,12);
+ assert.equal(await page.locator('[data-score-plus]').getAttribute('aria-pressed'),'true');
+ await page.reload();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'12');
+ await tap('score',7);assert.equal((await saved()).results[1].score,undefined);assert.equal(await page.locator('#score').count(),0);
+ await tap('score',7);await page.locator('#score').fill('1');assert.equal((await saved()).results[1].score,1);
+ await page.reload();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'1');
+ await tap('score',5);assert.equal((await saved()).results[1].score,5);assert.equal(await page.locator('#score').count(),0);
  await tap('score',5);assert.equal((await saved()).results[1].score,undefined);
- await page.locator('#score').fill('12');assert.equal((await saved()).results[1].score,12);
- await page.locator('#score').fill('');
  for(const h of round.holes){
   await page.locator('#jump').selectOption(String(h.n+1));
   assert.equal(await page.locator('h1').innerText(),`Par ${h.par} · ${h.yards} yd`);
   assert.equal(await page.locator('.hero .strategy').innerText(),h.advice);
+  assert.equal(await page.locator('#score').count(),0);
+  await tap('score',h.par+3);await page.locator('#score').fill('15');
+  assert.equal((await saved()).results[h.n].score,15);
   await tap('score',h.par+(h.n%3)-1);
+  assert.equal(await page.locator('#score').count(),0);
   if(h.par===3){assert.equal(await page.locator('[data-field="tee"]').count(),0);assert.match(await page.locator('.na').innerText(),/N\/A/);}
   else await tap('tee',h.n%2?'Fairway':'Left');
   await tap('gir',h.n%2===1);
@@ -120,7 +130,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#jump').selectOption('20');assert.equal(await page.locator('tbody tr').count(),18);
   await context.setOffline(false);
  await page.locator('[data-hole="1"]').click();
- await page.locator('#score').fill('12');
+ await tap('score',7);await page.locator('#score').fill('12');
  await tap('putts',3);await page.locator('#putts').fill('4');
  await tap('penalties',2);await page.locator('#penalties').fill('3');
  await page.locator('#jump').selectOption('20');
@@ -149,7 +159,7 @@ const server=http.createServer((req,res)=>{
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-hole.png')});
  // Every hole offers a direct summary action; browsing never changes activeHole.
  for(const h of round.holes){await page.locator('#jump').selectOption(String(h.n+1));await page.locator('#open-summary').click();assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');}
- await page.locator('[data-hole="1"]').click();await page.locator('#score').fill('6');
+ await page.locator('[data-hole="1"]').click();await tap('score',6);
  await page.locator('#open-summary').click();assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');
  await page.locator('#back-active').click();await page.locator('#next').click();assert.equal((await saved()).activeHole,9);
  await page.locator('#next').click();assert.equal((await saved()).activeHole,9); // Unscored nine: viewing ten is only browsing.
@@ -188,7 +198,7 @@ const server=http.createServer((req,res)=>{
  await upgrade.setOffline(true);await old.reload();await old.locator('#jump').waitFor();
  assert.equal(await old.locator('#jump option').count(),21);
  await old.locator('#jump').selectOption('20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.1.1-coach-export-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.1.1-compact-score-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
