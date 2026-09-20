@@ -16,3 +16,6 @@ body{padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}button{font:
 .hero .metric span{color:#eef4ef}
 
 .hole-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 12px;flex-shrink:0;border-top:1px solid #d6dbd3}.hole-actions span{font-size:13px;color:var(--green)}.hole-actions .secondary{width:auto;min-height:44px;padding:6px 12px;font-size:14px}.summary-actions{display:grid;gap:8px;margin-top:16px}.primary{min-height:48px;padding:12px;border:0;border-radius:12px;background:var(--green);color:white;font:inherit;font-weight:800}.primary:disabled{opacity:.6}#copy-status{margin:0;font-size:14px}#copy-fallback textarea{display:block;width:100%;padding:12px;margin:8px 0;font:inherit;font-size:16px;border:1px solid #9baa9d;border-radius:10px}#copy-fallback p{font-size:14px}
+
+/* Keep result entry compact without shrinking touch targets. */
+.tracker fieldset{margin:10px 0 6px}.tracker legend,.tracker>label{margin-bottom:4px}.tracker .exact{margin:6px 0}.tracker .na{margin:6px 0;padding:6px 0}.tracker textarea{margin-top:4px}.tracker #save-status{margin:6px 0 0}

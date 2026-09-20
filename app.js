@@ -1,4 +1,4 @@
-let round,idx=0,key,state;
+let round,idx=0,key,state,exactScoreHole=null;
 const app=document.querySelector('#app');
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fact=v=>v===null||v===undefined||v===''?'Unknown':typeof v==='boolean'?(v?'Yes':'No'):v;
@@ -16,10 +16,11 @@ async function init(){
 }
 function pages(){return [{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
 function metric(label,value){return `<div class="metric"><b>${esc(value)}</b><span>${esc(label)}</span></div>`}
-function choices(field,label,values,r){return `<fieldset><legend>${label}</legend><div class="choices">${values.map(([v,text])=>`<button type="button" data-field="${field}" data-value="${v}" aria-pressed="${r[field]===v}" class="${r[field]===v?'active':''}">${text}</button>`).join('')}</div></fieldset>`}
+function choices(field,label,values,r){return `<fieldset><legend>${label}</legend><div class="choices">${values.map(([v,text])=>`<button type="button" data-field="${field}" data-value="${v}" ${field==='score'&&String(text).endsWith('+')?'data-score-plus="true"':''} aria-pressed="${r[field]===v}" class="${r[field]===v?'active':''}">${text}</button>`).join('')}</div></fieldset>`}
 function counter(field,label,r,min){return `<div class="exact"><label for="${field}">${label}</label><button type="button" data-step="-1" data-field="${field}" aria-label="Decrease ${label}">−</button><input id="${field}" data-number="${field}" type="number" inputmode="numeric" min="${min}" step="1" value="${r[field]??''}" placeholder="—"><button type="button" data-step="1" data-field="${field}" aria-label="Increase ${label}">+</button></div>`}
-function tracker(h){const r=state.results[h.n]||{};
- return `<div class="card tracker"><h2>Record result</h2>${choices('score','Score',Array.from({length:5},(_,i)=>h.par-1+i).map(v=>[v,String(v)]),r)}${counter('score','Exact score',r,1)}${h.par===3?'<p class="na">Tee shot · N/A (par 3)</p>':choices('tee','Tee shot',['Fairway','Left','Right','Trouble'].map(v=>[v,v]),r)}${choices('gir','Green in regulation',[[true,'Yes'],[false,'No']],r)}${choices('putts','Putts',[[0,'0'],[1,'1'],[2,'2'],[3,'3+']],{...r,putts:r.putts>=3?3:r.putts})}${r.putts>=3?counter('putts','Exact putts',r,3):''}${choices('penalties','Penalty strokes',[[0,'0'],[1,'1'],[2,'2+']],{...r,penalties:r.penalties>=2?2:r.penalties})}${r.penalties>=2?counter('penalties','Exact penalties',r,2):''}<label for="note">Note <span class="muted">(optional)</span></label><textarea id="note" maxlength="240" rows="2" placeholder="Anything to remember?">${esc(r.note||'')}</textarea><p id="save-status" role="status"></p></div>`;
+function tracker(h){const r=state.results[h.n]||{},max=h.par+3;
+ const exact=exactScoreHole===h.n||(r.score!==undefined&&(r.score<h.par-1||r.score>=max));
+ return `<div class="card tracker"><h2>Record result</h2>${choices('score','Score',Array.from({length:5},(_,i)=>h.par-1+i).map(v=>[v,v===max?v+'+':String(v)]),{...r,score:r.score>=max?max:r.score})}${exact?counter('score','Score (any total)',r,1):''}${h.par===3?'<p class="na">Tee shot · N/A (par 3)</p>':choices('tee','Tee shot',['Fairway','Left','Right','Trouble'].map(v=>[v,v]),r)}${choices('gir','Green in regulation',[[true,'Yes'],[false,'No']],r)}${choices('putts','Putts',[[0,'0'],[1,'1'],[2,'2'],[3,'3+']],{...r,putts:r.putts>=3?3:r.putts})}${r.putts>=3?counter('putts','Exact putts',r,3):''}${choices('penalties','Penalty strokes',[[0,'0'],[1,'1'],[2,'2+']],{...r,penalties:r.penalties>=2?2:r.penalties})}${r.penalties>=2?counter('penalties','Exact penalties',r,2):''}<label for="note">Note <span class="muted">(optional)</span></label><textarea id="note" maxlength="240" rows="2" placeholder="Anything to remember?">${esc(r.note||'')}</textarea><p id="save-status" role="status"></p></div>`;
 }
 function totalLabel(holes){return RoundResults.totalLabel(holes,state.results)}
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
@@ -65,7 +66,7 @@ function syncChoices(){
  document.querySelectorAll('[data-value]').forEach(b=>{
   const input=document.querySelector('[data-number="'+b.dataset.field+'"]');if(!input)return;
   const value=Number(input.value),choice=Number(b.dataset.value);
-  const selected=input.value!==''&&(b.dataset.field==='putts'&&choice===3?value>=3:b.dataset.field==='penalties'&&choice===2?value>=2:value===choice);
+  const selected=input.value!==''&&(b.dataset.scorePlus?value>=choice:b.dataset.field==='putts'&&choice===3?value>=3:b.dataset.field==='penalties'&&choice===2?value>=2:value===choice);
   b.setAttribute('aria-pressed',String(selected));b.classList.toggle('active',selected);
  });
 }
@@ -73,12 +74,12 @@ function bindTracker(h){
  const result=()=>state.results[h.n]||(state.results[h.n]={});
  let before={...(state.results[h.n]||{})};
  const saveResult=()=>{state.activeHole=RoundResults.afterEntry(round.holes,state.activeHole,h.n,before,result());before={...result()};persist();const label=document.querySelector('.hole-actions span');if(label)label.textContent='Playing Hole '+state.activeHole};
- document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true')delete r[f];else r[f]=v;saveResult();redraw()});
+ document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true'){delete r[f];if(f==='score')exactScoreHole=null}else{r[f]=v;if(f==='score')exactScoreHole=b.dataset.scorePlus?h.n:null}saveResult();redraw()});
  document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{const f=b.dataset.field,r=result(),min=f==='score'?1:f==='putts'?3:2;r[f]=Math.max(min,(r[f]??(f==='score'?h.par:min))+Number(b.dataset.step));saveResult();redraw()});
  document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}saveResult();syncChoices()});
  document.querySelector('#note').oninput=e=>{result().note=e.target.value;saveResult()};
 }
-function navigate(n){idx=n;state.page=idx;persist();render()}
+function navigate(n){exactScoreHole=null;idx=n;state.page=idx;persist();render()}
 function go(d){if(!round)return;
  const p=pages()[idx];if(d===1&&p.type==='hole')state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
  navigate(Math.max(0,Math.min(pages().length-1,idx+d)));
