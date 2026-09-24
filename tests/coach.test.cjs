@@ -1,5 +1,5 @@
 const assert=require('node:assert/strict');
-const R=require('../results.js'),round=require('../data/current-round.json'),holes=round.holes;
+const R=require('../results.js'),round=require('./fixtures/v1-round.json'),holes=round.holes;
 const instruction='Analyze this round as my golf coach. Identify the biggest scoring patterns, strengths, mistakes, course-management issues, and likely opportunities to lower my handicap. Use my notes and hole-level results as context. Give me specific coaching feedback and prioritize what I should work on in my next practice session.';
 const partial={1:{score:5,tee:'Left',gir:false,putts:3,penalties:1,note:'Pushed right & <trees>\nRecovered safely.'},5:{score:3,tee:'Fairway',gir:true,putts:2},10:{putts:0,penalties:0}};
 const report=R.coachReport(round,partial);
