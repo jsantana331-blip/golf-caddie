@@ -7,7 +7,7 @@ const {chromium}=require('playwright');
 const round=require('../data/current-round.json');
 const root=path.resolve(__dirname,'..');
 const assets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
-const baselineAssets=Object.fromEntries(assets.map(file=>[file,execFileSync('git',['show',`21487ad:${file}`],{cwd:root})]));
+const baselineAssets=Object.fromEntries(assets.map(file=>[file,execFileSync('git',['show',`86b7d9c:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
  const file=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/golf-caddie\//,'')||'index.html';
@@ -33,10 +33,12 @@ const server=http.createServer((req,res)=>{
  assert.deepEqual(await page.locator('.summaryrow b').allTextContents(),['Scottish-inspired links-style','Bentgrass greens & fairways','Yes · Full-service','Yes','Unknown']);
  assert.ok(!(await page.locator('.content').innerText()).includes(round.mission));
  assert.deepEqual(await page.locator('.metric b').allTextContents(),['Blue','6253','72','70.1','124','4 / 10 / 4']);
+ if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-course.png')});
  await page.locator('#jump').selectOption('1');
  assert.deepEqual(await page.locator('h2').allTextContents(),['Scoring Mission','Off the Tee','Into the Green','After a Miss','Today’s Focus','Your club distances']);
  assert.equal(await page.locator('.club').count(),12);
  assert.ok((await page.locator('.content').innerText()).includes('60°'));
+ if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-game.png')});
  const legacyKey='caddie:/golf-caddie/:arp';
  await page.evaluate(k=>localStorage.setItem(k,JSON.stringify({1:'A'})),legacyKey);
  const key='caddie:/golf-caddie/:results:v1.1:'+round.id;
@@ -61,8 +63,14 @@ const server=http.createServer((req,res)=>{
  await tap('score',5);assert.equal((await saved()).results[1].score,undefined);
  for(const h of round.holes){
   await page.locator('#jump').selectOption(String(h.n+1));
-  assert.equal(await page.locator('h1').innerText(),`Par ${h.par} · ${h.yards} yd`);
+  assert.equal(await page.locator('h1').innerText(),`Hole ${h.n}`);
   assert.equal(await page.locator('.hero .strategy').innerText(),h.advice);
+  assert.equal(await page.locator('.recommended-club').textContent(),h.teeClub);
+  assert.equal(await page.locator('.target').innerText(),h.target);
+  assert.deepEqual(await page.locator('.reference dd').allTextContents(),[h.danger,h.expected]);
+  assert.ok((await page.locator('.active-context').innerText()).startsWith('Playing Hole '));
+  assert.equal(await page.locator('.hole-distance span').innerText(),`Par ${h.par} · HCP ${h.hcp}`);
+  assert.equal(await page.locator('.hole-distance b').innerText(),`${h.yards} yd`);
   assert.equal(await page.locator('#score').count(),0);
   await tap('score',h.par+3);await page.locator('#score').fill('15');
   assert.equal((await saved()).results[h.n].score,15);
@@ -105,16 +113,43 @@ const server=http.createServer((req,res)=>{
  await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));
  await page.locator('#copy-coach').click();assert.equal(await page.locator('#coach-text').inputValue(),clipboard);
  await page.reload();await page.locator('#jump').waitFor();
- for(const size of [{width:320,height:568},{width:390,height:844},{width:844,height:390},{width:390,height:400}]){
+ for(const size of [{width:320,height:568},{width:390,height:844},{width:844,height:390},{width:390,height:400},{width:1280,height:800}]){
   await page.setViewportSize(size);
   for(const index of ['0','1','2','20']){
    await page.locator('#jump').selectOption(index);
+   assert.equal(await page.locator('.card').count(),0);
+   for(const control of await page.locator('.nav button,.nav select').all()){
+    const box=await control.boundingBox();assert.ok(box.width>=44&&box.height>=44,JSON.stringify(box));
+   }
+   if(index==='2'){
+    const sizes=await page.evaluate(()=>({club:parseFloat(getComputedStyle(document.querySelector('.recommended-club')).fontSize),tracker:parseFloat(getComputedStyle(document.querySelector('.tracker h2')).fontSize)}));
+    assert.ok(sizes.club>=sizes.tracker*2);
+   }
    const layout=await page.evaluate(()=>{const nav=document.querySelector('.nav').getBoundingClientRect(),c=document.querySelector('.content');c.scrollTop=c.scrollHeight;return {navBottom:nav.bottom,navTop:nav.top,width:document.documentElement.scrollWidth,inner:innerWidth,scroll:c.scrollTop,overflow:c.scrollHeight>c.clientHeight};});
    assert.ok(layout.navBottom<=size.height+1&&layout.navTop>=0,JSON.stringify(layout));assert.ok(layout.width<=layout.inner);
    if(layout.overflow)assert.ok(layout.scroll>0);
   }
  }
+ // Check the actual palette for small-text contrast, including selected controls.
+ const contrast=await page.evaluate(()=>{
+  const css=getComputedStyle(document.documentElement);
+  const luminance=hex=>{const rgb=hex.trim().slice(1).match(/../g).map(v=>parseInt(v,16)/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4);return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722};
+  const ratio=(a,b)=>{const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+  return ['--ink','--green','--muted','--earth'].map(name=>ratio(css.getPropertyValue(name),css.getPropertyValue('--cream'))).concat(ratio(css.getPropertyValue('--green'),css.getPropertyValue('--paper')),ratio(css.getPropertyValue('--ink'),'#e7e9e0'));
+ });
+ assert.ok(contrast.every(value=>value>=4.5),JSON.stringify(contrast));
  await page.setViewportSize({width:390,height:844});await page.locator('#jump').selectOption('2');
+ for(const control of await page.locator('.choices button').all()){
+  const box=await control.boundingBox();assert.ok(box.width>=44&&box.height>=48,JSON.stringify(box));
+ }
+ // Simulate nonzero portrait and landscape safe-area padding; actual iOS inset values require device acceptance.
+ for(const insets of [[47,0,34,0],[0,47,21,47]]){
+  const style=await page.addStyleTag({content:`body { padding: ${insets.map(n=>n+'px').join(' ')}; }`});
+  const box=await page.locator('.nav').boundingBox();
+  assert.ok(box.y+box.height<=844-insets[2]+1&&box.x>=insets[3]&&box.x+box.width<=390-insets[1]+1);
+  await style.evaluate(el=>el.remove());
+ }
+
  const swipe=async(selector,dx,dy=0)=>page.locator(selector).evaluate((el,{dx,dy})=>{
   const touch=(x,y)=>new Touch({identifier:1,target:el,clientX:x,clientY:y});
   el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[touch(200,200)]}));
@@ -198,7 +233,7 @@ const server=http.createServer((req,res)=>{
  await upgrade.setOffline(true);await old.reload();await old.locator('#jump').waitFor();
  assert.equal(await old.locator('#jump option').count(),21);
  await old.locator('#jump').selectOption('20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.1.1-compact-score-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-pocket-redesign-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
