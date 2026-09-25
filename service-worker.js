@@ -1,4 +1,4 @@
-const CACHE='caddie-v1.3.1-chatgpt-handoff-1';
+const CACHE='caddie-v1.3.2-round-navigation-1';
 const SHELL=['./','./index.html','./styles.css','./results.js','./app.js','./manifest.json','./memory.js','./caddie-context.js','./external-coach.js','./handoff.js','./data/player.json','./data/courses/index.json','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install',e=>e.waitUntil((async()=>{const response=await fetch('./data/courses/index.json',{cache:'no-store'});if(!response.ok)throw Error('Course library unavailable');const library=await response.json();const cache=await caches.open(CACHE);await cache.addAll([...SHELL,...library.courses.map(c=>'./data/courses/'+c.file)]);await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('caddie-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

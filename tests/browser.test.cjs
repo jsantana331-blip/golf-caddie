@@ -9,7 +9,7 @@ const root=path.resolve(__dirname,'..');
 const oldAssets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
 const assets=[...oldAssets.filter(f=>f!=='data/current-round.json'),'memory.js','caddie-context.js','handoff.js','external-coach.js','data/player.json','data/courses/index.json','data/courses/nevel-meade.json'];
 const baselineRef=process.env.UPGRADE_BASELINE||'903da2e';
-const baselineFiles=baselineRef==='903da2e'?oldAssets:assets.filter(f=>f!=='external-coach.js');
+const baselineFiles=baselineRef==='903da2e'?oldAssets:baselineRef==='a587a77'?assets.filter(f=>f!=='external-coach.js'):assets;
 const baselineAssets=Object.fromEntries(baselineFiles.map(file=>[file,execFileSync('git',['show',`${baselineRef}:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
@@ -30,10 +30,10 @@ const server=http.createServer((req,res)=>{
  context.on('page',p=>p.on('pageerror',e=>errors.push(e.message)));
  let page=await context.newPage();
  await page.goto(url);
- const chooseCourse=async()=>{await page.locator('[data-course="nevel-meade"]').click();await page.locator('[data-tee="blue"]').click();await page.locator('#to-game').click();};
+ const chooseCourse=async()=>{await page.locator('[data-course="nevel-meade"]').click();await page.locator('[data-tee="blue"]').click();};
  await chooseCourse();await page.locator('#start-round').click();await page.locator('#jump').selectOption('0');
  await page.evaluate(()=>navigator.serviceWorker.ready);
- await page.reload();await page.locator('#jump').waitFor();
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();await page.locator('#jump').selectOption('0');
  assert.equal(await page.locator('#jump option').count(),21);
  assert.deepEqual(await page.locator('.summaryrow b').allTextContents(),['Scottish-inspired links-style','Bentgrass greens & fairways','Yes · Full-service','Yes','Unknown']);
  assert.ok(!(await page.locator('.content').innerText()).includes(round.mission));
@@ -61,10 +61,10 @@ const server=http.createServer((req,res)=>{
  await tap('score',7);assert.equal((await saved()).results[1].score,7);await page.locator('#score').fill('12');
  assert.equal((await saved()).results[1].score,12);
  assert.equal(await page.locator('[data-score-plus]').getAttribute('aria-pressed'),'true');
- await page.reload();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'12');
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'12');
  await tap('score',7);assert.equal((await saved()).results[1].score,undefined);assert.equal(await page.locator('#score').count(),0);
  await tap('score',7);await page.locator('#score').fill('1');assert.equal((await saved()).results[1].score,1);
- await page.reload();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'1');
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#score').waitFor();assert.equal(await page.locator('#score').inputValue(),'1');
  await tap('score',5);assert.equal((await saved()).results[1].score,5);assert.equal(await page.locator('#score').count(),0);
  await tap('score',5);assert.equal((await saved()).results[1].score,undefined);
  for(const h of round.holes){
@@ -89,10 +89,10 @@ const server=http.createServer((req,res)=>{
   await page.locator('#note').fill(`Hole ${h.n} <safe> & sound`);
  }
  const expected=(await saved()).results;
- await page.reload();await page.locator('#jump').waitFor();
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.equal(await page.locator('#jump').inputValue(),'19');
  assert.deepEqual((await saved()).results,expected);
- await page.close();page=await context.newPage();await page.goto(url);await page.locator('#jump').waitFor();
+ await page.close();page=await context.newPage();await page.goto(url);await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.deepEqual((await saved()).results,expected);
  assert.equal(await page.evaluate(k=>localStorage.getItem(k),legacyKey),'{"1":"A"}');
  await page.locator('#jump').selectOption('20');
@@ -118,7 +118,7 @@ const server=http.createServer((req,res)=>{
  assert.equal(await page.locator('#coach-text').evaluate(el=>el.selectionEnd-el.selectionStart),clipboard.length);
  await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:undefined}));
  await page.locator('#copy-coach').click();assert.equal(await page.locator('#coach-text').inputValue(),clipboard);
- await page.reload();await page.locator('#jump').waitFor();
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  for(const size of [{width:320,height:568},{width:390,height:844},{width:844,height:390},{width:390,height:400},{width:1280,height:800}]){
   await page.setViewportSize(size);
   for(const index of ['0','1','2','20']){
@@ -166,7 +166,7 @@ const server=http.createServer((req,res)=>{
  await swipe('.hero',-120);assert.equal(await page.locator('#jump').inputValue(),'3');
  await page.locator('#prev').click();assert.equal(await page.locator('#jump').inputValue(),'2');
  await page.locator('#next').click();assert.equal(await page.locator('#jump').inputValue(),'3');
- await context.setOffline(true);await page.reload();await page.locator('#jump').waitFor();
+ await context.setOffline(true);await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.deepEqual((await saved()).results,expected);
  await page.locator('#jump').selectOption('20');assert.equal(await page.locator('tbody tr').count(),18);
   await context.setOffline(false);
@@ -179,24 +179,24 @@ const server=http.createServer((req,res)=>{
  assert.deepEqual(await page.locator('.summaryrow b').allTextContents(),['6 / 14','9 / 18','38','3']);
  await page.locator('.content').evaluate(el=>el.scrollTop=0);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT});
- await page.locator('#new-round').click();await chooseCourse();
+ await page.locator('#exit-home').click();await chooseCourse();
  page.once('dialog',dialog=>dialog.dismiss());await page.locator('#start-round').click();
  assert.equal(Object.keys((await saved()).results).length,18);
  page.once('dialog',dialog=>dialog.accept());await page.locator('#start-round').click();
- assert.deepEqual((await saved()).results,{});assert.equal(await page.locator('#jump').inputValue(),'2');
+ assert.deepEqual((await saved()).results,{});assert.equal(await page.locator('#jump').inputValue(),'0');
  await page.locator('#jump').selectOption('2');await tap('score',3);
  await page.locator('#jump').selectOption('20');
  assert.deepEqual(await page.locator('.metric b').allTextContents(),['3','-1','3 (1/9 holes)','—']);
  // Migrate V1.1 results while the saved page is a look-ahead hole, not the active hole.
  const firstEight=Object.fromEntries(round.holes.slice(0,8).map(h=>[h.n,{score:h.par}]));
  await page.evaluate(({key,oldKey,results})=>{localStorage.removeItem(key);localStorage.setItem(oldKey,JSON.stringify({version:1,startedAt:'2026-09-19',results,page:15}));},{key,oldKey,results:firstEight});
- await page.reload();await page.locator('#jump').waitFor();
- assert.equal(await page.locator('#jump').inputValue(),'15');
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
+ assert.equal(await page.locator('#jump').inputValue(),'9');
  await page.locator('#open-summary').click();assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-partial.png')});
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
  assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n'),require('../caddie-context.js').full(await saved()));
- await page.reload();await page.locator('#back-active').waitFor();assert.equal((await saved()).activeHole,8);
+ await page.reload();await page.locator('#resume-round').click();await page.locator('#open-summary').click();await page.locator('#back-active').waitFor();assert.equal((await saved()).activeHole,8);
  await page.locator('#back-active').click();assert.equal(await page.locator('#jump').inputValue(),'9');
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-hole.png')});
  // Every hole offers a direct summary action; browsing never changes activeHole.
@@ -208,16 +208,16 @@ const server=http.createServer((req,res)=>{
  await page.locator('#jump').selectOption('15');await page.locator('#next').click();assert.equal((await saved()).activeHole,9);
  await page.locator('#open-summary').click();await page.locator('#back-active').click();
  await tap('score',4);await swipe('.hero',-120);assert.equal((await saved()).activeHole,10);
- await page.close();page=await context.newPage();await page.goto(url);await page.locator('#jump').waitFor();
+ await page.close();page=await context.newPage();await page.goto(url);await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.equal((await saved()).activeHole,10);
- await context.setOffline(true);await page.reload();await page.locator('#open-summary').click();
+ await context.setOffline(true);await page.reload();await page.locator('#resume-round').click();await page.locator('#open-summary').click();
  assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 10');
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
  assert.ok((await page.evaluate(()=>navigator.clipboard.readText())).includes('Round status: In Progress'));
  await page.locator('#back-active').click();assert.equal(await page.locator('#jump').inputValue(),'11');
  await tap('tee','Left');assert.equal((await saved()).activeHole,10);
  await page.locator('#jump').selectOption('15');await tap('tee','Right');assert.equal((await saved()).activeHole,14);
- await page.locator('#open-summary').click();await page.locator('#new-round').click();await chooseCourse();page.once('dialog',dialog=>dialog.accept());await page.locator('#start-round').click();
+ await page.locator('#open-summary').click();await page.locator('#exit-home').click();await chooseCourse();page.once('dialog',dialog=>dialog.accept());await page.locator('#start-round').click();
  assert.equal((await saved()).activeHole,1);
  await context.close();
  console.log('Clipboard success/failure/unavailable, partial export, migration, active-hole browsing/progression and offline persistence passed');
@@ -237,20 +237,20 @@ const server=http.createServer((req,res)=>{
   if(navigator.serviceWorker.controller===previous)await changed;
  });
  await old.waitForFunction(()=>navigator.serviceWorker.controller?.state==='activated');
- await old.reload();await old.locator('#jump').waitFor();
+ await old.reload();await old.locator('#resume-round').click();await old.locator('#jump').waitFor();
  assert.ok((await old.evaluate(()=>caches.keys())).includes('unrelated-cache'));
- await upgrade.setOffline(true);await old.reload();await old.locator('#jump').waitFor();
+ await upgrade.setOffline(true);await old.reload();await old.locator('#resume-round').click();await old.locator('#jump').waitFor();
  assert.equal(await old.locator('#jump option').count(),21);
  assert.equal(await old.locator('#jump').inputValue(),'9');
  assert.equal(await old.locator('[data-field="score"][data-value="3"]').getAttribute('aria-pressed'),'true');
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
  if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await old.locator('#jump').selectOption('20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.3.1-chatgpt-handoff-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.3.2-round-navigation-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
- const unavailable=await blocked.newPage();await unavailable.goto(url);await unavailable.locator('[data-course]').click();await unavailable.locator('[data-tee]').click();await unavailable.locator('#to-game').click();await unavailable.locator('#start-round').click();
+ const unavailable=await blocked.newPage();await unavailable.goto(url);await unavailable.locator('[data-course]').click();await unavailable.locator('[data-tee]').click();await unavailable.locator('#start-round').click();await unavailable.locator('#to-game').click();await unavailable.locator('#to-hole').click();
  await unavailable.locator('[data-field="score"][data-value="4"]').click();
  assert.match(await unavailable.locator('#save-status').innerText(),/Unable to save/);
  await unavailable.locator('#jump').selectOption('20');assert.equal(await unavailable.locator('.metric b').first().innerText(),'4');
