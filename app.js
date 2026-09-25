@@ -37,15 +37,21 @@ async function init(){
     }
    }catch(e){locked=true;storageOK=false;saveError=e.message}
   }
-  if(memory.active)resumeRound();else showLibrary();
+  showLibrary();
  }catch(e){app.innerHTML='<section class="loading"><div class="mark">C</div><h1>Caddie</h1><p>Course library unavailable. Reconnect once, then reopen.</p></section>';console.error(e)}
 }
-function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...(preview?[]:[...round.holes.map(h=>({type:'hole',h})),{type:'summary'}])]}
+function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
 function shell(body){app.innerHTML=`<section class="screen"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div></section>`;updateStatus()}
-function libraryLink(){return '<button id="library" class="text-control">‹ Course Library</button>'}
+function libraryLink(){return '<button id="library" class="text-control">Home</button>'}
+function activeRoundDetails(){
+ const r=memory.active;if(!r)return '';
+ const stats=RoundResults.stats(r.config.holes,r.results);
+ return `<p class="intro">${esc(r.config.course)} · ${esc(r.config.tee)}<br>Hole ${r.activeHole}${stats.played?' · '+RoundResults.relativeLabel(stats):''}</p>`;
+}
+function exitHome(){if(saveMemory())showLibrary()}
 function showLibrary(){
  screenMode='library';preview=false;historical=false;
- shell(`<div class="eyebrow">CADDIE / YOUR YARDAGE BOOK</div><h1>Where are we playing?</h1>${memory.active?`<button id="resume-round" class="primary library-resume">Resume current round · Hole ${memory.active.activeHole}</button><p class="muted">${esc(memory.active.config.course)} · ${esc(memory.active.config.tee)}</p>`:''}<div class="library-list">${courses.map(c=>{const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];return `<button class="course-choice" data-course="${esc(c.id)}"><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><span>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</span></button>`}).join('')}</div><button id="round-history" class="secondary">Round History${memory.history.length?' · '+memory.history.length:''}</button>`);
+ shell(`<div class="eyebrow">CADDIE / YOUR YARDAGE BOOK</div><h1>Where are we playing?</h1>${memory.active?`<button id="resume-round" class="primary library-resume">Resume Round</button>${activeRoundDetails()}`:''}<h2 class="intro">${memory.active?'Start a new round':'Start Round'}</h2><div class="library-list">${courses.map(c=>{const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];return `<button class="course-choice" data-course="${esc(c.id)}"><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><span>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</span></button>`}).join('')}</div><button id="round-history" class="secondary">Round History${memory.history.length?' · '+memory.history.length:''}</button>`);
  document.querySelector('#resume-round')?.addEventListener('click',resumeRound);
  document.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>showTees(courses.find(c=>c.id===b.dataset.course)));
  document.querySelector('#round-history').onclick=showHistory;
@@ -54,19 +60,25 @@ function showTees(course){
  screenMode='tees';shell(`${libraryLink()}<div class="eyebrow">SELECT TEE</div><h1>${esc(course.course)}</h1><p class="intro">Choose the tee for this round.</p><div class="library-list">${course.tees.map(t=>`<button class="course-choice" data-tee="${esc(t.id)}"><strong>${esc(t.name)}${memory.preferences.tees[course.id]===t.id?' · Last played':''}</strong><span>${t.totalYards.toLocaleString()} yd · Rating ${esc(t.rating??'Unknown')} · Slope ${esc(t.slope??'Unknown')}</span></button>`).join('')}</div>`);
  document.querySelector('#library').onclick=showLibrary;
  document.querySelectorAll('[data-tee]').forEach(b=>b.onclick=()=>{
-  round=CaddieMemory.courseRound(course,b.dataset.tee,player);state=CaddieMemory.create(round,player,'preview');preview=true;historical=false;screenMode='round';idx=0;
-  memory.preferences.tees[course.id]=b.dataset.tee;saveMemory();render();
+  round=CaddieMemory.courseRound(course,b.dataset.tee,player);state=CaddieMemory.create(round,player,'preview');preview=true;historical=false;screenMode='setup';idx=0;
+  memory.preferences.tees[course.id]=b.dataset.tee;saveMemory();showStart();
  });
 }
+function showStart(){
+ shell(`${libraryLink()}<div class="eyebrow">ROUND SETUP</div><h1>${esc(round.course)}</h1><p class="intro">${esc(round.tee)} · ${round.totalYards.toLocaleString()} yd · Rating ${esc(round.rating??'Unknown')} · Slope ${esc(round.slope??'Unknown')}</p><div class="start-actions">${memory.active?`<h2>Active round</h2>${activeRoundDetails()}<button id="resume-round" class="primary">Resume Round</button><p>Starting a new round requires confirmation before replacing this round.</p>`:''}<button id="start-round" class="${memory.active?'secondary':'primary'}">${memory.active?'Start New Round':'Start Round'}</button></div>`);
+ document.querySelector('#library').onclick=showLibrary;
+ document.querySelector('#resume-round')?.addEventListener('click',resumeRound);
+ document.querySelector('#start-round').onclick=startRound;
+}
 function resumeRound(){
- if(!memory.active)return showLibrary();state=memory.active;round=state.config;preview=false;historical=false;screenMode='round';exactScoreHole=null;idx=Math.max(0,Math.min(round.holes.length+2,state.page));render();
+ if(!memory.active)return showLibrary();state=memory.active;round=state.config;preview=false;historical=false;screenMode='round';exactScoreHole=null;idx=round.holes.findIndex(h=>h.n===state.activeHole)+2;render();
 }
 function startRound(){
  if(locked){alert('Saved round memory cannot be read. No data has been replaced.');return}
  const scored=memory.active&&RoundResults.stats(memory.active.config.holes,memory.active.results).played===memory.active.config.holes.length;
  if(memory.active&&!confirm(scored?'Save the completed scorecard in Round History and start a new round?':'Start a new round? This will replace the incomplete active round. Cancel to keep it. Completed Round History is kept.'))return;
- const next=scored?CaddieMemory.complete(memory):CaddieMemory.clone(memory);next.active=CaddieMemory.create(round,player,crypto.randomUUID());
- if(saveMemory(next)||(unavailable&&!memory.active)){memory=next;resumeRound()}
+ const next=scored?CaddieMemory.complete(memory):CaddieMemory.clone(memory);next.active=CaddieMemory.create(round,player,crypto.randomUUID());next.active.page=0;
+ if(saveMemory(next)||(unavailable&&!memory.active)){memory=next;state=memory.active;round=state.config;preview=false;historical=false;screenMode='round';exactScoreHole=null;idx=0;render()}
  else alert('The new round could not be saved. Your current round has been kept.');
 }
 function showHistory(){
@@ -78,9 +90,9 @@ function openHistory(id){state=memory.history.find(r=>r.id===id);if(!state)retur
 function finishRound(){
  try{
   const next=CaddieMemory.complete(memory);
-  if(!confirm('Complete this round and save it permanently in local Round History? The saved scorecard will be read-only.'))return;
+  if(!confirm('Finish this round and save it permanently in local Round History? The saved scorecard will be read-only.'))return;
   if(!saveMemory(next))throw Error('Could not save Round History. Your active round is still available; keep this page open and try again.');
-  openHistory(next.history[0].id);
+  showLibrary();
  }catch(e){alert(e.message)}
 }
 function metric(label,value){return `<div class="metric"><b>${esc(value)}</b><span>${esc(label)}</span></div>`}
@@ -92,7 +104,7 @@ function tracker(h){const r=state.results[h.n]||{},max=h.par+3;
 }
 function totalLabel(holes){return RoundResults.totalLabel(holes,state.results)}
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
- return `<div class="eyebrow">ROUND SUMMARY</div><h1>Your round</h1><p>${esc(round.course)} · ${esc(round.tee)} tees</p><section class="round-totals"><p class="eyebrow">${s.played}/${round.holes.length} holes scored</p><div class="totals">${metric(s.played===round.holes.length?'Total score':'Score so far',s.played?s.score:'—')}${metric('Relative to par · scored holes',s.played?rel:'—')}${metric('Front nine',totalLabel(round.holes.slice(0,9)))}${metric('Back nine',totalLabel(round.holes.slice(9)))}</div></section><div class="summary-actions">${!historical?`<button id="back-active" class="primary">Back to Hole ${state.activeHole}</button>`:''}<button id="copy-coach" class="secondary">Copy for Golf Coach</button><p id="copy-status" role="status" aria-live="polite"></p><div id="copy-fallback" hidden><label for="coach-text">Golf Coach report</label><textarea id="coach-text" readonly rows="8"></textarea><button id="select-report" class="secondary">Select report text</button><p>Touch and hold the selected text, choose Copy, then paste into your Golf Coach project.</p></div></div><section class="round-stats"><div class="stat"><div class="summaryrow"><span>Fairways hit / eligible</span><b>${s.fairways} / ${s.eligible}</b></div><p class="muted">${s.teeRecorded}/${s.eligible} tee results recorded</p></div><div class="stat"><div class="summaryrow"><span>GIR</span><b>${s.gir} / ${round.holes.length}</b></div><p class="muted">${s.girRecorded}/${round.holes.length} GIR results recorded</p></div><div class="stat"><div class="summaryrow"><span>Putts recorded</span><b>${s.putts}</b></div><p class="muted">${s.puttsRecorded}/${round.holes.length} holes recorded</p></div><div class="stat"><div class="summaryrow"><span>Penalty strokes recorded</span><b>${s.penalties}</b></div><p class="muted">${s.penaltiesRecorded}/${round.holes.length} holes recorded</p></div></section><section class="scorecard-section"><h2>Scorecard</h2><p>${historical?'Saved round · read-only.':'Tap a hole to edit.'} Use this for manual entry into TheGrint. Swipe the table sideways for all columns. — means not recorded.</p><div class="scorecard" tabindex="0" role="region" aria-label="${round.holes.length}-hole scorecard"><table><thead><tr>${['Hole','Par','Score','Tee','GIR','Putts','Pen.','Note'].map(v=>`<th scope="col">${v}</th>`).join('')}</tr></thead><tbody>${round.holes.map(h=>{const r=state.results[h.n]||{};return `<tr><th scope="row">${historical?h.n:`<button data-hole="${h.n}">${h.n}</button>`}</th><td>${h.par}</td><td>${r.score??'—'}</td><td>${h.par===3?'N/A':r.tee??'—'}</td><td>${r.gir===undefined?'—':r.gir?'Yes':'No'}</td><td>${r.putts??'—'}</td><td>${r.penalties??'—'}</td><td class="note-cell">${esc(r.note||'—')}</td></tr>`}).join('')}</tbody></table></div></section><section class="new-round-section">${historical?'<button id="history-list" class="secondary">Back to Round History</button>':`<button id="complete-round" class="primary">Complete round &amp; save</button><p class="muted">Record all ${round.holes.length} scores to finalize. Putts, GIR and notes may remain unrecorded.</p>`}<button id="new-round" class="secondary">Choose a course</button><p class="muted">Round History stays on this device. Clearing browser data removes it.</p></section>`;
+ return `<div class="eyebrow">ROUND SUMMARY</div><h1>Your round</h1><p>${esc(round.course)} · ${esc(round.tee)} tees</p><section class="round-totals"><p class="eyebrow">${s.played}/${round.holes.length} holes scored</p><div class="totals">${metric(s.played===round.holes.length?'Total score':'Score so far',s.played?s.score:'—')}${metric('Relative to par · scored holes',s.played?rel:'—')}${metric('Front nine',totalLabel(round.holes.slice(0,9)))}${metric('Back nine',totalLabel(round.holes.slice(9)))}</div></section><div class="summary-actions">${!historical?`<button id="back-active" class="primary">Back to Hole ${state.activeHole}</button>`:''}<button id="copy-coach" class="secondary">Copy for Golf Coach</button><p id="copy-status" role="status" aria-live="polite"></p><div id="copy-fallback" hidden><label for="coach-text">Golf Coach report</label><textarea id="coach-text" readonly rows="8"></textarea><button id="select-report" class="secondary">Select report text</button><p>Touch and hold the selected text, choose Copy, then paste into your Golf Coach project.</p></div></div><section class="round-stats"><div class="stat"><div class="summaryrow"><span>Fairways hit / eligible</span><b>${s.fairways} / ${s.eligible}</b></div><p class="muted">${s.teeRecorded}/${s.eligible} tee results recorded</p></div><div class="stat"><div class="summaryrow"><span>GIR</span><b>${s.gir} / ${round.holes.length}</b></div><p class="muted">${s.girRecorded}/${round.holes.length} GIR results recorded</p></div><div class="stat"><div class="summaryrow"><span>Putts recorded</span><b>${s.putts}</b></div><p class="muted">${s.puttsRecorded}/${round.holes.length} holes recorded</p></div><div class="stat"><div class="summaryrow"><span>Penalty strokes recorded</span><b>${s.penalties}</b></div><p class="muted">${s.penaltiesRecorded}/${round.holes.length} holes recorded</p></div></section><section class="scorecard-section"><h2>Scorecard</h2><p>${historical?'Saved round · read-only.':'Tap a hole to edit.'} Use this for manual entry into TheGrint. Swipe the table sideways for all columns. — means not recorded.</p><div class="scorecard" tabindex="0" role="region" aria-label="${round.holes.length}-hole scorecard"><table><thead><tr>${['Hole','Par','Score','Tee','GIR','Putts','Pen.','Note'].map(v=>`<th scope="col">${v}</th>`).join('')}</tr></thead><tbody>${round.holes.map(h=>{const r=state.results[h.n]||{};return `<tr><th scope="row">${historical?h.n:`<button data-hole="${h.n}">${h.n}</button>`}</th><td>${h.par}</td><td>${r.score??'—'}</td><td>${h.par===3?'N/A':r.tee??'—'}</td><td>${r.gir===undefined?'—':r.gir?'Yes':'No'}</td><td>${r.putts??'—'}</td><td>${r.penalties??'—'}</td><td class="note-cell">${esc(r.note||'—')}</td></tr>`}).join('')}</tbody></table></div></section><section class="new-round-section">${historical?'<button id="history-list" class="secondary">Back to Round History</button>':`<button id="complete-round" class="primary">Finish Round</button><p class="muted">Record all ${round.holes.length} scores to finalize. Putts, GIR and notes may remain unrecorded.</p>`}${!historical?'<button id="exit-home" class="secondary">Exit to Home</button>':''}<p class="muted">Round History stays on this device. Clearing browser data removes it.</p></section>`;
 }
 function render(){const ps=pages(),p=ps[idx];let body='';
  if(p.type==='course'){
@@ -101,18 +113,19 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  }else if(p.type==='game')body=`<div class="eyebrow">BEFORE THE FIRST TEE</div><h1>Game Plan</h1><section class="mission"><h2>Scoring Mission</h2><p class="strategy">${esc(round.mission)}</p></section><div class="briefing">${round.gamePlan.map(([title,text])=>`<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}</div><section class="club-distances"><h2>Your club distances</h2><div class="clubgrid">${state.player.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b><span>${y} yd</span></div>`).join('')}</div></section>`;
  else if(p.type==='hole'){const h=p.h;body=`<header class="hole-heading"><div><div class="eyebrow">CADDIE / ON COURSE</div><h1>Hole ${h.n}</h1></div><div class="hole-distance"><b>${h.yards}<small> yd</small></b><span>Par ${h.par} · HCP ${h.hcp}</span></div></header><section class="hero recommendation" aria-label="Caddie recommendation"><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target">${esc(h.target)}</p><p class="strategy">${esc(h.advice||h.plan)}</p><dl class="reference"><div><dt>Avoid</dt><dd>${esc(h.danger)}</dd></div><div><dt>Leaves</dt><dd>${esc(h.expected||'Unknown')}</dd></div></dl></section>${tracker(h)}`}
  else body=summary();
- if(preview)body+=p.type==='course'?'<button id="to-game" class="primary flow-action">Game Plan →</button>':`<div class="start-actions">${memory.active?'<p>A round is already in progress. Resume it, or deliberately replace it.</p><button id="resume-round" class="primary">Resume current round</button>':''}<button id="start-round" class="${memory.active?'secondary':'primary'}">${memory.active?'Start new round':'Start round → Hole 1'}</button></div>`;
- body=libraryLink()+'<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
- app.innerHTML=`<section class="screen screen-${p.type}"><div class="content">${body}</div><nav class="nav ${p.type==='hole'?'nav-hole':''}" aria-label="Round navigation"><button id="prev" ${idx===0?'disabled':''} aria-label="Previous page">‹</button><label class="count"><span class="sr-only">Go to page</span><select id="jump">${ps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${x.type==='hole'?'Hole '+x.h.n:x.type==='course'?'Course Overview':x.type==='game'?'Game Plan':'Round Summary'}</option>`).join('')}</select><span class="active-context">${p.type==='hole'?'Playing Hole '+state.activeHole:(idx+1)+' / '+ps.length}</span></label>${p.type==='hole'?'<button id="open-summary" aria-label="Open Round Summary">Summary</button>':''}<button id="next" ${idx===ps.length-1?'disabled':''} aria-label="${p.type==='hole'&&p.h.n<round.holes.length?'Next hole':'Next page'}">›</button></nav></section>`;
+ if(p.type==='course')body+='<button id="to-game" class="primary flow-action">Game Plan →</button>';
+ if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
+ body=(historical?libraryLink():'')+'<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
+ app.innerHTML=`<section class="screen screen-${p.type}"><div class="content">${body}</div><nav class="nav ${p.type==='hole'?'nav-hole':''}" aria-label="Round navigation"><button id="prev" ${idx===0||idx===2?'disabled':''} aria-label="${p.type==='hole'?'Previous hole':'Previous round section'}">‹</button><label class="count"><span class="sr-only">Go to round section or hole</span><select id="jump">${ps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${x.type==='hole'?'Hole '+x.h.n:x.type==='course'?'Course Overview':x.type==='game'?'Game Plan':'Round Summary'}</option>`).join('')}</select><span class="active-context">${historical?'Saved round':'Playing Hole '+state.activeHole}</span></label>${p.type==='hole'?'<button id="open-summary" aria-label="Open Round Summary">Summary</button>':''}<button id="next" ${idx===ps.length-1?'disabled':''} aria-label="${p.type==='hole'&&p.h.n<round.holes.length?'Next hole':'Next round section'}">›</button></nav></section>`;
  document.querySelector('#prev').onclick=()=>go(-1);document.querySelector('#next').onclick=()=>go(1);document.querySelector('#jump').onchange=e=>navigate(Number(e.target.value));
  document.querySelectorAll('[data-hole]').forEach(b=>b.onclick=()=>navigate(round.holes.findIndex(h=>h.n===Number(b.dataset.hole))+2));
  const openSummary=document.querySelector('#open-summary');if(openSummary)openSummary.onclick=()=>navigate(pages().length-1);
  const back=document.querySelector('#back-active');if(back)back.onclick=()=>navigate(round.holes.findIndex(h=>h.n===state.activeHole)+2);
  const copy=document.querySelector('#copy-coach');if(copy)copy.onclick=copyForCoach;
- document.querySelector('#new-round')?.addEventListener('click',showLibrary);
- document.querySelector('#library').onclick=showLibrary;
+ document.querySelector('#exit-home')?.addEventListener('click',exitHome);
+ document.querySelector('#library')?.addEventListener('click',showLibrary);
  document.querySelector('#to-game')?.addEventListener('click',()=>navigate(1));
- document.querySelector('#start-round')?.addEventListener('click',startRound);
+ document.querySelector('#to-hole')?.addEventListener('click',()=>navigate(round.holes.findIndex(h=>h.n===state.activeHole)+2));
  document.querySelector('#resume-round')?.addEventListener('click',resumeRound);
  document.querySelector('#complete-round')?.addEventListener('click',finishRound);
  document.querySelector('#history-list')?.addEventListener('click',showHistory);
@@ -157,7 +170,10 @@ function bindTracker(h){
 }
 function navigate(n){if(historical)return;exactScoreHole=null;idx=n;state.page=idx;persist();render()}
 function go(d){if(!round||screenMode!=='round'||historical||document.querySelector('#ask-sheet'))return;
- const p=pages()[idx];if(d===1&&p.type==='hole')state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
+ const p=pages()[idx];
+ if((p.type==='game'&&d===1)||(p.type==='summary'&&d===-1))return navigate(round.holes.findIndex(h=>h.n===state.activeHole)+2);
+ if(d===-1&&p.type==='hole'&&idx===2)return;
+ if(d===1&&p.type==='hole')state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
  navigate(Math.max(0,Math.min(pages().length-1,idx+d)));
 }
 let gesture=null;
