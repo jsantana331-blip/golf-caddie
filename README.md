@@ -49,7 +49,7 @@ Every active hole's result heading has the same compact Caddie intelligence cont
 
 Live context is generated at copy time from the saved active hole, even while looking ahead. It includes supported hole strategy, player yardages/profile, completed-hole score/FIR/GIR/putts/penalties with recorded counts, the three most recently scored holes, and every meaningful hole note. Unfinished-hole metrics are excluded from live aggregate calculations; the normal summary retains its existing all-entered-field totals. No live-shot inputs or recommendation engine are added.
 
-JUST COPY copies and logs one event. COPY CONTEXT & OPEN CHATGPT copies and logs before attempting external navigation. Installed PWA mode deliberately uses an explicit Open ChatGPT link and switch-app instructions instead of a potentially unreliable popup. Other browsers attempt a new tab and retain that link if blocked. Only the ChatGPT homepage is opened; no context is sent in a URL, no automatic paste occurs, and no Project or conversation is selected. The user pastes in their existing Golf Coach conversation and describes the unpredictable live shot by text or voice.
+JUST COPY copies and logs one event. COPY CONTEXT & OPEN CHATGPT copies and logs before attempting the standard HTTPS handoff in both browser and installed PWA modes. An explicit Open ChatGPT link remains available if automatic launching is blocked. Only ChatGPT home is targeted; no context is sent in a URL, no automatic paste occurs, and no Project or conversation is selected. The user pastes in their existing Golf Coach conversation and describes the unpredictable live shot by text or voice.
 
 Clipboard denial/unavailability exposes selectable context. The golfer confirms “I've copied it” after manual copying to record that handoff; the app cannot independently observe manual clipboard operations. A failed copy records no event and never changes scoring or active hole. Events contain round ID, active hole, timestamp/order, completed-hole count, score and relative-to-par at request time; no external conversation/response is collected.
 
@@ -59,7 +59,7 @@ Copy for Golf Coach remains separate from the compact live handoff. Active and h
 
 ## Offline and updates
 
-`caddie-v1.3-course-memory-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
+`caddie-v1.3.1-chatgpt-handoff-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
 
 ## Automated checks
 
@@ -86,3 +86,33 @@ The two browser suites use an existing Playwright installation and Microsoft Edg
 8. After successful online caching, use airplane mode to relaunch, score, view History and copy reports. Test the next online update without clearing browser storage.
 
 Do not merge until human iPhone acceptance is complete.
+
+
+## V1.3.1 — copy-first native ChatGPT handoff
+
+Previously, installed PWAs skipped automatic opening entirely and desktop/browser mode attempted the plain homepage. Now `external-coach.js` isolates a single HTTPS destination and launch attempt: `https://chatgpt.com/#native`. It uses `window.open` with `_blank` and `noopener,noreferrer`, preserving Caddie's page. The visible fallback anchor uses the identical destination. No custom scheme, app-install detection, polling, redirect chain, Project identifier, context-in-URL or API is used.
+
+Research checked on September 25, 2026: [ChatGPT's published Apple association file](https://chatgpt.com/.well-known/apple-app-site-association) explicitly associates `/` with fragment `native` with ChatGPT home and describes starting a new in-app conversation. This is a standard HTTPS universal link, not a guarantee of native launch from JavaScript. [Apple's universal-link documentation](https://developer.apple.com/library/archive/documentation/General/Conceptual/AppSearch/UniversalLinks.html) explains native routing, web fallback and the influence of user preferences. [Apple TN3155](https://developer.apple.com/documentation/technotes/tn3155-debugging-universal-links) provides device-level diagnostics. `/open-app` and `/app` were intentionally avoided because the association file describes their fallback as the App Store rather than ChatGPT web. Caddie does not fetch this association file at runtime.
+
+Sequence: generate unchanged current context → await clipboard success → save the existing event → show “✓ Context copied — opening ChatGPT” → attempt launch. JUST COPY continues to show its existing success message and never launches. Copy failure reveals the existing manual-copy flow and re-enables both actions without launching or adding an event.
+
+iOS chooses native ChatGPT or its web experience. User preferences, app installation, and loss of transient activation during asynchronous clipboard work can prevent automatic app/tab opening. A website cannot reliably distinguish native launch from a blocked popup (with `noopener`, a null return is not proof of failure). A short timer changes only feedback if Caddie remains visible: “✓ Context copied. Open ChatGPT and paste into Golf Coach.” Returning to Caddie also clears the opening message. Neither the timer nor the return handler retries navigation, records events, or changes round/page state. Closing the sheet or beginning another copy cancels pending feedback. The real Open ChatGPT link lets the golfer retry with a direct tap. Clipboard retry hides the previous link until copy succeeds again.
+
+All existing suites still apply. Focused browser assertions verify delayed-copy ordering, event persistence and confirmation before launch, the exact HTTPS URL, JUST COPY without navigation, installed-PWA attempts, null/throw launch fallbacks and unchanged round state. Run the browser suite with `UPGRADE_BASELINE=a587a77` to additionally verify offline upgrade from merged V1.3; its default still checks migration from V1.2.
+
+### Exact iPhone acceptance for V1.3.1
+
+Use an HTTPS build of this feature branch, Caddie installed to Home Screen, the ChatGPT iOS app installed, and an active test round. Do not clear browser storage.
+
+1. Start/resume the test round. Score Hole 1, then advance to Hole 2 (or another hole beyond Hole 1).
+2. Enter tee/GIR/putts/penalty results and at least one distinctive note. Note the selected course, tee, active hole, score and existing Ask request count in Copy for Golf Coach.
+3. Tap Ask Caddie → COPY CONTEXT & OPEN CHATGPT.
+4. Verify copy confirmation. Record whether iOS opens the native ChatGPT app, ChatGPT web, or leaves Caddie visible. If still in Caddie, use the Open ChatGPT link; it must not log a second request.
+5. Select Golf Coach manually if needed and paste. Verify active hole, course/tee, current score, recent completed holes, notes, hole strategy and player yardages. Nothing should be automatically pasted or submitted.
+6. Return to Caddie via the app switcher. Close the sheet if it remains open. Verify the same viewed/active hole, scores, notes and selected tee. Open Summary and copy the full report; verify the Ask request count increased by exactly one and identifies the correct hole.
+7. Close/relaunch Caddie. Verify it resumes the saved round/page/current hole rather than opening Course Library.
+8. Repeat with JUST COPY: it must remain in Caddie, produce fresh context and log exactly one request.
+9. Repeat in Safari and with browser routing chosen for ChatGPT (or on a device without the native app) to verify the normal web fallback. Native versus web selection is controlled by iOS.
+10. Test denied clipboard access where possible: no automatic navigation/event, clear feedback, manual selection and retry available, all round data retained. Test offline scoring/context copying; the external conversation itself requires connectivity.
+
+Native-app routing and actual iPhone lifecycle behavior remain mandatory human acceptance; desktop emulation cannot certify either. Do not merge automatically.

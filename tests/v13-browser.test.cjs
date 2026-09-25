@@ -35,17 +35,29 @@ const server=http.createServer((req,res)=>{
   for(const id of ['#copy-open','#just-copy','#close-ask']){const target=await page.locator(id).boundingBox();assert.ok(target.height>=44&&target.width>=44)}
  }
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-ask.png')});
- await context.grantPermissions(['clipboard-read','clipboard-write']);await page.locator('#just-copy').click();await page.getByText('✓ Context copied — ask away',{exact:true}).waitFor();
+ await context.grantPermissions(['clipboard-read','clipboard-write']);await page.evaluate(()=>{window.unexpectedOpen=0;window.open=()=>{window.unexpectedOpen++}});await page.locator('#just-copy').click();await page.getByText('✓ Context copied — ask away',{exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>window.unexpectedOpen),0);
  let record=(await saved()).active;assert.equal(record.events.length,1);assert.equal(record.events[0].hole,2);assert.equal(record.events[0].score,5);assert.equal(record.events[0].relative,1);assert.equal(record.events[0].roundId,firstId);
  const text=(await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n');assert.equal(text,C.live(record));assert.ok(text.includes('Current: Hole 2'));assert.ok(text.includes('Putts: 3 (1 holes recorded)'));assert.ok(text.includes('FIR: 0/1'));assert.ok(text.includes('Driver leaked right <safe>'));
- // Copy must finish before opening. An open error must not turn a successful copy into a failed handoff.
- await page.evaluate(()=>{window.testOrder=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{window.testOrder.push('copy')}}});window.open=()=>{window.testOrder.push('open');throw Error('Popup blocked')}});
- await page.locator('#copy-open').click();await page.waitForFunction(()=>window.testOrder.length===2);assert.deepEqual(await page.evaluate(()=>window.testOrder),['copy','open']);assert.equal((await saved()).active.events.length,2);assert.equal((await saved()).active.activeHole,2);
- // Installed PWA uses a reliable explicit link, not a popup.
- await page.evaluate(()=>{Object.defineProperty(navigator,'standalone',{configurable:true,value:true});window.testOrder=[]});await page.locator('#copy-open').click();await page.waitForFunction(()=>window.testOrder.length===1);assert.deepEqual(await page.evaluate(()=>window.testOrder),['copy']);assert.equal(await page.locator('#open-chatgpt').isVisible(),true);
+ // A pending copy must neither log an event nor open anything, even in standalone mode.
+ const beforeLaunch=(await saved()).active;
+ await page.evaluate(k=>{window.testOrder=[];window.launchArgs=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{window.testOrder.push('copy');await new Promise(resolve=>window.finishCopy=resolve);window.testOrder.push('copied')}}});window.open=(...args)=>{window.testOrder.push('open');window.launchArgs=args;window.launchSnapshot={status:document.querySelector('#ask-status').textContent,round:JSON.parse(localStorage.getItem(k)).active};return null}},key);
+ await page.locator('#copy-open').click();await page.waitForFunction(()=>!!window.finishCopy);
+ assert.deepEqual(await page.evaluate(()=>window.testOrder),['copy']);assert.deepEqual((await saved()).active,beforeLaunch);
+ await page.evaluate(()=>window.finishCopy());await page.waitForFunction(()=>window.testOrder.length===3);
+ assert.deepEqual(await page.evaluate(()=>window.testOrder),['copy','copied','open']);
+ assert.deepEqual(await page.evaluate(()=>window.launchArgs),['https://chatgpt.com/#native','_blank','noopener,noreferrer']);
+ const launched=await page.evaluate(()=>window.launchSnapshot);assert.equal(launched.status,'✓ Context copied — opening ChatGPT');assert.equal(launched.round.events.length,2);
+ assert.deepEqual({...launched.round,events:[]},{...beforeLaunch,events:[]});
+ await page.getByText('✓ Context copied. Open ChatGPT and paste into Golf Coach.',{exact:true}).waitFor();
+ assert.equal(await page.locator('#open-chatgpt').getAttribute('href'),'https://chatgpt.com/#native');
+ // Installed PWA attempts the same HTTPS handoff; thrown launch errors retain copied context and state.
+ await page.evaluate(()=>{Object.defineProperty(navigator,'standalone',{configurable:true,value:true});window.testOrder=[];Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>window.testOrder.push('copy')}});window.open=()=>{window.testOrder.push('open');throw Error('Blocked')}});
+ await page.locator('#copy-open').click();await page.waitForFunction(()=>window.testOrder.length===2);assert.deepEqual(await page.evaluate(()=>window.testOrder),['copy','open']);assert.equal(await page.locator('#open-chatgpt').isVisible(),true);
+ assert.equal(await page.locator('#ask-status').innerText(),'✓ Context copied. Open ChatGPT and paste into Golf Coach.');
  const beforeFail=(await saved()).active;
  await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('Denied')}}}));
- await page.locator('#copy-open').click();await page.locator('#ask-fallback').waitFor({state:'visible'});assert.deepEqual((await saved()).active,beforeFail);assert.equal(await page.locator('#live-text').inputValue(),C.live(beforeFail));
+ await page.locator('#copy-open').click();await page.locator('#ask-fallback').waitFor({state:'visible'});assert.equal(await page.locator('#open-chatgpt').isVisible(),false);assert.deepEqual((await saved()).active,beforeFail);assert.equal(await page.locator('#live-text').inputValue(),C.live(beforeFail));
  await page.locator('#select-context').click();assert.equal(await page.locator('#live-text').evaluate(el=>el.selectionEnd-el.selectionStart),(await page.locator('#live-text').inputValue()).length);
  await page.locator('#confirm-copy').click();assert.equal((await saved()).active.events.length,4);assert.equal(await page.locator('#confirm-copy').isDisabled(),true);
  await page.locator('#close-ask').click();assert.equal(await page.locator('#jump').inputValue(),'15');

@@ -7,12 +7,14 @@ const {chromium}=require('playwright');
 const round=require('./fixtures/v1-round.json');
 const root=path.resolve(__dirname,'..');
 const oldAssets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
-const assets=[...oldAssets.filter(f=>f!=='data/current-round.json'),'memory.js','caddie-context.js','handoff.js','data/player.json','data/courses/index.json','data/courses/nevel-meade.json'];
-const baselineAssets=Object.fromEntries(oldAssets.map(file=>[file,execFileSync('git',['show',`903da2e:${file}`],{cwd:root})]));
+const assets=[...oldAssets.filter(f=>f!=='data/current-round.json'),'memory.js','caddie-context.js','handoff.js','external-coach.js','data/player.json','data/courses/index.json','data/courses/nevel-meade.json'];
+const baselineRef=process.env.UPGRADE_BASELINE||'903da2e';
+const baselineFiles=baselineRef==='903da2e'?oldAssets:assets.filter(f=>f!=='external-coach.js');
+const baselineAssets=Object.fromEntries(baselineFiles.map(file=>[file,execFileSync('git',['show',`${baselineRef}:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
  const file=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/golf-caddie\//,'')||'index.html';
- if(!(baseline?oldAssets:assets).includes(file)){res.writeHead(404);res.end();return;}
+ if(!(baseline?baselineFiles:assets).includes(file)){res.writeHead(404);res.end();return;}
  try{
   const body=baseline?baselineAssets[file]:fs.readFileSync(path.join(root,file));
   res.writeHead(200,{'Content-Type':file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':file.endsWith('.png')?'image/png':'text/html','Cache-Control':'no-store'});res.end(body);
@@ -101,7 +103,7 @@ const server=http.createServer((req,res)=>{
   const cells=await page.locator('tbody tr').nth(h.n-1).locator('td').allTextContents();
   assert.deepEqual(cells,[String(h.par),String(expected[h.n].score),h.par===3?'N/A':expected[h.n].tee,h.n%2?'Yes':'No','2','0',`Hole ${h.n} <safe> & sound`]);
  }
- assert.equal(await page.locator('script').count(),5);
+ assert.equal(await page.locator('script').count(),6);
  await context.grantPermissions(['clipboard-read','clipboard-write']);
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
  const clipboard=(await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n');
@@ -224,6 +226,7 @@ const server=http.createServer((req,res)=>{
  baseline=true;
  const upgrade=await browser.newContext();await upgrade.setOffline(false);const old=await upgrade.newPage();old.on('pageerror',e=>errors.push(e.message));await old.goto(url);
  await old.evaluate(()=>navigator.serviceWorker.ready);await old.reload();
+ if(baselineRef!=='903da2e'){await old.locator('[data-course]').click();await old.locator('[data-tee]').click();await old.locator('#to-game').click();await old.locator('#start-round').click();}
  await old.locator('#jump').selectOption('9');await old.locator('[data-field="score"][data-value="3"]').click();
  await old.evaluate(()=>caches.open('unrelated-cache'));
  baseline=false;
@@ -241,9 +244,9 @@ const server=http.createServer((req,res)=>{
  assert.equal(await old.locator('#jump').inputValue(),'9');
  assert.equal(await old.locator('[data-field="score"][data-value="3"]').getAttribute('aria-pressed'),'true');
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
- assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
+ if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await old.locator('#jump').selectOption('20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.3-course-memory-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.3.1-chatgpt-handoff-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
