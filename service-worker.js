@@ -1,6 +1,6 @@
-const CACHE='caddie-pocket-redesign-1';
-const SHELL=['./','./index.html','./styles.css','./results.js','./app.js','./manifest.json','./data/current-round.json','./icons/icon-192.png','./icons/icon-512.png'];
-self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting())));
+const CACHE='caddie-v1.3-course-memory-1';
+const SHELL=['./','./index.html','./styles.css','./results.js','./app.js','./manifest.json','./memory.js','./caddie-context.js','./handoff.js','./data/player.json','./data/courses/index.json','./icons/icon-192.png','./icons/icon-512.png'];
+self.addEventListener('install',e=>e.waitUntil((async()=>{const response=await fetch('./data/courses/index.json',{cache:'no-store'});if(!response.ok)throw Error('Course library unavailable');const library=await response.json();const cache=await caches.open(CACHE);await cache.addAll([...SHELL,...library.courses.map(c=>'./data/courses/'+c.file)]);await self.skipWaiting()})()));
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k.startsWith('caddie-')&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',e=>{
  if(e.request.method!=='GET'||new URL(e.request.url).origin!==self.location.origin)return;

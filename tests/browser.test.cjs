@@ -4,14 +4,15 @@ const http=require('node:http');
 const path=require('node:path');
 const {execFileSync}=require('node:child_process');
 const {chromium}=require('playwright');
-const round=require('../data/current-round.json');
+const round=require('./fixtures/v1-round.json');
 const root=path.resolve(__dirname,'..');
-const assets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
-const baselineAssets=Object.fromEntries(assets.map(file=>[file,execFileSync('git',['show',`86b7d9c:${file}`],{cwd:root})]));
+const oldAssets=['index.html','app.js','results.js','styles.css','service-worker.js','manifest.json','data/current-round.json','icons/icon-192.png','icons/icon-512.png'];
+const assets=[...oldAssets.filter(f=>f!=='data/current-round.json'),'memory.js','caddie-context.js','handoff.js','data/player.json','data/courses/index.json','data/courses/nevel-meade.json'];
+const baselineAssets=Object.fromEntries(oldAssets.map(file=>[file,execFileSync('git',['show',`903da2e:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
  const file=decodeURIComponent(new URL(req.url,'http://localhost').pathname).replace(/^\/golf-caddie\//,'')||'index.html';
- if(!assets.includes(file)){res.writeHead(404);res.end();return;}
+ if(!(baseline?oldAssets:assets).includes(file)){res.writeHead(404);res.end();return;}
  try{
   const body=baseline?baselineAssets[file]:fs.readFileSync(path.join(root,file));
   res.writeHead(200,{'Content-Type':file.endsWith('.js')?'application/javascript':file.endsWith('.css')?'text/css':file.endsWith('.json')?'application/json':file.endsWith('.png')?'image/png':'text/html','Cache-Control':'no-store'});res.end(body);
@@ -26,7 +27,9 @@ const server=http.createServer((req,res)=>{
  const errors=[];
  context.on('page',p=>p.on('pageerror',e=>errors.push(e.message)));
  let page=await context.newPage();
- await page.goto(url);await page.locator('#jump').waitFor();
+ await page.goto(url);
+ const chooseCourse=async()=>{await page.locator('[data-course="nevel-meade"]').click();await page.locator('[data-tee="blue"]').click();await page.locator('#to-game').click();};
+ await chooseCourse();await page.locator('#start-round').click();await page.locator('#jump').selectOption('0');
  await page.evaluate(()=>navigator.serviceWorker.ready);
  await page.reload();await page.locator('#jump').waitFor();
  assert.equal(await page.locator('#jump option').count(),21);
@@ -41,8 +44,9 @@ const server=http.createServer((req,res)=>{
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-game.png')});
  const legacyKey='caddie:/golf-caddie/:arp';
  await page.evaluate(k=>localStorage.setItem(k,JSON.stringify({1:'A'})),legacyKey);
- const key='caddie:/golf-caddie/:results:v1.1:'+round.id;
- const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
+ const key='caddie:/golf-caddie/:memory:v1.3';
+ const oldKey='caddie:/golf-caddie/:results:v1.1:'+round.id;
+ const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)).active,key);
  const tap=(field,value)=>page.locator(`[data-field="${field}"][data-value="${value}"]`).click();
  await page.locator('#jump').selectOption('2');
  await tap('putts',3);await page.locator('#putts').fill('4');await tap('putts',3);
@@ -97,13 +101,13 @@ const server=http.createServer((req,res)=>{
   const cells=await page.locator('tbody tr').nth(h.n-1).locator('td').allTextContents();
   assert.deepEqual(cells,[String(h.par),String(expected[h.n].score),h.par===3?'N/A':expected[h.n].tee,h.n%2?'Yes':'No','2','0',`Hole ${h.n} <safe> & sound`]);
  }
- assert.equal(await page.locator('script').count(),2);
+ assert.equal(await page.locator('script').count(),5);
  await context.grantPermissions(['clipboard-read','clipboard-write']);
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
  const clipboard=(await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n');
- assert.equal(clipboard,require('../results.js').coachReport(round,expected));
+ assert.equal(clipboard,require('../caddie-context.js').full(await saved()));
  assert.equal((clipboard.match(/^Hole \d+ \|/gm)||[]).length,18);
- assert.equal(await page.locator('#back-active').count(),0);
+ assert.equal(await page.locator('#back-active').count(),1);
  // A rejected clipboard call must expose the complete report for manual copying.
  await page.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw Error('Denied')}}}));
  await page.locator('#copy-coach').click();await page.locator('#copy-fallback').waitFor({state:'visible'});
@@ -173,22 +177,23 @@ const server=http.createServer((req,res)=>{
  assert.deepEqual(await page.locator('.summaryrow b').allTextContents(),['6 / 14','9 / 18','38','3']);
  await page.locator('.content').evaluate(el=>el.scrollTop=0);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT});
- page.once('dialog',dialog=>dialog.dismiss());await page.locator('#new-round').click();
+ await page.locator('#new-round').click();await chooseCourse();
+ page.once('dialog',dialog=>dialog.dismiss());await page.locator('#start-round').click();
  assert.equal(Object.keys((await saved()).results).length,18);
- page.once('dialog',dialog=>dialog.accept());await page.locator('#new-round').click();
- assert.deepEqual((await saved()).results,{});assert.equal(await page.locator('#jump').inputValue(),'0');
+ page.once('dialog',dialog=>dialog.accept());await page.locator('#start-round').click();
+ assert.deepEqual((await saved()).results,{});assert.equal(await page.locator('#jump').inputValue(),'2');
  await page.locator('#jump').selectOption('2');await tap('score',3);
  await page.locator('#jump').selectOption('20');
  assert.deepEqual(await page.locator('.metric b').allTextContents(),['3','-1','3 (1/9 holes)','—']);
  // Migrate V1.1 results while the saved page is a look-ahead hole, not the active hole.
  const firstEight=Object.fromEntries(round.holes.slice(0,8).map(h=>[h.n,{score:h.par}]));
- await page.evaluate(({key,results})=>localStorage.setItem(key,JSON.stringify({version:1,startedAt:'2026-09-19',results,page:15})),{key,results:firstEight});
+ await page.evaluate(({key,oldKey,results})=>{localStorage.removeItem(key);localStorage.setItem(oldKey,JSON.stringify({version:1,startedAt:'2026-09-19',results,page:15}));},{key,oldKey,results:firstEight});
  await page.reload();await page.locator('#jump').waitFor();
  assert.equal(await page.locator('#jump').inputValue(),'15');
  await page.locator('#open-summary').click();assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-partial.png')});
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
- assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n'),require('../results.js').coachReport(round,firstEight));
+ assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n'),require('../caddie-context.js').full(await saved()));
  await page.reload();await page.locator('#back-active').waitFor();assert.equal((await saved()).activeHole,8);
  await page.locator('#back-active').click();assert.equal(await page.locator('#jump').inputValue(),'9');
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-hole.png')});
@@ -210,7 +215,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#back-active').click();assert.equal(await page.locator('#jump').inputValue(),'11');
  await tap('tee','Left');assert.equal((await saved()).activeHole,10);
  await page.locator('#jump').selectOption('15');await tap('tee','Right');assert.equal((await saved()).activeHole,14);
- await page.locator('#open-summary').click();page.once('dialog',dialog=>dialog.accept());await page.locator('#new-round').click();
+ await page.locator('#open-summary').click();await page.locator('#new-round').click();await chooseCourse();page.once('dialog',dialog=>dialog.accept());await page.locator('#start-round').click();
  assert.equal((await saved()).activeHole,1);
  await context.close();
  console.log('Clipboard success/failure/unavailable, partial export, migration, active-hole browsing/progression and offline persistence passed');
@@ -219,6 +224,7 @@ const server=http.createServer((req,res)=>{
  baseline=true;
  const upgrade=await browser.newContext();await upgrade.setOffline(false);const old=await upgrade.newPage();old.on('pageerror',e=>errors.push(e.message));await old.goto(url);
  await old.evaluate(()=>navigator.serviceWorker.ready);await old.reload();
+ await old.locator('#jump').selectOption('9');await old.locator('[data-field="score"][data-value="3"]').click();
  await old.evaluate(()=>caches.open('unrelated-cache'));
  baseline=false;
  await old.evaluate(async()=>{
@@ -232,12 +238,16 @@ const server=http.createServer((req,res)=>{
  assert.ok((await old.evaluate(()=>caches.keys())).includes('unrelated-cache'));
  await upgrade.setOffline(true);await old.reload();await old.locator('#jump').waitFor();
  assert.equal(await old.locator('#jump option').count(),21);
+ assert.equal(await old.locator('#jump').inputValue(),'9');
+ assert.equal(await old.locator('[data-field="score"][data-value="3"]').getAttribute('aria-pressed'),'true');
+ const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
+ assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await old.locator('#jump').selectOption('20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-pocket-redesign-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.3-course-memory-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
- const unavailable=await blocked.newPage();await unavailable.goto(url);await unavailable.locator('#jump').selectOption('2');
+ const unavailable=await blocked.newPage();await unavailable.goto(url);await unavailable.locator('[data-course]').click();await unavailable.locator('[data-tee]').click();await unavailable.locator('#to-game').click();await unavailable.locator('#start-round').click();
  await unavailable.locator('[data-field="score"][data-value="4"]').click();
  assert.match(await unavailable.locator('#save-status').innerText(),/Unable to save/);
  await unavailable.locator('#jump').selectOption('20');assert.equal(await unavailable.locator('.metric b').first().innerText(),'4');

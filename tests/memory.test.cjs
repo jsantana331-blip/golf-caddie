@@ -1,0 +1,37 @@
+const assert=require('node:assert/strict');
+const M=require('../memory.js'),C=require('../caddie-context.js'),R=require('../results.js');
+const player=require('../data/player.json'),course=require('../data/courses/nevel-meade.json');
+const config=M.courseRound(course,'blue',player),store=M.empty();
+store.active=M.create(config,player,'round-a','2026-09-24T12:00:00Z');
+const r=store.active;
+r.activeHole=8;r.results={1:{score:5,tee:'Left',gir:false,putts:3,penalties:1,note:'Driver leaked right'},5:{score:3,gir:true,putts:2},8:{note:'Wind picking up'},14:{tee:'Fairway',putts:4,penalties:3,gir:true,note:'Looked ahead'}};
+r.completionOrder=[5,1];
+let live=C.live(r);
+for(const text of ['Current: Hole 8 · Par 3 · 199 yd','Round: +1 through 2','Tee: 4i','Target: Center-left','Avoid: Right bunker.','FIR: 0/1 (1 recorded)','GIR: 1/2 (2 recorded)','Putts: 5 (2 holes recorded)','Penalties: 1 (1 holes recorded)','H1 — Driver leaked right','H8 — Wind picking up','H14 — Looked ahead','Driver 255 yd','50° 108 yd'])assert.ok(live.includes(text),text);
+assert.ok(live.indexOf('H5 — Par')<live.indexOf('H1 — Bogey'));
+assert.ok(!live.includes('Handicap:'));assert.ok(!live.includes('Established tendencies'));assert.ok(live.endsWith(C.request));
+assert.ok(!live.includes('Hole 18 |'));
+const event=M.event(r,'2026-09-24T13:00:00Z');assert.deepEqual(event,{roundId:'round-a',hole:8,timestamp:'2026-09-24T13:00:00Z',order:1,score:8,relative:1,holesCompleted:2});r.events.push(event);
+assert.throws(()=>M.complete(store),/every hole/);assert.equal(store.active.id,'round-a');
+for(const h of config.holes){const before=r.results[h.n]||{};r.results[h.n]={...before,score:h.par};M.trackCompletion(r,h.n,before,r.results[h.n])}
+const finished=M.complete(store,'2026-09-24T16:00:00Z');
+assert.equal(finished.active,null);assert.equal(finished.history.length,1);assert.equal(store.history.length,0);assert.ok(store.active);
+const archived=finished.history[0];assert.equal(archived.totals.score,72);assert.equal(archived.totals.relative,0);assert.equal(archived.totals.front,36);assert.equal(archived.totals.back,36);assert.deepEqual(archived.events,[event]);
+r.results[1].score=12;assert.equal(archived.results[1].score,4);
+const report=C.full(archived);assert.ok(report.includes('Ask Caddie requests: 1'));assert.ok(report.includes('Ask Caddie holes: H8'));assert.ok(report.includes('Stock yardages:'));assert.ok(report.includes('Round ID: round-a'));assert.equal((report.match(/^Hole \d+ \|/gm)||[]).length,18);
+assert.ok(report.endsWith(R.coachReport(config,{}).split('\n\n').at(-1)));
+const reread=M.validate(JSON.parse(JSON.stringify(finished)));assert.deepEqual(reread.history[0],archived);
+assert.throws(()=>M.validate({schemaVersion:99}),/untouched/);
+const legacy={version:1,startedAt:'2026-09-19',page:15,results:{8:{score:3,note:'Preserve me'}},activeHole:8};
+const migrated=M.migrate(legacy,config,player,'old-key');assert.equal(migrated.active.activeHole,8);assert.equal(migrated.active.page,15);assert.equal(migrated.active.results[8].note,'Preserve me');assert.equal(migrated.active.startedAt,legacy.startedAt);assert.deepEqual(migrated.migrations,['old-key']);assert.deepEqual(migrated.active.completionOrder,[8]);
+assert.throws(()=>M.migrate({version:99},config,player,'old-key'),/untouched/);
+// A clearly synthetic course/tee fixture verifies isolation without inventing production data.
+const fixture=M.clone(course);fixture.id='test-course';fixture.course='TEST FIXTURE — NOT A REAL COURSE';
+const shorter=M.clone(fixture.tees[0]);shorter.id='test-short';shorter.name='Test Short';shorter.holes=shorter.holes.map(h=>({...h,yards:h.yards-20,advice:'Fixture-only advice'}));shorter.totalYards-=360;shorter.rating='65.0';shorter.slope='100';shorter.mission='Fixture mission';fixture.tees.push(shorter);
+const other=M.courseRound(fixture,'test-short',player);assert.equal(other.totalYards,5893);assert.equal(other.holes[0].yards,354);assert.equal(other.rating,'65.0');assert.equal(other.slope,'100');assert.equal(other.mission,'Fixture mission');assert.equal(other.tee,'Test Short');
+const next=M.create(other,player,'round-b');assert.deepEqual(next.results,{});assert.equal(next.courseId,'test-course');assert.equal(archived.config.totalYards,6253);assert.equal(next.player.clubs[0][1],255);
+const empty=C.live(next);assert.ok(!empty.includes('ROUND NOTES'));assert.ok(!empty.includes('\nRECENT'));assert.ok(empty.includes('FIR: 0/0'));assert.ok(empty.includes('Score: —'));
+next.player.handicap=14.8;next.player.profile.name='Test Golfer';next.player.tendencies=['Known test tendency'];assert.ok(C.live(next).includes('Handicap: 14.8'));assert.ok(C.live(next).includes('Known test tendency'));
+next.results={1:{score:4},2:{score:5},3:{score:4},4:{score:4}};next.completionOrder=[4,1,3,2];const recent=C.live(next).split('\nRECENT\n')[1].split('\n\n')[0];assert.ok(!recent.includes('H4'));assert.ok(recent.indexOf('H1')<recent.indexOf('H3'));assert.ok(recent.indexOf('H3')<recent.indexOf('H2'));
+M.trackCompletion(next,1,{score:4},{});assert.deepEqual(next.completionOrder,[4,3,2]);
+console.log('Round snapshots, completion/history, isolation, tee projection, migration, live context, events and full export passed');

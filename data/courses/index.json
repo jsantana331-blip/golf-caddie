@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "courses": [
+    {
+      "id": "nevel-meade",
+      "file": "nevel-meade.json",
+      "legacyRoundId": "nevel-meade-blue-v1",
+      "legacyTeeId": "blue"
+    }
+  ]
+}

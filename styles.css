@@ -654,3 +654,34 @@ th button {
     padding-inline:32px
   }
 }
+/* Local course library, durable rounds and the Caddie intelligence control. */
+.text-control { border:0; padding:0; color:var(--green); font-size:14px; margin-bottom:10px; }
+.library-list { margin:28px 0; }
+.course-choice { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--line); border-radius:0; padding:20px 0; }
+.course-choice strong { display:block; font-size:23px; line-height:1.2; color:var(--green); }
+.course-choice span { display:block; margin-top:7px; font-weight:400; color:var(--muted); }
+.course-choice .history-score { color:var(--green); font-size:26px; font-weight:650; }
+.library-resume,.flow-action { width:100%; margin-top:24px; }
+.intro { margin-top:16px; }
+.start-actions { display:grid; gap:12px; margin-top:28px; }
+.storage-warning { color:var(--earth); border-left:3px solid var(--earth); padding-left:12px; margin:8px 0 18px; font-size:14px; }
+.result-heading { display:flex; gap:8px; align-items:center; justify-content:space-between; }
+.result-heading h2 { margin:0; }
+.ask-control { display:flex; align-items:center; gap:6px; border:0; padding:0 3px; font-size:12px; letter-spacing:.035em; color:var(--green); white-space:nowrap; }
+.intelligence-mark { width:30px; height:30px; flex-shrink:0; color:var(--green); }
+#ask-sheet { background:var(--cream); color:var(--ink); border:0; border-radius:18px 18px 0 0; width:min(100%,540px); max-height:calc(100dvh - env(safe-area-inset-top,0px) - 16px); margin:auto auto 0; padding:24px max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px)); overflow-y:auto; overscroll-behavior:contain; }
+#ask-sheet::backdrop { background:rgb(18 55 42 / .4); }
+.sheet-heading { display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+.sheet-heading h2 { flex:1; font-size:16px; }
+#close-ask { min-width:44px; font-size:25px; border:0; }
+#ask-sheet p { margin:12px 0; }
+.sheet-actions { display:grid; gap:8px; margin-top:20px; }
+.sheet-actions button { font-size:13px; }
+#ask-status { font-weight:650; color:var(--green); }
+#ask-status:empty { display:none; }
+#open-chatgpt { color:var(--green); font-weight:700; min-height:44px; padding:10px 0; }
+#open-chatgpt:not([hidden]) { display:block; }
+#ask-fallback textarea { width:100%; display:block; background:var(--paper); font:inherit; font-size:16px; padding:10px; margin:8px 0; }
+#ask-fallback button { width:100%; margin-top:8px; }
+.new-round-section #complete-round { margin-bottom:8px; }
+.new-round-section #new-round { margin-top:16px; }

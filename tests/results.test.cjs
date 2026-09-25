@@ -1,6 +1,6 @@
 const assert=require('node:assert/strict');
 const {clean,stats}=require('../results.js');
-const round=require('../data/current-round.json');
+const round=require('./fixtures/v1-round.json');
 assert.equal(round.holes.length,18);
 assert.equal(round.holes.reduce((s,h)=>s+h.par,0),72);
 const all=Object.fromEntries(round.holes.map(h=>[h.n,{score:h.par,tee:'Fairway',gir:true,putts:2,penalties:0}]));
