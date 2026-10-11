@@ -1,4 +1,4 @@
-# Caddie — Pocket Caddie V1.3.2
+# Caddie — Pocket Caddie V1.4
 
 A mobile-first, local-first golf PWA: scorekeeper, caddie and coaching context. Static HTML/CSS/JavaScript on GitHub Pages. No backend, accounts, AI API, GPS, mapping, analytics, external font or runtime dependency. Operating cost remains $0.
 
@@ -10,7 +10,9 @@ Every fresh load/reload opens Home, even with an active round. Resume Round prom
 
 Nevel Meade / Blue is the only production course/tee. All verified course facts, 18 holes, advice and stock yardages are preserved. The existing 50° wedge at 108 yd is retained alongside the other eleven clubs. No handicap or tendencies existed in the prior data; those remain unset rather than inferred.
 
-The round selector provides named Overview, Game Plan, hole and Summary destinations without a slide counter. Arrows and horizontal swipes outside controls navigate within the round; Previous is disabled on Hole 1. Game Plan’s forward action and Summary’s back arrow return to the active hole. Home is not part of round navigation. Content scrolls independently of the footer. Each hole has direct Summary access. Back to Hole X follows the active hole, not the last page viewed. A scored active hole advances on Next/forward swipe; entering a result on a later unscored hole also advances it. Browsing or editing earlier scores does not.
+Home, Play and Rounds are persistent application destinations. Play resumes the saved active hole; switching tabs never changes round progression. With no active round, Play offers Start Round. Course Overview and Game Plan remain available from the round menu. The hole selector and arrows navigate only golf holes; horizontal page swipes are removed to avoid conflicts with scrolling and iOS gestures. Summary remains directly accessible, with Back to Hole X following the active hole rather than the last hole browsed.
+
+Record Score opens a modal bottom sheet over the hole, with the existing segmented choices and exact-score controls. Valid fields save immediately, explicitly labeled in the sheet; blank fields remain unrecorded. Done validates and closes. Close/Escape retains already-saved values; malformed or invalid input never replaces the last valid value. No scoring fields are duplicated on the hole screen. Ask Caddie remains directly available beside Record Score.
 
 Course/tee browsing never replaces an active round. The start screen offers Resume when one exists. Starting another round requires confirmation: an incomplete scorecard is deliberately replaced; an all-scored scorecard is archived before the new round starts. Failed storage writes preserve the previous active round.
 
@@ -35,7 +37,7 @@ Each round uses schema 1 and a unique UUID, course/tee IDs, start time, separate
 
 Scores, FIR, GIR, putts, penalties and notes save on entry. Unrecorded values remain distinct from zero/false. Par-3 tee results are N/A. Quick Score choices run from par−1 through par+3; the highest + choice reveals an exact score input, including the ability to enter any legitimate score from 1. Putts 3+ and penalties 2+ reveal exact counts. Tap a selected choice to clear it.
 
-Finish Round requires a score on every hole and deliberate confirmation. Other tracking fields may remain unrecorded. Successful finalization returns Home; the stored summary is read-only and remains exportable through Round History. Exit to Home in the active Summary saves without finishing; a failed save keeps the round screen open with a warning. Overview and Game Plan remain intentional reference destinations in the round selector. No Home/Library button occupies active hole screens. Round History is a simple recent-round list; no automated deletion or analytics. Exporting never deletes a round. Storage/quota errors are shown, and failed finalization does not clear the active round. Conflicting writes from another tab are rejected instead of silently replacing newer memory; reload before continuing in that case.
+Finish Round requires a score on every hole and deliberate confirmation. Other tracking fields may remain unrecorded. Successful finalization returns Home; the stored summary is read-only and remains exportable through Round History. Exit to Home in the active Summary saves without finishing; a failed save keeps the round screen open with a warning. Overview and Game Plan remain intentional reference destinations in the round menu. Home is an application tab, separate from the hole controls. Round History is a simple recent-round list; no automated deletion or analytics. Exporting never deletes a round. Storage/quota errors are shown, and failed finalization does not clear the active round. Conflicting writes from another tab are rejected instead of silently replacing newer memory; reload before continuing in that case.
 
 Local history is durable within this browser/profile, not a cloud backup. Browser data removal, device loss, private browsing or storage eviction can remove it. Storage capacity is finite; a full store reports failure rather than pruning history. V1.3 has no history deletion/editor/import UI or partial-round finalization.
 
@@ -61,7 +63,7 @@ Copy for Golf Coach remains separate from the compact live handoff. Active and h
 
 ## Offline and updates
 
-`caddie-v1.3.2-round-navigation-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
+`caddie-v1.4-ios-experience-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
 
 ## Automated checks
 
@@ -72,10 +74,11 @@ Use Node for:
 - `node tests/coach.test.cjs` — original full export and active-hole rules.
 - `node tests/memory.test.cjs` — snapshots, history/completion, multi-course/tee projection, migration, live context/recent holes/notes/player, event metadata and comprehensive export.
 - `node tests/browser.test.cjs` — retained 18-hole UI regression suite, score + and low/exact entry, persistence, clipboard, summaries, navigation, contrast/touch targets/layouts, storage failure, offline reload and service-worker migration from `903da2e` with an existing scorecard.
+- `node tests/v14-browser.test.cjs` — tabs, saved-current-hole isolation, modal score entry, invalid/malformed numeric input, focus, mobile layouts, reduced motion and empty Play.
 - `node tests/navigation.test.cjs` — Home launch from every round view, explicit setup/start, active-hole resume, state preservation, reference navigation, failed Exit, replacement cancellation, offline finish/history/export and relaunch.
 - `node tests/v13-browser.test.cjs` — library/tee UI, protected rounds, current-hole live context, copy-before-open, popup/clipboard/PWA fallback, events, completion/quota failure, history/retrieval/export, tee preference and round isolation, offline multi-course, conflicting tabs and invalid schemas.
 
-The two browser suites use an existing Playwright installation and Microsoft Edge, or `BROWSER_PATH`. No browser-testing package is shipped to golfers. Tests run isolated localhost contexts and never touch the user's real saved round. `REVIEW_SCREENSHOT=<path>.png` optionally captures review images. `tests/fixtures/v1-round.json` is the unchanged old data used only by regressions.
+The browser suites use an existing Playwright installation and Microsoft Edge, or `BROWSER_PATH`. No browser-testing package is shipped to golfers. Tests run isolated localhost contexts and never touch the user's real saved round. `REVIEW_SCREENSHOT=<path>.png` optionally captures review images. `tests/fixtures/v1-round.json` is the unchanged old data used only by regressions.
 
 ## Earlier V1.3 acceptance coverage (use V1.3.2 flow below)
 
@@ -175,3 +178,18 @@ Use an HTTPS build of the feature branch installed to Home Screen. The main Page
 40. Copy for Golf Coach; verify comprehensive results, notes, Ask count/holes and final coaching instruction. Return Home and verify starting another round leaves history intact.
 
 Do not merge until human iPhone acceptance is complete. Local storage remains device/browser-local, and finalization still requires all holes scored; neither behavior changes in this release.
+
+
+## V1.4 — iOS app experience
+
+Built from verified main `6a2f7a2`, including merged V1.3.1 and V1.3.2. This release changes application presentation and interactions only. No courses or player data are added/changed; no new metrics, APIs, services or dependencies. Existing schema-3 local memory, migration, calculations, history snapshots, course architecture, Ask context/handoff and Golf Coach export are retained. The existing model has no sand/up-and-down fields to migrate or duplicate.
+
+The Home/Play/Rounds bar replaces the presentation footer. A compact round toolbar and hole-only selector sit within Play. Overview/Game Plan are supporting menu destinations; pre-round setup still proceeds through both. Hole 18 remains a hole, with Next disabled and Summary available directly. Finish is still deliberate and returns Home after successful history persistence. Rounds owns the list and historical summaries/exports.
+
+The club and target remain prominent with smaller headings; Record Score and Ask Caddie appear before strategy text. Full original hole plan remains accessible through disclosure. Score entry uses the existing fields inside a native dialog, with an independently scrolling body and visible Done footer. Shared sheet styling also applies to Ask Caddie and the round menu. VisualViewport sizing accommodates keyboard height where browsers report it; safe-area padding, 44px minimum touch targets, focus containment/restoration and reduced-motion behavior are covered by emulation. Actual iOS acceptance remains required.
+
+All eight test suites pass. The retained browser suites now use public V1.4 controls through `tests/ui-helpers.cjs`; they still verify all 18 holes, scores, persistence, history, exports and handoff. Upgrade coverage runs from V1.2 by default and from current V1.3.2 with `UPGRADE_BASELINE=6a2f7a2`. Syntax, UTF-8, contrast, responsive layouts and full-diff checks pass. Production data, scoring/context/memory/handoff modules, manifest and icons remain unchanged.
+
+Before/after captures use the same isolated round fixture. Run `tests/v14-browser.test.cjs` with `REVIEW_SCREENSHOT=<path>.png` for Home, Hole, Score Entry and Summary; add `CAPTURE_BASELINE=6a2f7a2` for the original version. These are desktop browser captures, not physical iPhone testing.
+
+Follow [the V1.4 iPhone acceptance checklist](docs/v1.4-acceptance.md), which supersedes earlier UI navigation instructions. Do not merge automatically. No unresolved scope/product decisions block the PR; human visual and device acceptance is still outstanding.

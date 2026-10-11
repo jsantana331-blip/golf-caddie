@@ -1,6 +1,8 @@
 let round,idx=0,key,state,exactScoreHole=null;
 let player,courses=[],catalog,memory,lastStored=null,locked=false,unavailable=false,preview=false,historical=false,screenMode='library',saveError='';
 const app=document.querySelector('#app');
+let scoreSheet=null,scoreHole=null;
+const tabIcons={home:'M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9',play:'M6 21V3l13 4-13 5',rounds:'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5'};
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fact=v=>v===null||v===undefined||v===''?'Unknown':typeof v==='boolean'?(v?'Yes':'No'):v;
 let storageOK=true;
@@ -41,7 +43,22 @@ async function init(){
  }catch(e){app.innerHTML='<section class="loading"><div class="mark">C</div><h1>Caddie</h1><p>Course library unavailable. Reconnect once, then reopen.</p></section>';console.error(e)}
 }
 function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
-function shell(body){app.innerHTML=`<section class="screen"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div></section>`;updateStatus()}
+function appTabs(){
+ const selected=historical||screenMode==='history'?'rounds':screenMode==='round'||screenMode==='empty-play'?'play':'home';
+ return `<nav class="app-tabs" aria-label="App navigation">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${tabIcons[id]}"/></svg><span>${label}</span></button>`).join('')}</nav>`;
+}
+function bindTabs(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
+ if(memory.active&&!saveMemory())return;
+ if(b.dataset.tab==='home')showLibrary();else if(b.dataset.tab==='rounds')showHistory();else showPlay();
+})}
+function showPlay(){
+ if(memory.active)return resumeRound();
+ historical=false;preview=false;screenMode='empty-play';
+ shell('<div class="eyebrow">PLAY</div><h1>Your next round awaits</h1><p class="intro">Choose a course to put your caddie to work.</p><button id="choose-course" class="primary flow-action">Start Round</button>');
+ document.querySelector('#choose-course').onclick=showLibrary;
+}
+function shell(body){app.innerHTML=`<section class="screen"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div>${appTabs()}</section>`;bindTabs();updateStatus()}
+
 function libraryLink(){return '<button id="library" class="text-control">Home</button>'}
 function activeRoundDetails(){
  const r=memory.active;if(!r)return '';
@@ -51,10 +68,10 @@ function activeRoundDetails(){
 function exitHome(){if(saveMemory())showLibrary()}
 function showLibrary(){
  screenMode='library';preview=false;historical=false;
- shell(`<div class="eyebrow">CADDIE / YOUR YARDAGE BOOK</div><h1>Where are we playing?</h1>${memory.active?`<button id="resume-round" class="primary library-resume">Resume Round</button>${activeRoundDetails()}`:''}<h2 class="intro">${memory.active?'Start a new round':'Start Round'}</h2><div class="library-list">${courses.map(c=>{const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];return `<button class="course-choice" data-course="${esc(c.id)}"><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><span>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</span></button>`}).join('')}</div><button id="round-history" class="secondary">Round History${memory.history.length?' · '+memory.history.length:''}</button>`);
+ shell(`<div class="brand"><span class="brand-mark" aria-hidden="true">C</span><span>Caddie</span></div><h1>Where are we playing?</h1>${memory.active?`<button id="resume-round" class="primary library-resume">Resume Round</button>${activeRoundDetails()}`:''}<h2 class="intro">${memory.active?'Start a new round':'Start Round'}</h2><div class="library-list">${courses.map(c=>{const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];return `<button class="course-choice" data-course="${esc(c.id)}"><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><span>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</span></button>`}).join('')}</div>`);
  document.querySelector('#resume-round')?.addEventListener('click',resumeRound);
  document.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>showTees(courses.find(c=>c.id===b.dataset.course)));
- document.querySelector('#round-history').onclick=showHistory;
+
 }
 function showTees(course){
  screenMode='tees';shell(`${libraryLink()}<div class="eyebrow">SELECT TEE</div><h1>${esc(course.course)}</h1><p class="intro">Choose the tee for this round.</p><div class="library-list">${course.tees.map(t=>`<button class="course-choice" data-tee="${esc(t.id)}"><strong>${esc(t.name)}${memory.preferences.tees[course.id]===t.id?' · Last played':''}</strong><span>${t.totalYards.toLocaleString()} yd · Rating ${esc(t.rating??'Unknown')} · Slope ${esc(t.slope??'Unknown')}</span></button>`).join('')}</div>`);
@@ -82,8 +99,7 @@ function startRound(){
  else alert('The new round could not be saved. Your current round has been kept.');
 }
 function showHistory(){
- screenMode='history';shell(`${libraryLink()}<div class="eyebrow">ROUND MEMORY</div><h1>Recent rounds</h1><div class="library-list">${memory.history.length?memory.history.map(r=>`<button class="course-choice" data-history="${esc(r.id)}"><strong>${esc(r.config.course)} · ${esc(r.config.tee)}</strong><span class="history-score">${r.totals.score} · ${RoundResults.relativeLabel(r.totals)}</span><span>${esc(new Date(r.startedAt).toLocaleDateString())}</span></button>`).join(''):'<p class="intro">Completed rounds will stay here on this device.</p>'}</div>`);
- document.querySelector('#library').onclick=showLibrary;
+ screenMode='history';historical=false;preview=false;shell(`<div class="eyebrow">ROUND MEMORY</div><h1>Recent rounds</h1><div class="library-list">${memory.history.length?memory.history.map(r=>`<button class="course-choice" data-history="${esc(r.id)}"><strong>${esc(r.config.course)} · ${esc(r.config.tee)}</strong><span class="history-score">${r.totals.score} · ${RoundResults.relativeLabel(r.totals)}</span><span>${esc(new Date(r.startedAt).toLocaleDateString())}</span></button>`).join(''):'<p class="intro">Completed rounds will stay here on this device.</p>'}</div>`);
  document.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>openHistory(b.dataset.history));
 }
 function openHistory(id){state=memory.history.find(r=>r.id===id);if(!state)return;round=state.config;historical=true;preview=false;screenMode='round';idx=0;render()}
@@ -100,7 +116,7 @@ function choices(field,label,values,r){return `<fieldset><legend>${label}</legen
 function counter(field,label,r,min){return `<div class="exact"><label for="${field}">${label}</label><button type="button" data-step="-1" data-field="${field}" aria-label="Decrease ${label}">−</button><input id="${field}" data-number="${field}" type="number" inputmode="numeric" min="${min}" step="1" value="${r[field]??''}" placeholder="—"><button type="button" data-step="1" data-field="${field}" aria-label="Increase ${label}">+</button></div>`}
 function tracker(h){const r=state.results[h.n]||{},max=h.par+3;
  const exact=exactScoreHole===h.n||(r.score!==undefined&&(r.score<h.par-1||r.score>=max));
- return `<div class="tracker"><div class="result-heading"><h2>Record result</h2><button id="ask-caddie" class="ask-control">${CaddieHandoff.mark}<span>ASK CADDIE</span><span aria-hidden="true">✦</span></button></div>${choices('score','Score',Array.from({length:5},(_,i)=>h.par-1+i).map(v=>[v,v===max?v+'+':String(v)]),{...r,score:r.score>=max?max:r.score})}${exact?counter('score','Score (any total)',r,1):''}${h.par===3?'<p class="na">Tee shot · N/A (par 3)</p>':choices('tee','Tee shot',['Fairway','Left','Right','Trouble'].map(v=>[v,v]),r)}${choices('gir','Green in regulation',[[true,'Yes'],[false,'No']],r)}${choices('putts','Putts',[[0,'0'],[1,'1'],[2,'2'],[3,'3+']],{...r,putts:r.putts>=3?3:r.putts})}${r.putts>=3?counter('putts','Exact putts',r,3):''}${choices('penalties','Penalty strokes',[[0,'0'],[1,'1'],[2,'2+']],{...r,penalties:r.penalties>=2?2:r.penalties})}${r.penalties>=2?counter('penalties','Exact penalties',r,2):''}<label for="note">Note <span class="muted">(optional)</span></label><textarea id="note" maxlength="240" rows="2" placeholder="Anything to remember?">${esc(r.note||'')}</textarea><p id="save-status" role="status"></p></div>`;
+ return `<div class="tracker">${choices('score','Score',Array.from({length:5},(_,i)=>h.par-1+i).map(v=>[v,v===max?v+'+':String(v)]),{...r,score:r.score>=max?max:r.score})}${exact?counter('score','Score (any total)',r,1):''}${h.par===3?'<p class="na">Tee shot · N/A (par 3)</p>':choices('tee','Tee shot',['Fairway','Left','Right','Trouble'].map(v=>[v,v]),r)}${choices('gir','Green in regulation',[[true,'Yes'],[false,'No']],r)}${choices('putts','Putts',[[0,'0'],[1,'1'],[2,'2'],[3,'3+']],{...r,putts:r.putts>=3?3:r.putts})}${r.putts>=3?counter('putts','Exact putts',r,3):''}${choices('penalties','Penalty strokes',[[0,'0'],[1,'1'],[2,'2+']],{...r,penalties:r.penalties>=2?2:r.penalties})}${r.penalties>=2?counter('penalties','Exact penalties',r,2):''}<label for="note">Note <span class="muted">(optional)</span></label><textarea id="note" maxlength="240" rows="2" placeholder="Anything to remember?">${esc(r.note||'')}</textarea><p id="save-status" role="status"></p><p class="muted">Valid entries save immediately. Blank fields stay unrecorded.</p></div>`;
 }
 function totalLabel(holes){return RoundResults.totalLabel(holes,state.results)}
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
@@ -111,13 +127,19 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  const par=round.holes.reduce((n,h)=>n+h.par,0);
  body=`<div class="eyebrow">CADDIE / COURSE OVERVIEW</div><header class="course-heading"><h1>${esc(round.course)}</h1><p class="location">${esc(fact(round.location))}</p></header><div class="course-primary">${metric('Tee',fact(round.tee))}${metric('Yards',fact(round.totalYards))}${metric('Par',par)}</div><div class="course-secondary">${metric('Rating',fact(round.rating))}${metric('Slope',fact(round.slope))}${metric('Par 3 / 4 / 5',[3,4,5].map(p=>round.holes.filter(h=>h.par===p).length).join(' / '))}</div><section class="course-facts" aria-label="Course information">${[['Course style / type',round.courseStyle],['Grass type',round.grassType],['Driving range',round.drivingRange],['Practice green',round.practiceGreen],['Weather / forecast',round.weather]].map(([l,v])=>`<div class="summaryrow"><span>${l}</span><b>${esc(fact(v))}</b></div>`).join('')}</section>`;
  }else if(p.type==='game')body=`<div class="eyebrow">BEFORE THE FIRST TEE</div><h1>Game Plan</h1><section class="mission"><h2>Scoring Mission</h2><p class="strategy">${esc(round.mission)}</p></section><div class="briefing">${round.gamePlan.map(([title,text])=>`<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}</div><section class="club-distances"><h2>Your club distances</h2><div class="clubgrid">${state.player.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b><span>${y} yd</span></div>`).join('')}</div></section>`;
- else if(p.type==='hole'){const h=p.h;body=`<header class="hole-heading"><div><div class="eyebrow">CADDIE / ON COURSE</div><h1>Hole ${h.n}</h1></div><div class="hole-distance"><b>${h.yards}<small> yd</small></b><span>Par ${h.par} · HCP ${h.hcp}</span></div></header><section class="hero recommendation" aria-label="Caddie recommendation"><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target">${esc(h.target)}</p><p class="strategy">${esc(h.advice||h.plan)}</p><dl class="reference"><div><dt>Avoid</dt><dd>${esc(h.danger)}</dd></div><div><dt>Leaves</dt><dd>${esc(h.expected||'Unknown')}</dd></div></dl></section>${tracker(h)}`}
+ else if(p.type==='hole'){const h=p.h;body=`<header class="hole-heading"><div><div class="eyebrow">CADDIE / ON COURSE</div><h1>Hole ${h.n}</h1></div><div class="hole-distance"><b>${h.yards}<small> yd</small></b><span>Par ${h.par} · HCP ${h.hcp}</span></div></header><section class="hero recommendation" aria-label="Caddie recommendation"><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target">${esc(h.target)}</p><div class="hole-actions"><button id="record-score" class="primary">${state.results[h.n]?.score!==undefined?'Score '+state.results[h.n].score+' · Edit':'Record Score'}</button><button id="ask-caddie" class="ask-control">${CaddieHandoff.mark}<span>ASK CADDIE</span></button></div><p class="strategy">${esc(h.advice||h.plan)}</p><dl class="reference"><div><dt>Avoid</dt><dd>${esc(h.danger)}</dd></div><div><dt>Leaves</dt><dd>${esc(h.expected||'Unknown')}</dd></div></dl>${h.plan&&h.plan!==h.advice?`<details class="hole-details"><summary>Full hole plan</summary><p>${esc(h.plan)}</p></details>`:''}</section>`}
  else body=summary();
  if(p.type==='course')body+='<button id="to-game" class="primary flow-action">Game Plan →</button>';
  if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
- body=(historical?libraryLink():'')+'<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
- app.innerHTML=`<section class="screen screen-${p.type}"><div class="content">${body}</div><nav class="nav ${p.type==='hole'?'nav-hole':''}" aria-label="Round navigation"><button id="prev" ${idx===0||idx===2?'disabled':''} aria-label="${p.type==='hole'?'Previous hole':'Previous round section'}">‹</button><label class="count"><span class="sr-only">Go to round section or hole</span><select id="jump">${ps.map((x,i)=>`<option value="${i}" ${i===idx?'selected':''}>${x.type==='hole'?'Hole '+x.h.n:x.type==='course'?'Course Overview':x.type==='game'?'Game Plan':'Round Summary'}</option>`).join('')}</select><span class="active-context">${historical?'Saved round':'Playing Hole '+state.activeHole}</span></label>${p.type==='hole'?'<button id="open-summary" aria-label="Open Round Summary">Summary</button>':''}<button id="next" ${idx===ps.length-1?'disabled':''} aria-label="${p.type==='hole'&&p.h.n<round.holes.length?'Next hole':'Next round section'}">›</button></nav></section>`;
- document.querySelector('#prev').onclick=()=>go(-1);document.querySelector('#next').onclick=()=>go(1);document.querySelector('#jump').onchange=e=>navigate(Number(e.target.value));
+ body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
+ const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">Playing Hole ${state.activeHole}</span><button id="open-summary" class="text-control">Summary</button><button id="round-menu" class="text-control" aria-label="Round menu">•••</button></div>`:'';
+ const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">‹</button><label><span class="sr-only">Choose hole</span><select id="jump">${round.holes.map((h,i)=>`<option value="${i+2}" ${idx===i+2?'selected':''}>Hole ${h.n}</option>`).join('')}</select></label><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">›</button></nav>`:'';
+ app.innerHTML=`<section class="screen screen-${p.type}"><div class="content">${toolbar}${holes}${body}</div>${appTabs()}</section>`;
+ const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
+ document.querySelector('#prev')?.addEventListener('click',()=>go(-1));document.querySelector('#next')?.addEventListener('click',()=>go(1));document.querySelector('#jump')?.addEventListener('change',e=>navigate(Number(e.target.value)));
+ document.querySelector('#round-menu')?.addEventListener('click',showRoundMenu);
+ document.querySelector('#record-score')?.addEventListener('click',()=>showScore(p.h));
+ bindTabs();
  document.querySelectorAll('[data-hole]').forEach(b=>b.onclick=()=>navigate(round.holes.findIndex(h=>h.n===Number(b.dataset.hole))+2));
  const openSummary=document.querySelector('#open-summary');if(openSummary)openSummary.onclick=()=>navigate(pages().length-1);
  const back=document.querySelector('#back-active');if(back)back.onclick=()=>navigate(round.holes.findIndex(h=>h.n===state.activeHole)+2);
@@ -130,7 +152,7 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  document.querySelector('#complete-round')?.addEventListener('click',finishRound);
  document.querySelector('#history-list')?.addEventListener('click',showHistory);
  document.querySelector('#ask-caddie')?.addEventListener('click',()=>CaddieHandoff.show(memory.active,event=>{const destination=[memory.active,...memory.history].find(r=>r?.id===event.roundId);if(!destination)return false;destination.events.push({...event,order:destination.events.length+1});return saveMemory()}));
- if(p.type==='hole')bindTracker(p.h);updateStatus();
+ updateStatus();
 }
 async function copyForCoach(){
  const button=document.querySelector('#copy-coach'),status=document.querySelector('#copy-status');
@@ -150,7 +172,32 @@ async function copyForCoach(){
   document.querySelector('#select-report').onclick=select;select();
  }finally{button.disabled=false}
 }
-function redraw(){const y=document.querySelector('.content').scrollTop;render();document.querySelector('.content').scrollTop=y}
+function redraw(){
+ if(!scoreSheet)return;
+ const pane=scoreSheet.querySelector('.sheet-body'),y=pane.scrollTop,focused=document.activeElement;
+ const selector=focused?.dataset.value!==undefined?`[data-field="${focused.dataset.field}"][data-value="${focused.dataset.value}"]`:focused?.dataset.step?`[data-field="${focused.dataset.field}"][data-step="${focused.dataset.step}"]`:null;
+ pane.innerHTML=tracker(scoreHole);bindTracker(scoreHole);updateStatus();
+ if(selector)pane.querySelector(selector)?.focus({preventScroll:true});pane.scrollTop=y;
+}
+function closeScore(){
+ if(!scoreSheet)return;scoreSheet.close();scoreSheet.remove();scoreSheet=null;scoreHole=null;
+ const y=document.querySelector('.content').scrollTop;render();document.querySelector('.content').scrollTop=y;document.querySelector('#record-score')?.focus({preventScroll:true});
+}
+function showScore(h){
+ scoreHole=h;exactScoreHole=null;scoreSheet=document.createElement('dialog');scoreSheet.id='score-sheet';scoreSheet.className='bottom-sheet';scoreSheet.setAttribute('aria-labelledby','score-title');
+ scoreSheet.innerHTML=`<header class="sheet-heading"><h2 id="score-title">Hole ${h.n} · Record score</h2><button id="close-score" aria-label="Close score entry">×</button></header><div class="sheet-body">${tracker(h)}</div><footer class="sheet-footer"><button id="score-done" class="primary">Done</button></footer>`;
+ document.body.append(scoreSheet);scoreSheet.showModal();bindTracker(h);updateStatus();
+ document.querySelector('#close-score').onclick=closeScore;scoreSheet.addEventListener('cancel',e=>{e.preventDefault();closeScore()});
+ document.querySelector('#score-done').onclick=()=>{for(const input of scoreSheet.querySelectorAll('input'))if(!input.reportValidity())return;closeScore()};
+}
+function showRoundMenu(){
+ const dialog=document.createElement('dialog');dialog.className='bottom-sheet';dialog.id='round-sheet';dialog.setAttribute('aria-labelledby','round-title');
+ dialog.innerHTML=`<header class="sheet-heading"><h2 id="round-title">Your round</h2><button id="close-round-menu" aria-label="Close round menu">×</button></header><div class="sheet-body menu-items"><button data-section="0">Course Overview</button><button data-section="1">Game Plan</button><button data-section="${round.holes.findIndex(h=>h.n===state.activeHole)+2}">Current Hole ${state.activeHole}</button><button data-section="${pages().length-1}">Round Summary</button><button id="menu-home">Exit to Home</button></div>`;
+ const close=()=>{dialog.close();dialog.remove()};document.body.append(dialog);dialog.showModal();
+ dialog.querySelector('#close-round-menu').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
+ dialog.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{close();navigate(Number(b.dataset.section))});dialog.querySelector('#menu-home').onclick=()=>{close();exitHome()};
+}
+
 function syncChoices(){
  document.querySelectorAll('[data-value]').forEach(b=>{
   const input=document.querySelector('[data-number="'+b.dataset.field+'"]');if(!input)return;
@@ -159,26 +206,29 @@ function syncChoices(){
   b.setAttribute('aria-pressed',String(selected));b.classList.toggle('active',selected);
  });
 }
+function validScoreInputs(){for(const input of scoreSheet.querySelectorAll('input'))if(!input.reportValidity())return false;return true}
 function bindTracker(h){
  const result=()=>state.results[h.n]||(state.results[h.n]={});
  let before={...(state.results[h.n]||{})};
  const saveResult=()=>{state.activeHole=RoundResults.afterEntry(round.holes,state.activeHole,h.n,before,result());CaddieMemory.trackCompletion(state,h.n,before,result());before={...result()};persist();const label=document.querySelector('.active-context');if(label)label.textContent='Playing Hole '+state.activeHole};
- document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true'){delete r[f];if(f==='score')exactScoreHole=null}else{r[f]=v;if(f==='score')exactScoreHole=b.dataset.scorePlus?h.n:null}saveResult();redraw()});
- document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{const f=b.dataset.field,r=result(),min=f==='score'?1:f==='putts'?3:2;r[f]=Math.max(min,(r[f]??(f==='score'?h.par:min))+Number(b.dataset.step));saveResult();redraw()});
- document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}saveResult();syncChoices()});
+ document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{if(!validScoreInputs())return;const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true'){delete r[f];if(f==='score')exactScoreHole=null}else{r[f]=v;if(f==='score')exactScoreHole=b.dataset.scorePlus?h.n:null}saveResult();redraw()});
+ document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{if(!validScoreInputs())return;const f=b.dataset.field,r=result(),min=f==='score'?1:f==='putts'?3:2;r[f]=Math.max(min,(r[f]??(f==='score'?h.par:min))+Number(b.dataset.step));saveResult();redraw()});
+ document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.validity.badInput){input.setCustomValidity('Enter a whole number');input.reportValidity();return}if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}saveResult();syncChoices()});
  document.querySelector('#note').oninput=e=>{result().note=e.target.value;saveResult()};
 }
 function navigate(n){if(historical)return;exactScoreHole=null;idx=n;state.page=idx;persist();render()}
-function go(d){if(!round||screenMode!=='round'||historical||document.querySelector('#ask-sheet'))return;
- const p=pages()[idx];
- if((p.type==='game'&&d===1)||(p.type==='summary'&&d===-1))return navigate(round.holes.findIndex(h=>h.n===state.activeHole)+2);
- if(d===-1&&p.type==='hole'&&idx===2)return;
- if(d===1&&p.type==='hole')state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
- navigate(Math.max(0,Math.min(pages().length-1,idx+d)));
+function go(d){if(!round||screenMode!=='round'||historical||document.querySelector('dialog[open]'))return;
+ const p=pages()[idx];if(p.type!=='hole')return;
+ if(d===1)state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
+ navigate(Math.max(2,Math.min(round.holes.length+1,idx+d)));
 }
-let gesture=null;
-addEventListener('touchstart',e=>{gesture=null;if(e.touches.length!==1||e.target.closest('button,input,textarea,select,label,fieldset,.tracker,.scorecard,.nav,dialog'))return;const t=e.touches[0];gesture={x:t.clientX,y:t.clientY}},{passive:true});
-addEventListener('touchend',e=>{if(!gesture)return;const t=e.changedTouches[0],dx=t.clientX-gesture.x,dy=t.clientY-gesture.y;gesture=null;if(Math.abs(dx)>80&&Math.abs(dx)>Math.abs(dy)*2)go(dx<0?1:-1)},{passive:true});
-addEventListener('touchcancel',()=>gesture=null,{passive:true});
+// Use explicit hole controls; horizontal page gestures compete with iOS and scorecard scrolling.
+function fitViewport(){
+ const viewport=window.visualViewport;if(!viewport)return;
+ document.documentElement.style.setProperty('--visual-height',viewport.height+'px');
+ document.documentElement.style.setProperty('--keyboard-bottom',Math.max(0,innerHeight-viewport.height-viewport.offsetTop)+'px');
+ if(document.activeElement?.matches('dialog input,dialog textarea'))document.activeElement.scrollIntoView({block:'nearest'});
+}
+window.visualViewport?.addEventListener('resize',fitViewport);window.visualViewport?.addEventListener('scroll',fitViewport);fitViewport();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).catch(console.error);
 init();
