@@ -45,14 +45,14 @@ body {
   min-height:0;
   overflow-y:auto;
   overscroll-behavior-y:contain;
-  padding:26px 24px 28px;
+  padding:16px 20px 24px;
   -webkit-overflow-scrolling:touch
 }
 h1,h2,p {
   margin:0
 }
 h1 {
-  font-size:36px;
+  font-size:28px;
   line-height:1.1;
   letter-spacing:-.035em;
   font-weight:750;
@@ -79,7 +79,7 @@ p {
   font-size:13px
 }
 .strategy {
-  font-size:21px;
+  font-size:17px;
   line-height:1.5;
   letter-spacing:-.015em
 }
@@ -122,10 +122,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 }
 /* Opening course briefing: one headline, then quiet factual rows. */
 .course-heading {
-  margin:18px 0 26px
+  margin:16px 0 20px
 }
 .course-heading h1 {
-  font-size:42px;
+  font-size:30px;
   max-width:13ch
 }
 .location {
@@ -192,7 +192,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   margin-bottom:10px
 }
 .mission .strategy {
-  font-size:26px;
+  font-size:21px;
   line-height:1.4;
   font-weight:600;
   color:var(--green)
@@ -235,7 +235,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   align-items:flex-end;
   justify-content:space-between;
   gap:12px;
-  padding-bottom:24px
+  padding-bottom:12px
 }
 .hole-heading h1 {
   font-size:34px
@@ -263,10 +263,10 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   color:var(--muted)
 }
 .recommendation {
-  padding:20px 0 26px
+  padding:12px 0 16px
 }
 .recommended-club {
-  font-size:46px;
+  font-size:38px;
   line-height:1.05;
   letter-spacing:-.04em;
   color:var(--green);
@@ -280,7 +280,7 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   color:var(--earth)
 }
 .recommendation .strategy {
-  margin-top:20px
+  margin-top:16px
 }
 .reference {
   margin:22px 0 0
@@ -397,64 +397,6 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
   color:var(--muted);
   margin-top:14px
 }
-/* One persistent navigation row;
-the select keeps browsing distinct from play. */
-.nav {
-  flex-shrink:0;
-  display:grid;
-  grid-template-columns:48px minmax(0,1fr) 48px;
-  gap:6px;
-  align-items:center;
-  padding:7px 16px;
-  background:var(--cream);
-  border-top:1px solid var(--line)
-}
-.nav-hole {
-  grid-template-columns:48px minmax(0,1fr) 76px 48px
-}
-.nav button {
-  font-size:30px;
-  color:var(--green);
-  border:0;
-  background:transparent;
-  padding:0
-}
-.nav button:active {
-  background:var(--selected)
-}
-.nav #next {
-  background:var(--green);
-  color:var(--paper)
-}
-.nav #open-summary {
-  font-size:14px;
-  border:1px solid var(--line);
-  padding:0 5px
-}
-.count {
-  min-width:0;
-  display:flex;
-  flex-direction:column;
-  align-items:center
-}
-.count select {
-  width:100%;
-  min-height:44px;
-  border:0;
-  background:transparent;
-  font-size:14px;
-  font-weight:700;
-  color:var(--green);
-  text-align:center;
-  padding:0 2px
-}
-.active-context {
-  font-size:11px;
-  line-height:14px;
-  color:var(--muted);
-  margin-top:-5px;
-  white-space:nowrap
-}
 /* Scorecard and debrief: totals first, supporting metrics together. */
 .screen-summary h1+p {
   margin-top:12px;
@@ -470,7 +412,7 @@ the select keeps browsing distinct from play. */
   margin-top:12px
 }
 .totals .metric:nth-child(-n+2) b {
-  font-size:64px;
+  font-size:44px;
   line-height:1;
   letter-spacing:-.045em
 }
@@ -627,38 +569,27 @@ th button {
     font-size:10px
   }
   .recommended-club {
-    font-size:40px
+    font-size:34px
   }
-  .nav {
-    padding-inline:8px;
-    gap:3px
-  }
-  .nav-hole {
-    grid-template-columns:44px minmax(0,1fr) 72px 44px
-  }
-  .count select {
-    font-size:13px
-  }
+
 }
 @media(min-width:600px) {
   .content {
-    padding:36px 40px
+    padding:24px 32px
   }
   .course-heading h1 {
     font-size:48px
   }
   .recommendation .strategy {
-    font-size:24px
+    font-size:18px
   }
-  .nav {
-    padding-inline:32px
-  }
+
 }
 /* Local course library, durable rounds and the Caddie intelligence control. */
 .text-control { border:0; padding:0; color:var(--green); font-size:14px; margin-bottom:10px; }
 .library-list { margin:28px 0; }
 .course-choice { display:block; width:100%; text-align:left; border:0; border-bottom:1px solid var(--line); border-radius:0; padding:20px 0; }
-.course-choice strong { display:block; font-size:23px; line-height:1.2; color:var(--green); }
+.course-choice strong { display:block; font-size:19px; line-height:1.2; color:var(--green); }
 .course-choice span { display:block; margin-top:7px; font-weight:400; color:var(--muted); }
 .course-choice .history-score { color:var(--green); font-size:26px; font-weight:650; }
 .library-resume,.flow-action { width:100%; margin-top:24px; }
@@ -685,3 +616,53 @@ th button {
 #ask-fallback button { width:100%; margin-top:8px; }
 .new-round-section #complete-round { margin-bottom:8px; }
 .new-round-section #exit-home { margin-top:16px; }
+
+/* V1.4: app destinations stay separate from hole controls and round references. */
+.brand { display:flex; align-items:center; gap:9px; color:var(--green); font-size:17px; font-weight:750; margin-bottom:24px; }
+.brand-mark { display:grid; place-items:center; width:30px; height:30px; border:1px solid var(--green); border-radius:50%; font-size:21px; }
+.app-tabs { flex-shrink:0; display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:6px 16px; border-top:1px solid var(--line); background:var(--cream); }
+.app-tabs button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; min-height:52px; border:0; color:var(--muted); font-size:12px; }
+.app-tabs button[aria-current] { color:var(--green); background:var(--selected); }
+.app-tabs svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+.round-toolbar { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.round-toolbar .active-context { flex:1; font-size:13px; margin:0; }
+.round-toolbar button { margin:0; padding:0 10px; min-width:44px; }
+.hole-nav { display:grid; grid-template-columns:44px 1fr 44px; align-items:center; gap:8px; margin-bottom:14px; }
+.hole-nav button { border:0; font-size:28px; min-height:44px; }
+.hole-nav select { display:block; width:100%; min-height:44px; text-align:center; border:1px solid var(--line); border-radius:8px; background:var(--cream); font-weight:650; }
+.hole-heading .eyebrow { display:none; }
+.hole-heading h1,.hole-distance b { font-size:27px; }
+.hole-heading h1 { margin:0; }
+.hole-distance span { margin-top:4px; }
+.hole-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:20px 0 16px; }
+.hole-actions button { min-height:50px; }
+.hole-actions .ask-control { justify-content:center; border:1px solid var(--line); border-radius:8px; }
+.hole-actions .intelligence-mark { width:25px; height:25px; }
+.recommendation .strategy { font-size:17px; line-height:1.5; margin-top:12px; }
+.target { font-size:19px; }
+.reference { margin-top:16px; }
+.hole-details { margin-top:20px; font-size:15px; }
+.hole-details summary { min-height:44px; padding:10px 0; color:var(--green); font-weight:650; cursor:pointer; }
+.hole-details p { margin-top:8px; }
+.screen-summary .round-toolbar #open-summary { display:none; }
+.round-totals,.scorecard-section,.summary-actions { margin-top:20px; }
+.scorecard { max-height:52dvh; overflow:auto; }
+.scorecard thead { position:sticky; top:0; background:var(--cream); z-index:2; }
+.scorecard td:nth-child(3) { font-weight:750; font-size:17px; }
+.totals { gap:14px 20px; }
+.round-stats { gap:16px; padding:18px 0; }
+/* Shared native dialog surfaces, with scrolling inside and an always-visible Done. */
+.bottom-sheet,#ask-sheet { position:fixed; color:var(--ink); background:var(--cream); border:0; border-radius:20px 20px 0 0; width:min(100%,540px); max-width:100%; max-height:calc(var(--visual-height,100dvh) - env(safe-area-inset-top,0px) - 12px); margin:auto auto var(--keyboard-bottom,0px); padding:20px max(18px,env(safe-area-inset-right,0px)) max(18px,env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px)); overflow-y:auto; overscroll-behavior:contain; }
+.bottom-sheet::backdrop,#ask-sheet::backdrop { background:rgb(18 55 42 / .4); }
+.bottom-sheet[open] { display:flex; flex-direction:column; }
+.sheet-heading { flex-shrink:0; margin:0 0 10px; }
+.sheet-heading button { min-width:44px; min-height:44px; border:0; font-size:24px; }
+.sheet-body { min-height:0; overflow-y:auto; overscroll-behavior:contain; padding:0 2px 8px; }
+.sheet-footer { flex-shrink:0; padding-top:10px; border-top:1px solid var(--line); }
+.sheet-footer button { width:100%; }
+#score-sheet .tracker { border:0; padding:0; }
+#score-sheet fieldset:first-child { margin-top:0; }
+.menu-items { display:grid; gap:2px; }
+.menu-items button { border:0; border-bottom:1px solid var(--line); border-radius:0; text-align:left; padding:12px 6px; color:var(--green); }
+body:has(dialog[open]) .content { overflow:hidden; }
+@media(prefers-reduced-motion:no-preference) { button { transition:background-color .12s ease; } }

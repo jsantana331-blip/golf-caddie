@@ -1,3 +1,4 @@
+const {route,openScore,closeScore,act}=require('./ui-helpers.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
 const M=require('../memory.js'),C=require('../caddie-context.js'),course=require('../data/courses/nevel-meade.json');
@@ -19,16 +20,16 @@ const server=http.createServer((req,res)=>{
  let page=await context.newPage();await page.goto(url);await page.locator('[data-course]').first().waitFor();
  const key='caddie:/golf-caddie/:memory:v1.3',saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
  const choose=async(id='nevel-meade',tee='blue')=>{await page.locator(`[data-course="${id}"]`).click();await page.locator(`[data-tee="${tee}"]`).click();};
- const tap=async(field,value)=>page.locator(`[data-field="${field}"][data-value="${value}"]`).click();
+ const tap=async(field,value)=>{await openScore(page);await page.locator(`[data-field="${field}"][data-value="${value}"]`).click()};
  assert.equal(await page.locator('[data-course]').count(),2);assert.equal(await page.locator('.card').count(),0);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-library.png')});
  await choose();assert.equal(await page.locator('#jump').count(),0);await page.locator('#start-round').click();await page.locator('#to-game').click();await page.locator('#to-hole').click();
  const firstId=(await saved()).active.id;assert.equal(await page.locator('h1').innerText(),'Hole 1');
- for(const h of course.tees[0].holes){await page.locator('#jump').selectOption(String(h.n+1));assert.equal(await page.locator('#ask-caddie').innerText(),'ASK CADDIE\n✦')}
- await page.locator('#jump').selectOption('2');await tap('score',5);await tap('tee','Left');await tap('gir',false);await tap('putts',3);await tap('penalties',1);await page.locator('#note').fill('Driver leaked right <safe>');
- await page.locator('#next').click();assert.equal((await saved()).active.activeHole,2);
+ for(const h of course.tees[0].holes){await route(page,String(h.n+1));assert.equal(await page.locator('#ask-caddie').innerText(),'ASK CADDIE')}
+ await route(page,'2');await tap('score',5);await tap('tee','Left');await tap('gir',false);await tap('putts',3);await tap('penalties',1);await page.locator('#note').fill('Driver leaked right <safe>');
+ await act(page,'#next');assert.equal((await saved()).active.activeHole,2);
  await tap('putts',2);await tap('penalties',0); // Unfinished hole metrics must not contaminate live completed-hole metrics.
- await page.locator('#jump').selectOption('15');await page.locator('#ask-caddie').click();
+ await route(page,'15');await act(page,'#ask-caddie');
  assert.ok((await page.locator('#ask-sheet').innerText()).includes('active Hole 2'));
  for(const size of [{width:320,height:568},{width:844,height:390},{width:390,height:400},{width:390,height:844}]){
   await page.setViewportSize(size);const box=await page.locator('#ask-sheet').boundingBox();assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=size.width+1&&box.y+box.height<=size.height+1,JSON.stringify(box));
@@ -63,30 +64,30 @@ const server=http.createServer((req,res)=>{
  await page.locator('#close-ask').click();assert.equal(await page.locator('#jump').inputValue(),'15');
  // Browsing the library and other tees never replaces an active scorecard.
  const preserved=(await saved()).active;
- await page.locator('#open-summary').click();await page.locator('#exit-home').click();await choose('test-fixture','short');assert.deepEqual({...((await saved()).active),page:preserved.page},preserved);
+ await act(page,'#open-summary');await act(page,'#exit-home');await choose('test-fixture','short');assert.deepEqual({...((await saved()).active),page:preserved.page},preserved);
  assert.match(await page.locator('.intro').first().innerText(),/Test Short.*5,893.*65.0.*100/);
  page.once('dialog',d=>d.dismiss());await page.locator('#start-round').click();assert.deepEqual({...((await saved()).active),page:preserved.page},preserved);
- await page.locator('#resume-round').click();await page.locator('#open-summary').click();await page.locator('#back-active').click();assert.equal(await page.locator('h1').innerText(),'Hole 2');
+ await page.locator('#resume-round').click();await act(page,'#open-summary');await act(page,'#back-active');assert.equal(await page.locator('h1').innerText(),'Hole 2');
  await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();assert.equal((await saved()).active.activeHole,2);
- await page.locator('#open-summary').click();page.once('dialog',d=>{assert.match(d.message(),/every hole/);d.accept()});await page.locator('#complete-round').click();assert.equal((await saved()).history.length,0);
- for(const h of course.tees[0].holes){await page.locator('#jump').selectOption(String(h.n+1));if((await saved()).active.results[h.n]?.score!==h.par)await tap('score',h.par)}
- await page.locator('#open-summary').click();
+ await act(page,'#open-summary');page.once('dialog',d=>{assert.match(d.message(),/every hole/);d.accept()});await page.locator('#complete-round').click();assert.equal((await saved()).history.length,0);
+ for(const h of course.tees[0].holes){await route(page,String(h.n+1));if((await saved()).active.results[h.n]?.score!==h.par)await tap('score',h.par)}
+ await act(page,'#open-summary');
  // Quota failure must not clear the active round or pretend the archive succeeded.
  await page.evaluate(()=>{window.originalSet=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw Error('Quota exceeded')}});
  let dialogs=0;page.on('dialog',async d=>{dialogs++;await d.accept()});await page.locator('#complete-round').click();page.removeAllListeners('dialog');assert.equal(dialogs,2);assert.ok((await saved()).active);assert.equal((await saved()).history.length,0);
  await page.evaluate(()=>Storage.prototype.setItem=window.originalSet);
- page.once('dialog',d=>d.accept());await page.locator('#complete-round').click();let mem=await saved();assert.equal(mem.active,null);assert.equal(mem.history.length,1);assert.equal(mem.history[0].id,firstId);assert.equal(mem.history[0].events.length,4);assert.equal(mem.history[0].totals.score,72);assert.equal(await page.locator('h1').innerText(),'Where are we playing?');await page.locator('#round-history').click();await page.locator('[data-history]').click();
+ page.once('dialog',d=>d.accept());await page.locator('#complete-round').click();let mem=await saved();assert.equal(mem.active,null);assert.equal(mem.history.length,1);assert.equal(mem.history[0].id,firstId);assert.equal(mem.history[0].events.length,4);assert.equal(mem.history[0].totals.score,72);assert.equal(await page.locator('h1').innerText(),'Where are we playing?');await act(page,'[data-tab="rounds"]');await page.locator('[data-history]').click();
  assert.equal(await page.locator('[data-hole]').count(),0);assert.equal(await page.locator('#back-active').count(),0);assert.equal(await page.locator('tbody tr').count(),18);
  await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();assert.equal((await page.evaluate(()=>navigator.clipboard.readText())).replace(/\r\n/g,'\n'),C.full(mem.history[0]));
  await page.locator('#history-list').click();assert.equal(await page.locator('[data-history]').count(),1);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-history.png')});
- await page.reload();await page.locator('#round-history').click();await page.locator('[data-history]').click();assert.equal(await page.locator('.totals .metric b').first().innerText(),'72');
- await page.locator('#library').click();await page.locator('[data-course="test-fixture"]').click();assert.match(await page.locator('[data-tee="short"]').innerText(),/Last played/);await page.locator('[data-tee="short"]').click();await page.locator('#start-round').click();assert.deepEqual(await page.locator('.course-primary .metric b').allTextContents(),['Test Short','5893','72']);assert.deepEqual(await page.locator('.course-secondary .metric b').allTextContents(),['65.0','100','4 / 10 / 4']);await page.locator('#to-game').click();assert.equal(await page.locator('.mission .strategy').innerText(),'Fixture mission');await page.locator('#to-hole').click();
+ await page.reload();await act(page,'[data-tab="rounds"]');await page.locator('[data-history]').click();assert.equal(await page.locator('.totals .metric b').first().innerText(),'72');
+ await act(page,'[data-tab="home"]');await page.locator('[data-course="test-fixture"]').click();assert.match(await page.locator('[data-tee="short"]').innerText(),/Last played/);await page.locator('[data-tee="short"]').click();await page.locator('#start-round').click();assert.deepEqual(await page.locator('.course-primary .metric b').allTextContents(),['Test Short','5893','72']);assert.deepEqual(await page.locator('.course-secondary .metric b').allTextContents(),['65.0','100','4 / 10 / 4']);await page.locator('#to-game').click();assert.equal(await page.locator('.mission .strategy').innerText(),'Fixture mission');await page.locator('#to-hole').click();
  mem=await saved();assert.notEqual(mem.active.id,firstId);assert.equal(mem.active.courseId,'test-fixture');assert.equal(mem.active.teeId,'short');assert.deepEqual(mem.active.results,{});assert.equal(mem.history.length,1);assert.equal(mem.history[0].config.totalYards,6253);assert.equal(await page.locator('.hole-distance b').innerText(),'354 yd');
- await tap('score',4);await page.locator('#ask-caddie').click();await page.locator('#just-copy').click();await page.getByText('✓ Context copied — ask away',{exact:true}).waitFor();assert.equal((await saved()).active.events[0].roundId,(await saved()).active.id);
+ await tap('score',4);await act(page,'#ask-caddie');await page.locator('#just-copy').click();await page.getByText('✓ Context copied — ask away',{exact:true}).waitFor();assert.equal((await saved()).active.events[0].roundId,(await saved()).active.id);
  await page.locator('#close-ask').click();await page.evaluate(()=>navigator.serviceWorker.ready);await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();await context.setOffline(true);await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();assert.equal(await page.locator('.hole-distance b').innerText(),'354 yd');
- await page.locator('#open-summary').click();await page.locator('#exit-home').click();await page.locator('#round-history').click();await page.locator('[data-history]').click();assert.equal(await page.locator('tbody tr').count(),18);await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
- await page.locator('#library').click();await page.locator('#resume-round').click();assert.equal((await saved()).active.results[1].score,4);
+ await act(page,'#open-summary');await act(page,'#exit-home');await act(page,'[data-tab="rounds"]');await page.locator('[data-history]').click();assert.equal(await page.locator('tbody tr').count(),18);await page.locator('#copy-coach').click();await page.getByText('Copied',{exact:true}).waitFor();
+ await act(page,'[data-tab="home"]');await page.locator('#resume-round').click();assert.equal((await saved()).active.results[1].score,4);
  // Conflicting tabs must not silently overwrite newer history/state.
  const disk=await saved();disk.preferences.tees['nevel-meade']='blue';disk.otherTabMarker=true;
  await page.evaluate(({key,disk})=>localStorage.setItem(key,JSON.stringify(disk)),{key,disk});await tap('gir',true);assert.match(await page.locator('#storage-warning').innerText(),/another tab/);assert.equal((await saved()).active.results[1].gir,undefined);
