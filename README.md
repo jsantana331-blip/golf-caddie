@@ -2,6 +2,10 @@
 
 A mobile-first, local-first golf PWA: scorekeeper, caddie and coaching context. Static HTML/CSS/JavaScript on GitHub Pages. No backend, accounts, AI API, GPS, mapping, analytics, external font or runtime dependency. Operating cost remains $0.
 
+## Pilot release policy
+
+Physical iPhone testing happens after merge against the published pilot app. It is not a prerequisite for publishing a PR, completing review, or merging. Run appropriate automated checks and code review before merge; address verified blockers. Device findings from normal pilot use become follow-up fixes. Device checklists are optional post-merge validation guides, and untested device behavior should be reported without blocking release. Merge authorization follows the user’s current instructions; this policy does not grant blanket merge permission.
+
 ## Course Library and round flow
 
 Home (Where are we playing?) → course → tee → Start Round → Course Overview → Game Plan → Hole 1.
@@ -91,7 +95,7 @@ The browser suites use an existing Playwright installation and Microsoft Edge, o
 7. Browse courses/tees during play; cancel replacement and resume. Complete all 18 scores, finalize, reopen History and copy the comprehensive report including Ask Caddie usage. Start a fresh round and verify the earlier round remains unchanged.
 8. After successful online caching, use airplane mode to relaunch, score, view History and copy reports. Test the next online update without clearing browser storage.
 
-Do not merge until human iPhone acceptance is complete.
+Use the published pilot app for post-merge iPhone validation; physical device testing is not a release gate.
 
 
 ## V1.3.1 — copy-first native ChatGPT handoff
@@ -121,7 +125,7 @@ Use an HTTPS build of this feature branch, Caddie installed to Home Screen, the 
 9. Repeat in Safari and with browser routing chosen for ChatGPT (or on a device without the native app) to verify the normal web fallback. Native versus web selection is controlled by iOS.
 10. Test denied clipboard access where possible: no automatic navigation/event, clear feedback, manual selection and retry available, all round data retained. Test offline scoring/context copying; the external conversation itself requires connectivity.
 
-Native-app routing and actual iPhone lifecycle behavior remain mandatory human acceptance; desktop emulation cannot certify either. Do not merge automatically.
+Native-app routing and actual iPhone lifecycle behavior are checked during post-merge pilot use; desktop emulation cannot certify either. This limitation does not block PR publication, review or merge.
 
 
 ## V1.3.2 — Home and round lifecycle
@@ -132,7 +136,7 @@ No storage key/schema change or new migration is required. V1.3 snapshots, IDs, 
 
 Validation: all seven suites above pass, plus syntax and UTF-8/data checks and `git diff --check`. The browser upgrade test passes from both original V1.2 (`903da2e`, default) and latest merged V1.3.1 (`UPGRADE_BASELINE=759dc0f`). Desktop Edge mobile emulation covers offline lifecycle, touch targets, scroll, safe-area padding simulations and clipboard behavior; it does not certify actual iOS app routing or lifecycle.
 
-### Exact installed-iPhone acceptance for V1.3.2 — required before merge
+### Exact installed-iPhone acceptance for V1.3.2 — post-merge pilot validation
 
 Use an HTTPS build of the feature branch installed to Home Screen. The main Pages URL will still serve the previous release until merge. Use a test round/profile; do not clear real saved rounds. For the clean-start case, use a profile without an active round or intentionally finish an existing test round.
 
@@ -177,7 +181,7 @@ Use an HTTPS build of the feature branch installed to Home Screen. The main Page
 39. Open that round; verify all 18 results, H3 note and Ask events remain represented.
 40. Copy for Golf Coach; verify comprehensive results, notes, Ask count/holes and final coaching instruction. Return Home and verify starting another round leaves history intact.
 
-Do not merge until human iPhone acceptance is complete. Local storage remains device/browser-local, and finalization still requires all holes scored; neither behavior changes in this release.
+Use the published pilot app for post-merge iPhone validation; physical device testing is not a release gate. Local storage remains device/browser-local, and finalization still requires all holes scored; neither behavior changes in this release.
 
 
 ## V1.4 — iOS app experience
@@ -192,8 +196,8 @@ All eight test suites pass. The retained browser suites now use public V1.4 cont
 
 Before/after captures use the same isolated round fixture. Run `tests/v14-browser.test.cjs` with `REVIEW_SCREENSHOT=<path>.png` for Home, Hole, Score Entry and Summary; add `CAPTURE_BASELINE=6a2f7a2` for the original version. These are desktop browser captures, not physical iPhone testing.
 
-Follow [the V1.4 iPhone acceptance checklist](docs/v1.4-acceptance.md), which supersedes earlier UI navigation instructions. Do not merge automatically. No unresolved scope/product decisions block the PR; human visual and device acceptance is still outstanding.
+Follow [the V1.4 iPhone acceptance checklist](docs/v1.4-acceptance.md), which supersedes earlier UI navigation instructions. Use this as a post-merge pilot checklist. Physical iPhone testing does not block PR publication, review or merge.
 
 ## V1.4.1 — Pocket Caddie visual refinement
 
-One primary hole selector, explicit preview context, concise strategy without repetitive disclosure/callouts, neutral canvas and white surfaces, compact tabs and a prominent ChatGPT handoff control. Original strategy remains in data and exports; scoring, memory and round management are unchanged. See [review images and exact iPhone acceptance](review/README.md). Do not merge automatically.
+One primary hole selector, explicit preview context, concise strategy without repetitive disclosure/callouts, neutral canvas and white surfaces, compact tabs and a prominent ChatGPT handoff control. Original strategy remains in data and exports; scoring, memory and round management are unchanged. See [review images and exact iPhone acceptance](review/README.md). Physical iPhone testing is post-merge pilot validation, not a merge gate.
