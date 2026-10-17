@@ -19,9 +19,9 @@ Desktop Edge mobile emulation (390 × 844), not physical iPhone captures. Before
 
 Additional screens: [Course Overview](screenshots/after-course.png), [Game Plan](screenshots/after-game.png), [Course selection](screenshots/additional-library.png), [Ask Caddie](screenshots/additional-ask.png), [Rounds](screenshots/additional-history.png).
 
-## Exact iPhone acceptance steps — before merge
+## Post-merge iPhone pilot steps
 
-Use an HTTPS preview of this branch in Safari and installed to the Home Screen. Main GitHub Pages continues to serve main until merge. Use a test profile/round; do not clear real saved rounds. Desktop tests cannot certify iOS routing, safe areas or the physical keyboard.
+Use the published HTTPS pilot app from main in Safari and installed to the Home Screen after deployment. These steps are post-merge validation, not a prerequisite for PR publication, review or merge. Use a test profile/round; do not clear real saved rounds. Desktop tests cannot certify iOS routing, safe areas or the physical keyboard.
 
 1. Launch Home; select Nevel Meade → Blue → Start Round. Verify unchanged course facts, then Game Plan → Hole 1. Check the aligned white surfaces and charcoal text on each screen.
 2. Verify one visible primary hole identifier (the selector), 374 yd, Par 4 / HCP 12, Driver and Left-center. Read the concise recommendation; there should be no repeated Avoid/Leaves or Full Hole Plan block.
@@ -37,12 +37,12 @@ Use an HTTPS preview of this branch in Safari and installed to the Home Screen. 
 12. Try Finish Round with missing scores: it must refuse. Start a new round from Home and cancel the replacement confirmation: the original round must survive. These existing behaviors must be unchanged.
 13. Complete remaining holes with par scores, then Summary → Finish Round → confirm. Verify Home, no Resume for that completed round, and the saved round under Rounds. Relaunch offline, open its read-only summary and export; verify all scores, notes and Ask requests. Start another test round and confirm history remains.
 
-Do not merge automatically. Human visual/device acceptance and explicit approval of the specific PR remain required.
+Device findings during pilot use become follow-up fixes. Appropriate automated checks and code review remain pre-merge requirements; merge authorization follows the user’s current instructions.
 
 ## Automated validation
 
 All eight repository suites passed: results, data, coach, memory, browser, navigation, v13-browser and v14-browser. The browser suite also passed a second run with `UPGRADE_BASELINE=d8b8664` to check offline upgrade from current main; the default run checks the older V1.2 migration. Coverage includes all 18 holes, precise/invalid scores, missing versus zero/false, notes, par-3 rules, partial totals, persistence/relaunch, readonly history, Golf Coach exports, Ask copy/open/fallback and event counts, conflicting tabs, corrupt data, quota failure, offline shell/data and mobile/landscape layouts. Syntax and `git diff --check` pass. The rotation test exposed an Ask sheet height issue; both layout and keyboard viewport limits now apply, and the suite passes.
 
-The full diff was inspected: no production data, scoring, memory, context or handoff module changes; no dependencies/services added. The service worker cache version is advanced for the updated assets. Regression expectations change only for intentional presentation/copy and the cache version. Physical iPhone visual/keyboard/safe-area testing and native ChatGPT routing remain outstanding. No merge has been performed.
+The full diff was inspected: no production data, scoring, memory, context or handoff module changes; no dependencies/services added. The service worker cache version is advanced for the updated assets. Regression expectations change only for intentional presentation/copy and the cache version. Physical iPhone visual/keyboard/safe-area testing and native ChatGPT routing are validated through post-merge pilot use. V1.4.1 was merged in PR #10; device validation is not a release gate.
 
 Reproduce with an available Playwright installation and Edge: run each `node tests/<suite>.test.cjs` listed in the main README. For paired captures, run `tests/v14-browser.test.cjs` with `REVIEW_SCREENSHOT=review/screenshots/before.png` and `CAPTURE_BASELINE=d8b8664`; unset the baseline and use `REVIEW_SCREENSHOT=review/screenshots/after.png`. The baseline capture path now supports V1.4 scoring sheets as well as earlier inline scoring.
