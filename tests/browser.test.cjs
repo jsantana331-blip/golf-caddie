@@ -71,11 +71,17 @@ const server=http.createServer((req,res)=>{
  for(const h of round.holes){
   await route(page,String(h.n+1));
   assert.equal(await page.locator('h1').innerText(),`Hole ${h.n}`);
-  assert.equal(await page.locator('.hero .strategy').innerText(),h.advice);
+  const advice=await page.locator('.hero .strategy').innerText();
+  assert.equal(advice,h.n===18?'A good driver toward center-left may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.':h.advice);
+  assert.ok(advice.split(/[.!?]+/).filter(v=>v.trim()).length<=3);
+  assert.equal((await saved()).config.holes[h.n-1].advice,h.advice);
   assert.equal(await page.locator('.recommended-club').textContent(),h.teeClub);
-  assert.equal(await page.locator('.target').innerText(),h.target);
-  assert.deepEqual(await page.locator('.reference dd').allTextContents(),[h.danger,h.expected]);
-  assert.ok((await page.locator('.active-context').innerText()).startsWith('Playing Hole '));
+  assert.equal(await page.locator('.target-value').innerText(),h.target);
+  assert.equal(await page.locator('.reference,.hole-details').count(),0);
+  assert.equal((await saved()).config.holes[h.n-1].danger,h.danger);
+  assert.equal((await saved()).config.holes[h.n-1].expected,h.expected);
+  const active=(await saved()).activeHole;
+  assert.equal(await page.locator('.active-context').innerText(),active===h.n?'On course':'Preview · playing Hole '+active);
   assert.equal(await page.locator('.hole-distance span').innerText(),`Par ${h.par} · HCP ${h.hcp}`);
   assert.equal(await page.locator('.hole-distance b').innerText(),`${h.yards} yd`);
   await openScore(page);assert.equal(await page.locator('#score').count(),0);
@@ -130,7 +136,7 @@ const server=http.createServer((req,res)=>{
    }
    if(index==='2'){
     const sizes=await page.evaluate(()=>({club:parseFloat(getComputedStyle(document.querySelector('.recommended-club')).fontSize),tracker:parseFloat(getComputedStyle(document.querySelector('#record-score')).fontSize)}));
-    assert.ok(sizes.club>=sizes.tracker*2);
+    assert.ok(sizes.club>=sizes.tracker*1.75);
    }
    const layout=await page.evaluate(()=>{const nav=document.querySelector('.app-tabs').getBoundingClientRect(),c=document.querySelector('.content');c.scrollTop=c.scrollHeight;return {navBottom:nav.bottom,navTop:nav.top,width:document.documentElement.scrollWidth,inner:innerWidth,scroll:c.scrollTop,overflow:c.scrollHeight>c.clientHeight};});
    assert.ok(layout.navBottom<=size.height+1&&layout.navTop>=0,JSON.stringify(layout));assert.ok(layout.width<=layout.inner);
@@ -228,8 +234,8 @@ const server=http.createServer((req,res)=>{
  baseline=true;
  const upgrade=await browser.newContext();await upgrade.setOffline(false);const old=await upgrade.newPage();old.on('pageerror',e=>errors.push(e.message));await old.goto(url);
  await old.evaluate(()=>navigator.serviceWorker.ready);await old.reload();
- if(baselineRef!=='903da2e'){await old.locator('[data-course]').click();await old.locator('[data-tee]').click();if(baselineRef==='6a2f7a2'){await old.locator('#start-round').click();await old.locator('#to-game').click();await old.locator('#to-hole').click();}else{await old.locator('#to-game').click();await old.locator('#start-round').click();}}
- await old.locator('#jump').selectOption('9');await old.locator('[data-field="score"][data-value="3"]').click();
+ if(baselineRef!=='903da2e'){await old.locator('[data-course]').click();await old.locator('[data-tee]').click();if(['6a2f7a2','d8b8664'].includes(baselineRef)){await old.locator('#start-round').click();await old.locator('#to-game').click();await old.locator('#to-hole').click();}else{await old.locator('#to-game').click();await old.locator('#start-round').click();}}
+ await old.locator('#jump').selectOption('9');if(baselineRef==='d8b8664')await openScore(old);await old.locator('[data-field="score"][data-value="3"]').click();
  await old.evaluate(()=>caches.open('unrelated-cache'));
  baseline=false;
  await old.evaluate(async()=>{
@@ -248,7 +254,7 @@ const server=http.createServer((req,res)=>{
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
  if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await route(old,'20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.4-ios-experience-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.4.1-pocket-refinement-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));

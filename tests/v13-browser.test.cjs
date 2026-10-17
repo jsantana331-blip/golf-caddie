@@ -25,7 +25,7 @@ const server=http.createServer((req,res)=>{
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-library.png')});
  await choose();assert.equal(await page.locator('#jump').count(),0);await page.locator('#start-round').click();await page.locator('#to-game').click();await page.locator('#to-hole').click();
  const firstId=(await saved()).active.id;assert.equal(await page.locator('h1').innerText(),'Hole 1');
- for(const h of course.tees[0].holes){await route(page,String(h.n+1));assert.equal(await page.locator('#ask-caddie').innerText(),'ASK CADDIE')}
+ for(const h of course.tees[0].holes){await route(page,String(h.n+1));assert.equal(await page.locator('#ask-caddie strong').innerText(),'Ask Caddie')}
  await route(page,'2');await tap('score',5);await tap('tee','Left');await tap('gir',false);await tap('putts',3);await tap('penalties',1);await page.locator('#note').fill('Driver leaked right <safe>');
  await act(page,'#next');assert.equal((await saved()).active.activeHole,2);
  await tap('putts',2);await tap('penalties',0); // Unfinished hole metrics must not contaminate live completed-hole metrics.
