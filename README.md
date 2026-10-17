@@ -112,7 +112,7 @@ All existing suites still apply. Focused browser assertions verify delayed-copy 
 
 ### Exact iPhone acceptance for V1.3.1
 
-Use an HTTPS build of this feature branch, Caddie installed to Home Screen, the ChatGPT iOS app installed, and an active test round. Do not clear browser storage.
+Use the published HTTPS pilot app from main after deployment, Caddie installed to Home Screen, the ChatGPT iOS app installed, and an active test round. Do not clear browser storage.
 
 1. Start/resume the test round. Score Hole 1, then advance to Hole 2 (or another hole beyond Hole 1).
 2. Enter tee/GIR/putts/penalty results and at least one distinctive note. Note the selected course, tee, active hole, score and existing Ask request count in Copy for Golf Coach.
@@ -138,7 +138,7 @@ Validation: all seven suites above pass, plus syntax and UTF-8/data checks and `
 
 ### Exact installed-iPhone acceptance for V1.3.2 — post-merge pilot validation
 
-Use an HTTPS build of the feature branch installed to Home Screen. The main Pages URL will still serve the previous release until merge. Use a test round/profile; do not clear real saved rounds. For the clean-start case, use a profile without an active round or intentionally finish an existing test round.
+Use the published HTTPS pilot app from main installed to Home Screen after deployment. Use a test round/profile; do not clear real saved rounds. For the clean-start case, use a profile without an active round or intentionally finish an existing test round.
 
 1. Launch Caddie with no active round.
 2. Verify Home / Where are we playing? appears first and Start Round/course selection is clear.
