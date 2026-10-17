@@ -23,7 +23,7 @@ const server=http.createServer((req,res)=>{
  await page.evaluate(({key,mem})=>localStorage.setItem(key,JSON.stringify(mem)),{key,mem});await page.reload();await page.locator('#resume-round').waitFor();await capture('home');
  await page.locator('#resume-round').click();await capture('hole');
  if(baseline){
-  await page.locator('.tracker').scrollIntoViewIfNeeded();await capture('score');await page.locator('#open-summary').click();await capture('summary');await context.close();return;
+  await openScore(page);await capture('score');await closeScore(page);await page.locator('#open-summary').click();await capture('summary');await context.close();return;
  }
  assert.equal(await page.locator('.tracker').count(),0);await openScore(page);await capture('score');await closeScore(page);await act(page,'#open-summary');await capture('summary');
  const original=await saved();
@@ -32,7 +32,7 @@ const server=http.createServer((req,res)=>{
  }
  assert.equal(await page.locator('h1').innerText(),'Hole 3');
  assert.deepEqual(await page.locator('#jump option').allTextContents(),Array.from({length:18},(_,i)=>'Hole '+(i+1)));
- await route(page,15);await act(page,'[data-tab="rounds"]');await act(page,'[data-tab="play"]');assert.equal(await page.locator('h1').innerText(),'Hole 3');assert.equal((await saved()).active.activeHole,3);
+ await route(page,15);assert.equal(await page.locator('.active-context').innerText(),'Preview · playing Hole 3');assert.match(await page.locator('#ask-caddie').innerText(),/playing Hole 3/);assert.equal(await page.locator('h1').evaluate(el=>getComputedStyle(el).position),'absolute');await act(page,'[data-tab="rounds"]');await act(page,'[data-tab="play"]');assert.equal(await page.locator('h1').innerText(),'Hole 3');assert.equal((await saved()).active.activeHole,3);
  // Explicit saving behavior, invalid numbers, close/Escape, focus restoration and modal containment.
  await openScore(page);assert.match(await page.locator('#score-sheet').innerText(),/Valid entries save immediately/);
  await page.locator('[data-field="score"][data-value="7"]').click();await page.locator('#score').fill('0');

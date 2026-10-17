@@ -193,3 +193,7 @@ All eight test suites pass. The retained browser suites now use public V1.4 cont
 Before/after captures use the same isolated round fixture. Run `tests/v14-browser.test.cjs` with `REVIEW_SCREENSHOT=<path>.png` for Home, Hole, Score Entry and Summary; add `CAPTURE_BASELINE=6a2f7a2` for the original version. These are desktop browser captures, not physical iPhone testing.
 
 Follow [the V1.4 iPhone acceptance checklist](docs/v1.4-acceptance.md), which supersedes earlier UI navigation instructions. Do not merge automatically. No unresolved scope/product decisions block the PR; human visual and device acceptance is still outstanding.
+
+## V1.4.1 — Pocket Caddie visual refinement
+
+One primary hole selector, explicit preview context, concise strategy without repetitive disclosure/callouts, neutral canvas and white surfaces, compact tabs and a prominent ChatGPT handoff control. Original strategy remains in data and exports; scoring, memory and round management are unchanged. See [review images and exact iPhone acceptance](review/README.md). Do not merge automatically.
