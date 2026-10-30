@@ -1,0 +1,1012 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Caddie — Long Run hole visual concepts</title><style>/* Caddie V1.5 — compact iOS-style surfaces, no remote assets or UI framework. */
+:root {
+  --cream:#f7f8f6;
+  --paper:#ffffff;
+  --ink:#252b28;
+  --muted:#59635d;
+  --green:#164b38;
+  --earth:#785d44;
+  --line:#dce2dc;
+  --selected:#e7efe8;
+  --fairway:#a7c3a2;
+  --putting:#426d50;
+  --sand:#dcccaa;
+  --water:#a5c4d4
+}
+* {
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent
+}
+html,body {
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:var(--cream);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:16px;
+  line-height:1.45;
+  font-variant-numeric:tabular-nums
+}
+body {
+  position:fixed;
+  inset:0;
+  height:100dvh;
+  padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)
+}
+#app {
+  height:100%;
+  max-width:640px;
+  margin:auto
+}
+.screen {
+  height:100%;
+  min-height:0;
+  display:flex;
+  flex-direction:column
+}
+.content {
+  flex:1;
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior-y:contain;
+  padding:18px 22px 24px;
+  -webkit-overflow-scrolling:touch
+}
+h1,h2,h3,p {
+  margin:0
+}
+h1 {
+  font-size:28px;
+  line-height:1.12;
+  letter-spacing:-.035em;
+  font-weight:750;
+  margin-top:8px
+}
+h2 {
+  font-size:19px;
+  line-height:1.25;
+  font-weight:700
+}
+h3 {
+  font-size:13px;
+  font-weight:650
+}
+p {
+  line-height:1.5
+}
+.eyebrow {
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.08em;
+  color:var(--muted)
+}
+.muted {
+  color:var(--muted);
+  font-size:13px
+}
+.intro {
+  margin-top:14px;
+  color:var(--muted)
+}
+.strategy {
+  font-size:17px;
+  line-height:1.5
+}
+.na {
+  font-size:14px;
+  color:var(--muted);
+  margin-top:14px
+}
+button,input,textarea,select {
+  font:inherit;
+  color:inherit
+}
+button {
+  cursor:pointer;
+  touch-action:manipulation;
+  min-height:44px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:transparent;
+  font-weight:650
+}
+button:active {
+  background:var(--selected)
+}
+button:disabled {
+  opacity:.42;
+  cursor:default
+}
+button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus-visible {
+  outline:3px solid var(--earth);
+  outline-offset:2px
+}
+.primary {
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+  padding:12px 16px
+}
+.primary:active {
+  background:#226347
+}
+.secondary {
+  background:var(--paper);
+  padding:10px 16px;
+  color:var(--green)
+}
+.destructive {
+  color:#9b3430;
+  border:0;
+  padding:10px 12px;
+  background:transparent
+}
+.text-control {
+  border:0;
+  padding:0 6px;
+  color:var(--green);
+  font-size:14px;
+  margin-bottom:10px
+}
+.brand {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--green);
+  font-size:17px;
+  font-weight:750;
+  margin-bottom:18px
+}
+.brand-mark {
+  display:grid;
+  place-items:center;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:var(--green);
+  color:#fff;
+  font-size:20px
+}
+.library-list {
+  margin:18px 0
+}
+.library-resume,.flow-action {
+  width:100%;
+  margin-top:20px
+}
+.course-choice {
+  position:relative;
+  display:block;
+  width:100%;
+  text-align:left;
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  padding:18px 22px 18px 0;
+  background:transparent
+}
+.course-choice:disabled {
+  opacity:1;
+  cursor:default;
+}
+.course-choice:disabled strong {
+  color:var(--muted);
+}
+.course-choice:disabled::after {
+  content:"—";
+}
+.course-choice::after {
+  content:'›';
+  position:absolute;
+  right:1px;
+  top:22px;
+  font-size:23px;
+  color:var(--muted);
+  font-weight:400
+}
+.course-choice strong {
+  display:block;
+  font-size:18px;
+  line-height:1.25;
+  color:var(--ink)
+}
+.course-choice span {
+  display:block;
+  margin-top:5px;
+  font-size:14px;
+  font-weight:400;
+  color:var(--muted)
+}
+.course-choice .history-score {
+  font-size:25px;
+  font-weight:700;
+  color:var(--ink)
+}
+.start-actions {
+  display:grid;
+  gap:12px;
+  margin-top:24px
+}
+.tee-warning {
+  font-size:12px!important;
+  color:var(--earth)!important
+}
+.storage-warning {
+  color:var(--earth);
+  border-left:3px solid var(--earth);
+  padding-left:12px;
+  margin:8px 0 18px;
+  font-size:14px
+}
+.app-tabs {
+  flex-shrink:0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  padding:4px 12px max(4px,env(safe-area-inset-bottom,0px));
+  border-top:1px solid var(--line);
+  background:var(--paper)
+}
+.app-tabs button {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  min-height:48px;
+  border:0;
+  color:var(--muted);
+  font-size:11px
+}
+.app-tabs button[aria-current] {
+  color:var(--green)
+}
+.app-tabs button[aria-current] svg {
+  background:var(--selected);
+  border-radius:8px;
+  box-shadow:0 0 0 5px var(--selected)
+}
+.app-tabs svg {
+  width:21px;
+  height:21px;
+  fill:none;
+  stroke:currentColor;
+  stroke-width:1.7;
+  stroke-linecap:round;
+  stroke-linejoin:round
+}
+.round-toolbar {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-bottom:8px
+}
+.round-toolbar .active-context {
+  flex:1;
+  color:var(--muted);
+  font-size:12px
+}
+.round-toolbar button {
+  margin:0;
+  padding:0 10px;
+  min-width:44px;
+  color:var(--ink)
+}
+.screen-summary #open-summary {
+  display:none
+}
+.hole-nav {
+  display:grid;
+  grid-template-columns:44px minmax(94px,1fr) 44px auto;
+  gap:4px;
+  align-items:center;
+  margin-bottom:20px
+}
+.hole-nav h1 {
+  margin:0;
+  font-size:24px;
+  min-width:0
+}
+.hole-nav button {
+  border:0;
+  min-width:44px;
+  min-height:44px;
+  color:var(--ink);
+  font-size:26px;
+  padding:0
+}
+.hole-nav #jump {
+  display:flex;
+  align-items:center;
+  gap:4px;
+  font-size:24px;
+  letter-spacing:-.035em;
+  white-space:nowrap;
+  width:100%;
+  text-align:left
+}
+.hole-nav #jump svg {
+  width:15px;
+  height:15px;
+  fill:none;
+  stroke:var(--muted);
+  stroke-width:1.7;
+  flex-shrink:0
+}
+.hole-distance {
+  margin-left:9px;
+  text-align:right
+}
+.hole-distance b {
+  display:block;
+  font-size:24px;
+  line-height:1.1;
+  letter-spacing:-.03em
+}
+.hole-distance small {
+  font-size:12px;
+  font-weight:500
+}
+.hole-distance span {
+  display:block;
+  color:var(--muted);
+  font-size:11px;
+  margin-top:4px
+}
+.recommendation {
+  padding:0 0 16px;
+  border:0;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none
+}
+.recommendation>.eyebrow {
+  display:none
+}
+.recommended-club {
+  font-size:32px;
+  line-height:1.1;
+  letter-spacing:-.035em;
+  font-weight:750;
+  color:var(--ink)
+}
+.target {
+  font-size:20px;
+  font-weight:550;
+  color:var(--green);
+  line-height:1.25;
+  margin-top:5px
+}
+.target-label {
+  display:none
+}
+.recommendation .strategy {
+  font-size:16px;
+  line-height:1.55;
+  margin-top:14px;
+  max-width:54ch
+}
+.layout-unavailable {
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:12px;
+  color:var(--muted);
+  padding:10px 0;
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line)
+}
+.layout-unavailable span {
+  font-size:20px;
+  line-height:1
+}
+.hole-layout {
+  margin:0;
+  padding:8px 0
+}
+.hole-layout svg {
+  display:block;
+  width:100%;
+  height:clamp(140px,24dvh,220px);
+  background:#eff3ed;
+  border-radius:8px
+}
+.hole-layout figcaption {
+  font-size:10px;
+  color:var(--muted);
+  margin-top:3px
+}
+.layout-fairway {
+  fill:var(--fairway)
+}
+.layout-green,.layout-trees {
+  fill:var(--putting)
+}
+.layout-bunker {
+  fill:var(--sand)
+}
+.layout-water {
+  fill:var(--water)
+}
+.layout-tee {
+  fill:var(--green);
+  stroke:#fff;
+  stroke-width:.7
+}
+.layout-target {
+  fill:transparent;
+  stroke:#8b5c26;
+  stroke-width:1;
+  stroke-dasharray:1.5 1
+}
+.hole-actions {
+  display:grid;
+  gap:10px;
+  margin-top:14px
+}
+.hole-actions .ask-control {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:0;
+  border-radius:14px;
+  background:var(--selected);
+  padding:10px 12px;
+  min-height:62px;
+  text-align:left;
+  color:var(--green)
+}
+.ask-control strong {
+  display:block;
+  font-size:16px
+}
+.ask-control small {
+  display:block;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:400
+}
+.intelligence-mark {
+  width:32px;
+  height:32px;
+  flex-shrink:0;
+  color:var(--green)
+}
+.ask-arrow {
+  margin-left:auto;
+  font-size:24px;
+  font-weight:400
+}
+.hole-actions #record-score {
+  min-height:48px
+}
+.course-heading {
+  margin:16px 0 20px
+}
+.course-heading h1 {
+  font-size:30px;
+  max-width:17ch
+}
+.location {
+  margin-top:10px;
+  color:var(--muted)
+}
+.course-primary,.course-secondary {
+  display:flex;
+  gap:26px;
+  flex-wrap:wrap
+}
+.metric b {
+  display:block;
+  font-size:28px;
+  line-height:1.15;
+  font-weight:750;
+  overflow-wrap:anywhere
+}
+.metric span {
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:5px
+}
+.course-secondary {
+  margin-top:20px;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--line)
+}
+.course-secondary .metric b {
+  font-size:19px
+}
+.rating-note {
+  margin-top:12px
+}
+.course-facts {
+  margin-top:14px
+}
+.course-facts .summaryrow {
+  display:grid;
+  grid-template-columns:100px 1fr;
+  gap:14px;
+  padding:11px 0
+}
+.course-facts .summaryrow span {
+  font-size:13px;
+  color:var(--muted)
+}
+.course-facts .summaryrow b {
+  font-size:15px;
+  font-weight:500
+}
+.mission {
+  margin:24px 0;
+  padding:0;
+  border:0;
+  background:transparent
+}
+.mission h2 {
+  font-size:12px;
+  color:var(--earth);
+  margin-bottom:10px
+}
+.mission .strategy {
+  font-size:20px;
+  font-weight:550
+}
+.briefing section {
+  padding:16px 0;
+  border-top:1px solid var(--line)
+}
+.briefing h2 {
+  font-size:16px;
+  margin-bottom:6px
+}
+.briefing p {
+  font-size:15px;
+  color:var(--muted)
+}
+.club-distances {
+  margin-top:24px
+}
+.clubgrid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-top:16px
+}
+.club b,.club span {
+  display:block
+}
+.club span {
+  font-size:13px;
+  color:var(--muted)
+}
+.tracker fieldset {
+  border:0;
+  padding:0;
+  margin:16px 0 0
+}
+.tracker legend,.tracker>label {
+  font-weight:650;
+  font-size:14px;
+  margin-bottom:6px
+}
+.choices {
+  display:flex;
+  gap:3px;
+  padding:3px;
+  background:var(--cream);
+  border-radius:12px
+}
+.choices button {
+  flex:1;
+  min-width:0;
+  min-height:48px;
+  border:0;
+  border-radius:9px;
+  background:var(--cream);
+  font-size:15px;
+  padding:4px 2px
+}
+.choices button.active {
+  background:var(--green);
+  color:#fff
+}
+.exact {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:12px
+}
+.exact label {
+  flex:1;
+  font-size:13px
+}
+.exact button {
+  min-width:44px;
+  font-size:20px
+}
+.exact input {
+  width:64px;
+  min-height:44px;
+  text-align:center;
+  border:1px solid var(--line);
+  border-radius:8px;
+  background:var(--cream);
+  font-size:16px
+}
+.tracker>label {
+  display:block;
+  margin-top:16px
+}
+.tracker textarea,textarea {
+  display:block;
+  width:100%;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:var(--cream);
+  font:inherit;
+  font-size:16px;
+  resize:vertical
+}
+.tracker #save-status {
+  font-size:12px;
+  color:var(--muted);
+  margin-top:8px;
+  min-height:18px
+}
+.screen-summary h1+p {
+  margin-top:10px;
+  color:var(--muted)
+}
+.round-totals {
+  margin-top:24px
+}
+.totals {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:12px
+}
+.totals .metric:nth-child(-n+2) b {
+  font-size:44px;
+  line-height:1;
+  letter-spacing:-.045em
+}
+.totals .metric:nth-child(n+3) b {
+  font-size:20px
+}
+.summary-actions {
+  display:grid;
+  gap:8px;
+  margin-top:20px
+}
+.summary-actions #copy-status:empty,#ask-status:empty {
+  display:none
+}
+#copy-status {
+  font-size:14px;
+  color:var(--green)
+}
+#copy-fallback {
+  margin-top:8px
+}
+#copy-fallback textarea {
+  margin:8px 0
+}
+#copy-fallback p {
+  font-size:14px;
+  margin-top:8px
+}
+#select-report {
+  width:100%
+}
+.scorecard-section {
+  margin-top:24px
+}
+.scorecard-section>p {
+  font-size:12px;
+  color:var(--muted);
+  margin:6px 0 12px
+}
+.scorecard {
+  max-height:52dvh;
+  overflow:auto;
+  overscroll-behavior:contain
+}
+table {
+  border-collapse:collapse;
+  width:100%;
+  font-size:13px;
+  white-space:nowrap
+}
+th,td {
+  padding:8px 7px;
+  border-bottom:1px solid var(--line);
+  text-align:center
+}
+thead th {
+  font-size:11px;
+  color:var(--muted);
+  font-weight:650
+}
+.scorecard thead {
+  position:sticky;
+  top:0;
+  background:var(--cream);
+  z-index:2
+}
+th:first-child {
+  position:sticky;
+  left:0;
+  background:var(--cream)
+}
+th button {
+  min-width:44px;
+  min-height:44px;
+  border:0;
+  color:var(--green);
+  text-decoration:underline;
+  text-underline-offset:4px
+}
+.scorecard td:nth-child(3) {
+  font-weight:750;
+  font-size:17px
+}
+.note-cell {
+  white-space:normal;
+  min-width:160px;
+  max-width:240px;
+  overflow-wrap:anywhere;
+  text-align:left
+}
+.round-stats {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:24px;
+  padding:18px 0;
+  border-top:1px solid var(--line)
+}
+.stat .summaryrow {
+  display:flex;
+  flex-direction:column-reverse;
+  gap:3px
+}
+.stat .summaryrow b {
+  font-size:24px;
+  line-height:1.2
+}
+.stat .summaryrow span {
+  font-size:13px;
+  font-weight:600
+}
+.stat .muted {
+  font-size:12px;
+  margin-top:4px
+}
+.new-round-section {
+  margin-top:24px
+}
+.new-round-section p {
+  margin-top:8px
+}
+.new-round-section button {
+  width:100%
+}
+#exit-home {
+  margin-top:12px
+}
+.bottom-sheet,#ask-sheet {
+  position:fixed;
+  color:var(--ink);
+  background:var(--paper);
+  border:0;
+  border-radius:24px 24px 0 0;
+  width:min(100%,540px);
+  max-width:100%;
+  max-height:min(calc(100dvh - env(safe-area-inset-top,0px) - 12px),calc(var(--visual-height,100dvh) - env(safe-area-inset-top,0px) - 12px));
+  margin:auto auto var(--keyboard-bottom,0px);
+  padding:18px max(18px,env(safe-area-inset-right,0px)) max(18px,env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));
+  overflow-y:auto;
+  overscroll-behavior:contain
+}
+.bottom-sheet::backdrop,#ask-sheet::backdrop {
+  background:rgb(17 32 24 / .35)
+}
+.bottom-sheet[open] {
+  display:flex;
+  flex-direction:column
+}
+.sheet-heading {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+  margin:0 0 12px
+}
+.sheet-heading h2 {
+  flex:1;
+  font-size:17px
+}
+.sheet-heading button {
+  min-width:44px;
+  min-height:44px;
+  border:0;
+  font-size:24px
+}
+.sheet-body {
+  min-height:0;
+  overflow-y:auto;
+  overscroll-behavior:contain;
+  padding:0 2px 8px
+}
+.sheet-footer {
+  flex-shrink:0;
+  padding-top:10px;
+  border-top:1px solid var(--line)
+}
+.sheet-footer button {
+  width:100%
+}
+#score-sheet fieldset:first-child {
+  margin-top:0
+}
+.menu-items {
+  display:grid;
+  gap:2px
+}
+.menu-items button {
+  border:0;
+  border-bottom:1px solid var(--line);
+  border-radius:0;
+  text-align:left;
+  padding:12px 6px;
+  color:var(--ink)
+}
+body:has(dialog[open]) .content {
+  overflow:hidden
+}
+#ask-sheet p {
+  margin:12px 0
+}
+.sheet-actions {
+  display:grid;
+  gap:8px;
+  margin-top:18px
+}
+.sheet-actions button {
+  font-size:13px
+}
+#ask-status {
+  font-weight:650;
+  color:var(--green)
+}
+#open-chatgpt {
+  color:var(--green);
+  font-weight:700;
+  min-height:44px;
+  padding:10px 0
+}
+#open-chatgpt:not([hidden]) {
+  display:block
+}
+#ask-fallback textarea {
+  margin:8px 0
+}
+#ask-fallback button {
+  width:100%;
+  margin-top:8px
+}
+.nine {
+  margin:18px 0
+}
+.nine h3 {
+  color:var(--muted);
+  margin-bottom:8px
+}
+.hole-grid {
+  display:grid;
+  grid-template-columns:repeat(9,minmax(0,1fr));
+  gap:4px
+}
+.hole-grid button {
+  position:relative;
+  min-height:58px;
+  border:0;
+  border-radius:10px;
+  background:var(--cream);
+  padding:6px 0
+}
+.hole-grid button[aria-pressed=true] {
+  background:var(--green);
+  color:#fff
+}
+.hole-grid b,.hole-grid small {
+  display:block
+}
+.hole-grid b {
+  font-size:17px
+}
+.hole-grid small {
+  font-size:11px;
+  font-weight:400
+}
+.playing-dot {
+  position:absolute;
+  right:4px;
+  top:4px;
+  width:4px;
+  height:4px;
+  background:currentColor;
+  border-radius:50%
+}
+.sr-only {
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%)
+}
+.loading {
+  height:100%;
+  display:grid;
+  place-content:center;
+  text-align:center;
+  padding:24px
+}
+.mark {
+  margin:auto;
+  color:var(--green);
+  font-size:50px;
+  font-weight:800
+}
+@media(max-width:440px) {
+  .hole-grid {
+    grid-template-columns:repeat(5,minmax(44px,1fr));
+    gap:6px
+  }
+}
+@media(max-width:360px) {
+  .content {
+    padding:14px 16px 20px
+  }
+  .hole-nav {
+    grid-template-columns:44px minmax(90px,1fr) 44px auto;
+    gap:2px;
+    margin-bottom:16px
+  }
+  .hole-nav #jump {
+    font-size:22px
+  }
+  .hole-distance {
+    margin-left:6px
+  }
+  .hole-distance b {
+    font-size:22px
+  }
+  .recommended-club {
+    font-size:30px
+  }
+  .course-primary,.course-secondary {
+    gap:20px
+  }
+}
+@media(min-width:600px) {
+  .content {
+    padding:24px 32px
+  }
+  .course-heading h1 {
+    font-size:36px
+  }
+}
+@media(prefers-reduced-motion:no-preference) {
+  button {
+    transition:background-color .12s ease,color .12s ease
+  }
+}
+
+html{height:auto;overflow:auto}body{position:static;height:auto;overflow:auto;padding:0;background:#e9ede7}.review-header,.evidence{max-width:1218px;margin:auto;padding:28px 24px}.review-header h1{font-size:28px}.review-header p{max-width:840px;margin-top:10px;color:var(--muted)}.review-header .eyebrow{color:var(--green)}.concept-controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.concept-controls button{background:white;padding:8px 14px}.concept-controls button[aria-pressed=true]{background:var(--green);color:white}.phones{display:flex;justify-content:center;align-items:flex-start;flex-wrap:wrap;gap:22px;padding:0 18px 24px}.phone{width:390px;height:844px;border:1px solid #d1d9d0;border-radius:26px;overflow:hidden;background:var(--cream);box-shadow:0 8px 30px #18372210}.phone .content{padding:16px 20px 18px}.mock-jump{display:flex;align-items:center;gap:5px;font-size:24px!important;white-space:nowrap;letter-spacing:-.035em}.mock-jump svg{width:15px;height:15px;fill:none;stroke:var(--muted);stroke-width:1.7}.concept-layout{margin:0}.concept-layout>svg{display:block;width:100%;height:235px}.concept-layout figcaption{font-size:10px;line-height:1.4;color:var(--muted);margin-top:6px}.concept-layout figcaption span{font-weight:700;color:var(--earth)}.concept-c{display:grid;place-items:center;width:29px;height:29px;border:1px solid var(--green);border-radius:50%;font-size:20px}.phone .hole-actions{gap:8px;margin-top:12px}.phone .hole-actions .ask-control{min-height:56px}.phone .recommendation{padding-bottom:12px}.phone .recommendation .strategy{font-size:15px;line-height:1.5;margin-top:10px}.evidence{padding-top:12px}.evidence>p{color:var(--muted);font-size:14px;max-width:1000px;margin-top:10px}.evidence-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:18px}.evidence-grid h3{font-size:17px}.evidence-grid p{font-size:13px;margin-top:8px;color:var(--muted)}.evidence a{color:var(--green)}.prototype-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);max-width:90%;padding:12px 18px;border-radius:12px;background:#24382d;color:white;font-size:13px;z-index:20}.prototype-toast[hidden]{display:none}[hidden]{display:none!important}body.capture{position:fixed;inset:0;height:100dvh;overflow:hidden;background:var(--cream)}body.capture .review-header,body.capture .evidence{display:none}body.capture .phones{display:block;padding:0}body.capture .phone{width:100%;height:100dvh;max-width:none;border:0;border-radius:0;box-shadow:none}body.capture .phone .content{padding:16px 20px 18px}@media(max-width:700px){.evidence-grid{grid-template-columns:1fr}.phone{max-width:100%}.review-header,.evidence{padding:22px 18px}}@media(max-height:700px){body.capture .concept-layout>svg{height:180px}}</style></head><body><header class="review-header"><p class="eyebrow">CADDIE · DESIGN REVIEW</p><h1>Course intelligence you can see.</h1><p>Three original scorecard-style concepts, placed in the current iPhone experience. Broad routing is interpreted from Long Run's municipal map. Contours are illustrative; these are not playable yardage diagrams or approved production geometry.</p><nav class="concept-controls" aria-label="Concept selection"><button data-show="all" aria-pressed="true">Compare all</button><button data-show="5" aria-pressed="false">Hole 5</button><button data-show="12" aria-pressed="false">Hole 12</button><button data-show="15" aria-pressed="false">Hole 15</button></nav></header><div class="phones"><article class="phone" data-hole="5"><section class="screen"><main class="content"><div class="round-toolbar"><span class="active-context">Long Run · Blue</span><button class="text-control mock-action">Summary</button><button class="text-control mock-action" aria-label="Round menu">•••</button></div><nav class="hole-nav" aria-label="Hole navigation"><button class="mock-action" aria-label="Previous hole">‹</button><h1><button class="mock-jump">Hole 5<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></h1><button class="mock-action" aria-label="Next hole">›</button><div class="hole-distance"><b>162<small> yd</small></b><span>Par 3 · HCP 11</span></div></nav><section class="recommendation"><h2 class="recommended-club">7i</h2><p class="target">Middle of green</p><p class="strategy">Your stock 7i is 165 yards for this 162-yard hole. Check the actual playing distance and favor the middle of the green.</p></section><figure class="concept-layout"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 275" role="img" aria-labelledby="title-5 desc-5"><title id="title-5">Long Run Hole 5 — routing concept</title><desc id="desc-5">Short tee-to-green route between the areas used for holes 4 and 6. Green at the end of the route. Trees surrounding the corridor. Original illustrative contours, not measured course geometry. Tee area is not tee-specific; no carry distances or target zone are shown.</desc><defs><linearGradient id="fairway-5" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#a6c09c"/><stop offset="1" stop-color="#bfd1af"/></linearGradient><linearGradient id="trees-5" x1="0" x2="1"><stop stop-color="#739575" stop-opacity=".22"/><stop offset="1" stop-color="#496e53" stop-opacity=".08"/></linearGradient><radialGradient id="canvas-5"><stop stop-color="#f3f5ed"/><stop offset="1" stop-color="#eaf0e7"/></radialGradient></defs><rect width="320" height="275" rx="10" fill="url(#canvas-5)"/><path d="M 73 221 C 50 162 63 105 91 54 L 114 50 C 98 118 89 163 106 220 Z" fill="url(#trees-5)"/><path d="M 196 225 C 215 176 201 106 214 59 L 237 70 C 228 123 248 184 226 228 Z" fill="url(#trees-5)"/><path d="M 139 227 C 125 198 117 172 122 139 C 125 111 140 88 145 67 L 177 63 C 180 96 164 124 162 151 C 158 181 172 204 166 228 Z" fill="url(#fairway-5)" stroke="#8fac86" stroke-width="1" stroke-dasharray="3 3"/><ellipse cx="161" cy="56" rx="27" ry="19" fill="#8eac83" opacity=".4"/><ellipse cx="161" cy="56" rx="24" ry="16" fill="#4e7757"/><path d="M 150 57 Q 161 50 173 55" fill="none" stroke="#6f936e" stroke-width=".7"/><rect x="145" y="239" width="14" height="6" rx="2" fill="#315b42" stroke="#fff" stroke-width="1"/><text x="195" y="59" font-family="-apple-system,Segoe UI,sans-serif" font-size="9" fill="#526453">Green area</text><text x="152" y="259" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" fill="#647261">Tee area</text><text x="12" y="18" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" letter-spacing=".6" fill="#526453">ROUTING CONCEPT · NOT TO SCALE</text></svg><figcaption><span>Concept preview</span> · Route supported by published map; contours and tee area are illustrative.</figcaption></figure><div class="hole-actions"><button class="ask-control mock-action"><span class="concept-c" aria-hidden="true">C</span><span><strong>Ask Caddie</strong><small>Copy context · continue in ChatGPT</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button class="primary mock-action">Record Score</button></div></main><nav class="app-tabs" aria-label="App navigation"><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9"/></svg><span>Home</span></button><button class="mock-action" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3l13 4-13 5"/></svg><span>Play</span></button><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Rounds</span></button></nav></section></article><article class="phone" data-hole="12"><section class="screen"><main class="content"><div class="round-toolbar"><span class="active-context">Long Run · Blue</span><button class="text-control mock-action">Summary</button><button class="text-control mock-action" aria-label="Round menu">•••</button></div><nav class="hole-nav" aria-label="Hole navigation"><button class="mock-action" aria-label="Previous hole">‹</button><h1><button class="mock-jump">Hole 12<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></h1><button class="mock-action" aria-label="Next hole">›</button><div class="hole-distance"><b>219<small> yd</small></b><span>Par 3 · HCP 8</span></div></nav><section class="recommendation"><h2 class="recommended-club">3H</h2><p class="target">Middle of green</p><p class="strategy">Your stock 3H is 215 yards for this 219-yard hole. Check the actual playing distance and favor the middle of the green.</p></section><figure class="concept-layout"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 275" role="img" aria-labelledby="title-12 desc-12"><title id="title-12">Long Run Hole 12 — routing concept</title><desc id="desc-12">A direct diagonal connection from the tee area toward a green southwest of it on the north-up municipal map. Tree cover around the corridor. Original illustrative contours, not measured course geometry. Tee area is not tee-specific; no carry distances or target zone are shown.</desc><defs><linearGradient id="fairway-12" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#a6c09c"/><stop offset="1" stop-color="#bfd1af"/></linearGradient><linearGradient id="trees-12" x1="0" x2="1"><stop stop-color="#739575" stop-opacity=".22"/><stop offset="1" stop-color="#496e53" stop-opacity=".08"/></linearGradient><radialGradient id="canvas-12"><stop stop-color="#f3f5ed"/><stop offset="1" stop-color="#eaf0e7"/></radialGradient></defs><rect width="320" height="275" rx="10" fill="url(#canvas-12)"/><path d="M 56 220 C 64 160 49 103 72 47 L 98 41 C 86 107 95 162 88 221 Z" fill="url(#trees-12)"/><path d="M 216 220 C 229 162 202 114 199 63 L 224 53 C 231 118 257 164 248 222 Z" fill="url(#trees-12)"/><path d="M 155 230 C 152 195 135 173 128 147 C 120 121 121 95 118 71 L 150 61 C 161 90 158 110 169 139 C 179 166 197 197 185 229 Z" fill="url(#fairway-12)" stroke="#8fac86" stroke-width="1" stroke-dasharray="3 3"/><ellipse cx="133" cy="56" rx="27" ry="20" fill="#8eac83" opacity=".4"/><ellipse cx="133" cy="56" rx="24" ry="17" fill="#4e7757"/><path d="M 122 57 Q 133 50 145 55" fill="none" stroke="#6f936e" stroke-width=".7"/><rect x="165" y="240" width="14" height="6" rx="2" fill="#315b42" stroke="#fff" stroke-width="1"/><text x="167" y="59" font-family="-apple-system,Segoe UI,sans-serif" font-size="9" fill="#526453">Green area</text><text x="172" y="260" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" fill="#647261">Tee area</text><text x="12" y="18" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" letter-spacing=".6" fill="#526453">ROUTING CONCEPT · NOT TO SCALE</text></svg><figcaption><span>Concept preview</span> · Route supported by published map; contours and tee area are illustrative.</figcaption></figure><div class="hole-actions"><button class="ask-control mock-action"><span class="concept-c" aria-hidden="true">C</span><span><strong>Ask Caddie</strong><small>Copy context · continue in ChatGPT</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button class="primary mock-action">Record Score</button></div></main><nav class="app-tabs" aria-label="App navigation"><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9"/></svg><span>Home</span></button><button class="mock-action" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3l13 4-13 5"/></svg><span>Play</span></button><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Rounds</span></button></nav></section></article><article class="phone" data-hole="15"><section class="screen"><main class="content"><div class="round-toolbar"><span class="active-context">Long Run · Blue</span><button class="text-control mock-action">Summary</button><button class="text-control mock-action" aria-label="Round menu">•••</button></div><nav class="hole-nav" aria-label="Hole navigation"><button class="mock-action" aria-label="Previous hole">‹</button><h1><button class="mock-jump">Hole 15<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></h1><button class="mock-action" aria-label="Next hole">›</button><div class="hole-distance"><b>447<small> yd</small></b><span>Par 4 · HCP 4</span></div></nav><section class="recommendation"><h2 class="recommended-club">Driver</h2><p class="target">Widest visible landing area</p><p class="strategy">A stock Driver leaves about 192 yards, near your 4i. Confirm the landing area first, then favor the middle of the green.</p></section><figure class="concept-layout"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 275" role="img" aria-labelledby="title-15 desc-15"><title id="title-15">Long Run Hole 15 — routing concept</title><desc id="desc-15">Longer route on the eastern side of the published course map. Green at the southern end. Water near the approach corridor. Tree cover around the hole. Original illustrative contours, not measured course geometry. Tee area is not tee-specific; no carry distances or target zone are shown.</desc><defs><linearGradient id="fairway-15" x1="0" y1="1" x2="1" y2="0"><stop stop-color="#a6c09c"/><stop offset="1" stop-color="#bfd1af"/></linearGradient><linearGradient id="trees-15" x1="0" x2="1"><stop stop-color="#739575" stop-opacity=".22"/><stop offset="1" stop-color="#496e53" stop-opacity=".08"/></linearGradient><radialGradient id="canvas-15"><stop stop-color="#f3f5ed"/><stop offset="1" stop-color="#eaf0e7"/></radialGradient></defs><rect width="320" height="275" rx="10" fill="url(#canvas-15)"/><path d="M 55 225 C 47 193 57 166 62 145 L 87 149 C 77 179 81 203 82 227 Z" fill="url(#trees-15)"/><path d="M 241 227 C 250 181 232 123 246 70 L 267 79 C 260 127 280 179 269 226 Z" fill="url(#trees-15)"/><path d="M 104 70 C 121 62 136 77 132 93 C 126 106 135 119 122 127 C 107 132 90 124 88 111 C 86 100 94 94 92 86 C 90 78 96 72 104 70 Z" fill="#a4c3d0" stroke="#89afbf" stroke-width=".8" stroke-dasharray="3 3"/><path d="M 101 92 Q 110 87 119 93 M 100 103 Q 110 98 121 104" fill="none" stroke="#d9e9eb" stroke-width="1"/><path d="M 140 232 C 136 207 156 180 169 154 C 184 128 182 95 164 69 L 194 53 C 226 96 213 138 200 165 C 186 196 183 215 172 234 Z" fill="url(#fairway-15)" stroke="#8fac86" stroke-width="1" stroke-dasharray="3 3"/><ellipse cx="178" cy="50" rx="28" ry="20" fill="#8eac83" opacity=".4"/><ellipse cx="178" cy="50" rx="25" ry="17" fill="#4e7757"/><path d="M 167 51 Q 178 44 190 49" fill="none" stroke="#6f936e" stroke-width=".7"/><rect x="148" y="243" width="14" height="6" rx="2" fill="#315b42" stroke="#fff" stroke-width="1"/><text x="212" y="53" font-family="-apple-system,Segoe UI,sans-serif" font-size="9" fill="#526453">Green area</text><text x="155" y="263" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" fill="#647261">Tee area</text><text x="12" y="18" font-family="-apple-system,Segoe UI,sans-serif" font-size="8" letter-spacing=".6" fill="#526453">ROUTING CONCEPT · NOT TO SCALE</text></svg><figcaption><span>Concept preview</span> · Route supported by published map; contours and tee area are illustrative; water edge approximate.</figcaption></figure><div class="hole-actions"><button class="ask-control mock-action"><span class="concept-c" aria-hidden="true">C</span><span><strong>Ask Caddie</strong><small>Copy context · continue in ChatGPT</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button class="primary mock-action">Record Score</button></div></main><nav class="app-tabs" aria-label="App navigation"><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9"/></svg><span>Home</span></button><button class="mock-action" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 21V3l13 4-13 5"/></svg><span>Play</span></button><button class="mock-action" ><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3h14v18H5zM8 8h8M8 12h8M8 16h5"/></svg><span>Rounds</span></button></nav></section></article></div><aside class="evidence"><h2>What the drawings do—and do not—establish</h2><p>These are original SVG compositions, not crops or traces of the copyrighted illustration. The green/tee symbols and fairway/tree/water edges are deliberately schematic. No exact tee color position, bunker, carry distance, landing-zone marker or measured width is claimed. A stylistic approval does not verify any unresolved geography.</p><div class="evidence-grid"><section><h3>Hole 5</h3><p><b>Map-supported:</b> Short tee-to-green route between the areas used for holes 4 and 6; Green at the end of the route; Trees surrounding the corridor.</p><p><b>Unresolved:</b> Exact position of each colored tee; Fairway and green boundary dimensions; Bunker identities and edges; Elevation, carry distances and preferred landing zone.</p></section><section><h3>Hole 12</h3><p><b>Map-supported:</b> A direct diagonal connection from the tee area toward a green southwest of it on the north-up municipal map; Tree cover around the corridor.</p><p><b>Unresolved:</b> Exact tee and green positions for each tee set; Precise fairway width; Bunker edges; Elevation and carry distances.</p></section><section><h3>Hole 15</h3><p><b>Map-supported:</b> Longer route on the eastern side of the published course map; Green at the southern end; Water near the approach corridor; Tree cover around the hole.</p><p><b>Unresolved:</b> Exact water edge and its distance from the playing line; Fairway and green contours; Tee-set locations; Bunker edges; Carry distances and safest target zone.</p></section></div><p>References: <a href="https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg" target="_blank" rel="noopener">municipal map / rules</a> · <a href="https://louisvilleky.gov/sites/default/files/2022-08/Longrun-score.jpg" target="_blank" rel="noopener">municipal scorecard</a>. Original illustration not redistributed. Existing production verification flags and scoring are unchanged.</p></aside><p class="prototype-toast" role="status" hidden></p><script>const query=new URLSearchParams(location.search),selected=query.get('hole');function show(value){document.querySelectorAll('.phone').forEach(p=>p.hidden=value!=='all'&&p.dataset.hole!==value);document.querySelectorAll('[data-show]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.show===value)))}if(selected&&['5','12','15'].includes(selected))show(selected);if(query.has('capture'))document.body.classList.add('capture');document.querySelectorAll('[data-show]').forEach(b=>b.onclick=()=>show(b.dataset.show));let timer;document.querySelectorAll('.mock-action,.mock-jump').forEach(b=>b.onclick=()=>{const status=document.querySelector('.prototype-toast');status.textContent='Visual prototype — scoring and ChatGPT handoff remain in the production app.';status.hidden=false;clearTimeout(timer);timer=setTimeout(()=>status.hidden=true,3500)});</script></body></html>

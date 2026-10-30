@@ -1,0 +1,27 @@
+{
+  "status": "Design concepts only — not production geometry",
+  "source": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+  "scorecard": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-score.jpg",
+  "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00",
+  "method": "Manual interpretation of broad route/green/terrain relationships. No tracing, source pixels, exact boundary coordinates or copied artwork are included.",
+  "holes": [
+    {
+      "hole": 5,
+      "supported": ["Short tee-to-green route between the areas used for holes 4 and 6", "Green at the end of the route", "Trees surrounding the corridor"],
+      "unresolved": ["Exact position of each colored tee", "Fairway and green boundary dimensions", "Bunker identities and edges", "Elevation, carry distances and preferred landing zone"],
+      "design": "A restrained, gently bending short-hole silhouette; outlines are illustrative, not measured."
+    },
+    {
+      "hole": 12,
+      "supported": ["A direct diagonal connection from the tee area toward a green southwest of it on the north-up municipal map", "Tree cover around the corridor"],
+      "unresolved": ["Exact tee and green positions for each tee set", "Precise fairway width", "Bunker edges", "Elevation and carry distances"],
+      "design": "A longer short-hole silhouette, rotated to put the green above the tee; no north arrow or distance scale is implied."
+    },
+    {
+      "hole": 15,
+      "supported": ["Longer route on the eastern side of the published course map", "Green at the southern end", "Water near the approach corridor", "Tree cover around the hole"],
+      "unresolved": ["Exact water edge and its distance from the playing line", "Fairway and green contours", "Tee-set locations", "Bunker edges", "Carry distances and safest target zone"],
+      "design": "An original ribbon silhouette and a simplified water patch near the approach. The water relationship is map-supported; its rendered outline and placement are approximate."
+    }
+  ]
+}
