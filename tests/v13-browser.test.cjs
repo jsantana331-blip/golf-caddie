@@ -21,7 +21,7 @@ const server=http.createServer((req,res)=>{
  const key='caddie:/golf-caddie/:memory:v1.3',saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
  const choose=async(id='nevel-meade',tee='blue')=>{await page.locator(`[data-course="${id}"]`).click();await page.locator(`[data-tee="${tee}"]`).click();};
  const tap=async(field,value)=>{await openScore(page);await page.locator(`[data-field="${field}"][data-value="${value}"]`).click()};
- assert.equal(await page.locator('[data-course]').count(),2);assert.equal(await page.locator('.card').count(),0);
+ assert.equal(await page.locator('[data-course]').count(),3);assert.equal(await page.locator('.card').count(),0);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-library.png')});
  await choose();assert.equal(await page.locator('#jump').count(),0);await page.locator('#start-round').click();await page.locator('#to-game').click();await page.locator('#to-hole').click();
  const firstId=(await saved()).active.id;assert.equal(await page.locator('h1').innerText(),'Hole 1');
@@ -61,7 +61,7 @@ const server=http.createServer((req,res)=>{
  await page.locator('#copy-open').click();await page.locator('#ask-fallback').waitFor({state:'visible'});assert.equal(await page.locator('#open-chatgpt').isVisible(),false);assert.deepEqual((await saved()).active,beforeFail);assert.equal(await page.locator('#live-text').inputValue(),C.live(beforeFail));
  await page.locator('#select-context').click();assert.equal(await page.locator('#live-text').evaluate(el=>el.selectionEnd-el.selectionStart),(await page.locator('#live-text').inputValue()).length);
  await page.locator('#confirm-copy').click();assert.equal((await saved()).active.events.length,4);assert.equal(await page.locator('#confirm-copy').isDisabled(),true);
- await page.locator('#close-ask').click();assert.equal(await page.locator('#jump').inputValue(),'15');
+ await page.locator('#close-ask').click();assert.equal(await page.locator('#jump').getAttribute('data-page'),'15');
  // Browsing the library and other tees never replaces an active scorecard.
  const preserved=(await saved()).active;
  await act(page,'#open-summary');await act(page,'#exit-home');await choose('test-fixture','short');assert.deepEqual({...((await saved()).active),page:preserved.page},preserved);
@@ -69,7 +69,7 @@ const server=http.createServer((req,res)=>{
  page.once('dialog',d=>d.dismiss());await page.locator('#start-round').click();assert.deepEqual({...((await saved()).active),page:preserved.page},preserved);
  await page.locator('#resume-round').click();await act(page,'#open-summary');await act(page,'#back-active');assert.equal(await page.locator('h1').innerText(),'Hole 2');
  await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();assert.equal((await saved()).active.activeHole,2);
- await act(page,'#open-summary');page.once('dialog',d=>{assert.match(d.message(),/every hole/);d.accept()});await page.locator('#complete-round').click();assert.equal((await saved()).history.length,0);
+ await act(page,'#open-summary');page.once('dialog',d=>{assert.ok(d.message().includes('Finish & save 1/18 holes'));d.dismiss()});await page.locator('#complete-round').click();assert.equal((await saved()).history.length,0);
  for(const h of course.tees[0].holes){await route(page,String(h.n+1));if((await saved()).active.results[h.n]?.score!==h.par)await tap('score',h.par)}
  await act(page,'#open-summary');
  // Quota failure must not clear the active round or pretend the archive succeeded.

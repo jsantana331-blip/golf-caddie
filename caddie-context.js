@@ -32,7 +32,7 @@ Prioritize expected score and avoiding doubles over hero shots.`;
   const scored=round.holes.filter(h=>results[h.n]?.score!==undefined),s=R.stats(scored,results);
   const lines=['CADDIE COACH — LIVE ROUND','',`Current: Hole ${h.n} · Par ${h.par} · ${h.yards} yd`,
    `Course: ${round.course}`,`Tee: ${round.tee}`,`Round: ${R.relativeLabel(s)} through ${s.played}`,'','HOLE PLAN'];
-  for(const [label,field] of [['Tee','teeClub'],['Target','target'],['Avoid','danger'],['Expected','expected'],['Plan','advice']]){const value=field==='advice'?(h.advice||h.plan):h[field];if(value)lines.push(`${label}: ${value}`);}
+  for(const [label,field] of [['Tee','teeClub'],['Target','target'],['Avoid','danger'],['Safest miss','safestMiss'],['Expected','expected'],['Plan','advice']]){const value=field==='advice'?(h.advice||h.plan):h[field];if(value)lines.push(`${label}: ${value}`);}
   lines.push('','ROUND SO FAR (completed holes only)',`Score: ${s.played?s.score:'—'} · ${R.relativeLabel(s)}`,
    `FIR: ${s.fairways}/${s.eligible} (${s.teeRecorded} recorded)`,`GIR: ${s.gir}/${s.played} (${s.girRecorded} recorded)`,
    `Putts: ${s.putts} (${s.puttsRecorded} holes recorded)`,`Penalties: ${s.penalties} (${s.penaltiesRecorded} holes recorded)`);
@@ -46,7 +46,7 @@ Prioritize expected score and avoiding doubles over hero shots.`;
   lines.push('',...playerLines(record.player),'',request);return lines.join('\n');
  }
  function full(record){
-  const base=R.coachReport(record.config,record.results),last=base.lastIndexOf('\n\n');
+  const base=R.coachReport(record.config,record.results).replace(/^Round status: In Progress$/m,record.completedAt?'Round status: Finished — Partial':'Round status: In Progress'),last=base.lastIndexOf('\n\n');
   const events=record.events||[],extra=[`Round ID: ${record.id}`,`Started: ${record.startedAt}`];
   if(record.completedAt)extra.push('Finalized: '+record.completedAt);
   extra.push(...playerLines(record.player),`Ask Caddie requests: ${events.length}`,`Ask Caddie holes: ${events.length?events.map(e=>'H'+e.hole).join(', '):'None'}`);
