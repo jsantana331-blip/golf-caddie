@@ -8,8 +8,800 @@
     },
     "long-run": {
       "available": [],
-      "reason": "Municipal illustration reviewed; redistribution/derivative rights not established. No geometry inferred from scorecard distances."
+      "schematic": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18
+      ],
+      "reason": "All 18 holes have labeled, original scorecard sketches. Surveyed/tee-specific geometry remains unavailable."
     }
   },
-  "holes": []
+  "holes": [],
+  "schematics": [
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 1,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          50.53,
+          53.81
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [
+        [
+          60.89,
+          73.53
+        ]
+      ],
+      "treeContext": "open",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A predominantly straight corridor from the southern opening area toward the northern green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Water is shown beside the opening area; its edge and relevance to a particular tee shot are unresolved."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 2,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          55.21,
+          64.85
+        ],
+        [
+          54.15,
+          40.74
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "An angled northbound route links the lower tee area to the upper green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 3,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          44.03,
+          61.1
+        ],
+        [
+          44.27,
+          37.99
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The upper front-nine route runs broadly east toward its green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 4,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          42.91,
+          58.88
+        ],
+        [
+          46.61,
+          35.86
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The outer northern route bends back northwest toward the green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 5,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          51.72,
+          51.74
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A short southbound connection with trees around the corridor.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 6,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          45.08,
+          57.61
+        ],
+        [
+          47.8,
+          31.5
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A southwestward corridor leads to the lower green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 7,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          31.23,
+          70.44
+        ],
+        [
+          32.74,
+          47.28
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A bending route turns west into the far western green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 8,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          42.6,
+          52.83
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A short connection runs south from the preceding green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 9,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          51.75,
+          56.81
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [
+        [
+          63.08,
+          20.98
+        ]
+      ],
+      "treeContext": "open",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The closing front-nine route returns south toward the clubhouse area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Water is shown beside the finishing area; no exact edge, carry or safe target is established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 10,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          47.33,
+          60.81
+        ],
+        [
+          48.45,
+          37.37
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The central back-nine corridor runs north toward the green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 11,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          38.2,
+          66.18
+        ],
+        [
+          40.48,
+          43.43
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A bending northeastward route crosses the central upper back-nine area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 12,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          49.98,
+          53.74
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A direct diagonal short-hole route leads southwest from its tee area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 13,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          45.9,
+          68.14
+        ],
+        [
+          51.38,
+          41.42
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A northeastward corridor links the lower tee area with the upper green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 14,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          39.67,
+          67.72
+        ],
+        [
+          41.8,
+          40.98
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [
+        [
+          26.01,
+          21
+        ]
+      ],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The eastern outer corridor curves southwest into its green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Water appears near the finishing corridor, with wooded separation; exact proximity and boundaries are unresolved."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 15,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          51.62,
+          61.62
+        ],
+        [
+          53.92,
+          39.45
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [
+        [
+          47.83,
+          29.31
+        ]
+      ],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A longer southbound route on the eastern side, with water near the approach.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Water near the approach is map-supported; the drawn patch is approximate and does not establish a carry."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 16,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          47.87,
+          61.88
+        ],
+        [
+          49.91,
+          38.92
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A central-eastern corridor returns north to its green area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 17,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          49.43,
+          53.55
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "wooded",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "A short southwestward connection lies between the neighboring back-nine corridors.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    },
+    {
+      "kind": "schematic",
+      "courseId": "long-run",
+      "teeIds": [
+        "blue",
+        "white",
+        "yellow",
+        "red",
+        "orange"
+      ],
+      "hole": 18,
+      "precision": "illustrative",
+      "originalArtwork": true,
+      "route": [
+        [
+          50,
+          88
+        ],
+        [
+          54.55,
+          67.72
+        ],
+        [
+          56.67,
+          46.2
+        ],
+        [
+          50,
+          16
+        ]
+      ],
+      "water": [],
+      "treeContext": "tree-lined",
+      "source": {
+        "url": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+        "referenceReviewed": true,
+        "reviewedAt": "2026-10-29",
+        "attribution": "Long Run municipal scorecard map · original sketch",
+        "routingEvidence": "The closing corridor returns south toward the clubhouse, bending near its finishing area.",
+        "referenceSha256": "347871ee47778f124353eb04c7d66c1b8fb52244ba425908146cea9d45976d00"
+      },
+      "uncertainty": "Route interpreted from the published map; tee area, fairway width and green shape are illustrative. Exact tee-set locations, bunkers, carries and target zones are not established."
+    }
+  ]
 }

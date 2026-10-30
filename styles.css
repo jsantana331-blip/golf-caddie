@@ -1008,3 +1008,27 @@ body:has(dialog[open]) .content {
     transition:background-color .12s ease,color .12s ease
   }
 }
+/* Original scorecard sketches are explicitly illustrative, distinct from verified layouts. */
+.hole-sketch svg {
+  height:clamp(145px,22dvh,200px);
+  background:transparent;
+}
+.hole-sketch figcaption {
+  font-size:11px;
+  line-height:1.4;
+  margin-top:4px;
+}
+.hole-sketch figcaption strong {
+  color:var(--earth);
+  font-weight:650;
+}
+.sketch-label {
+  font-family:inherit;
+  font-size:3px;
+  fill:var(--muted);
+}
+.sketch-water {
+  stroke:#89afbf;
+  stroke-width:.35;
+  stroke-dasharray:1 1;
+}
