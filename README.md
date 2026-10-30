@@ -217,3 +217,7 @@ See [release review, screenshots, limits and exact pilot steps](docs/v1.5/README
 ## Long Run — all 18 hole sketches
 
 All Long Run active-hole screens now render original, approximate scorecard sketches from the municipal map review. They are labeled as sketches, not surveyed or tee-specific maps. Route/green symbols, illustrative contours and source-supported water context sit below the recommendation. See [the live-app integration, all-18 contact sheet and upgrade proof](docs/long-run-hole-sketches/README.md). The original standalone design gallery is historical. The geometry manifest remains separate from scoring, persistence and Ask Caddie context.
+
+## V1.5 dynamic iOS visual system
+
+The Clubhouse, Caddie, and Journal now use distinct compositions, semantic environment colors, contextual hole headers, scorecard-style history and refined sheets. See [the design system, before/after screenshots, regression coverage and pilot steps](docs/dynamic-ios/README.md). Scoring, saved-round schema, course data and ChatGPT handoff stay compatible.
