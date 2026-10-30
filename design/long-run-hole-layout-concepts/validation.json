@@ -1,0 +1,28 @@
+{
+  "concepts": [
+    5,
+    12,
+    15
+  ],
+  "screens": [
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 320,
+      "height": 568
+    }
+  ],
+  "productionGeometryChanged": false,
+  "externalRequests": 0,
+  "pageErrors": 0,
+  "checks": [
+    "three source-labeled SVG concepts",
+    "comparison/single selection",
+    "visuals between recommendation and actions",
+    "actions above tabs at 390x844",
+    "no horizontal overflow at 320x568",
+    "prototype actions disclose simulation"
+  ]
+}
