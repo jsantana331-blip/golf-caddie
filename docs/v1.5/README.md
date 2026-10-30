@@ -1,7 +1,9 @@
 # Caddie V1.5 — release review
 
-Branch: `feature/v1.5-long-run-ios-redesign`  
-Base: main `85e3710` (latest main inspected before implementation)  
+Branch: `feature/v1.5-long-run-ios-redesign`
+
+Base: main `85e3710` (latest main inspected before implementation)
+
 Delivery: PR against main, **do not merge**.
 
 ## Delivered experience
