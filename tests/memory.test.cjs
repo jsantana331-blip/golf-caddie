@@ -12,7 +12,7 @@ assert.ok(live.indexOf('H5 — Par')<live.indexOf('H1 — Bogey'));
 assert.ok(!live.includes('Handicap:'));assert.ok(!live.includes('Established tendencies'));assert.ok(live.endsWith(C.request));
 assert.ok(!live.includes('Hole 18 |'));
 const event=M.event(r,'2026-09-24T13:00:00Z');assert.deepEqual(event,{roundId:'round-a',hole:8,timestamp:'2026-09-24T13:00:00Z',order:1,score:8,relative:1,holesCompleted:2});r.events.push(event);
-assert.throws(()=>M.complete(store),/every hole/);assert.equal(store.active.id,'round-a');
+const partial=M.complete(store);assert.equal(partial.history[0].status,'partial');assert.equal(partial.history[0].totals.played,2);M.validate(partial);assert.equal(store.active.id,'round-a');
 for(const h of config.holes){const before=r.results[h.n]||{};r.results[h.n]={...before,score:h.par};M.trackCompletion(r,h.n,before,r.results[h.n])}
 const finished=M.complete(store,'2026-09-24T16:00:00Z');
 assert.equal(finished.active,null);assert.equal(finished.history.length,1);assert.equal(store.history.length,0);assert.ok(store.active);

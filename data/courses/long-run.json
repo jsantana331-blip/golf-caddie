@@ -1,0 +1,963 @@
+{
+  "schemaVersion": 1,
+  "id": "long-run",
+  "course": "Long Run Golf Course",
+  "location": "Louisville, Kentucky",
+  "address": "1605 Flat Rock Road, Louisville, Kentucky 40245",
+  "courseStyle": "Municipal public · open, flatter front nine; tighter, tree-lined, hilly back nine",
+  "grassType": null,
+  "drivingRange": "Yes · full-service bermuda grass range",
+  "practiceGreen": true,
+  "verification": {
+    "date": "2026-10-29",
+    "version": "Municipal scorecard 22–23, published August 2022; current attachment accessed 2026-10-29",
+    "scorecard": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-score.jpg",
+    "map": "https://louisvilleky.gov/sites/default/files/2022-08/Longrun-map.jpg",
+    "listing": "https://louisvilleky.gov/golf-course/long-run-golf-course",
+    "operator": "https://metroparksgolf.net/longrun/",
+    "note": "Scorecard values used consistently. Orange printed back/total disagree with its individual holes and is not playable until clarified."
+  },
+  "mission": "Build your round around clear approaches. The front nine is more open; keep extra room for error on the tighter, hillier back nine.",
+  "gamePlan": [
+    [
+      "Off the tee",
+      "Use your stock distances to choose a comfortable next shot, then confirm the landing area from the tee. Yardage alone cannot tell us where a dogleg turns."
+    ],
+    [
+      "Into the green",
+      "Play to the middle until you can see the pin and trouble. The course has two double-dogleg par fives; choose each landing area from what you can actually see."
+    ],
+    [
+      "After a miss",
+      "Get back to a clear line rather than trying to make up every yard. A simple recovery keeps the next shot manageable."
+    ],
+    [
+      "Local boundaries",
+      "The printed card identifies the driving range left of Hole 9 and right of Hole 18 as out of bounds. Check current stakes and local rules on arrival."
+    ]
+  ],
+  "tees": [
+    {
+      "id": "blue",
+      "name": "Blue",
+      "totalYards": 6853,
+      "frontYards": 3344,
+      "backYards": 3509,
+      "rating": 72.3,
+      "slope": 128,
+      "ratingBasis": "Men",
+      "ratings": [
+        {
+          "basis": "Men",
+          "rating": 72.3,
+          "slope": 128
+        }
+      ],
+      "holes": [
+        {
+          "n": 1,
+          "par": 4,
+          "yards": 425,
+          "hcp": 5,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 2,
+          "par": 5,
+          "yards": 520,
+          "hcp": 1,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 3,
+          "par": 4,
+          "yards": 422,
+          "hcp": 7,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 4,
+          "par": 4,
+          "yards": 369,
+          "hcp": 15,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 5,
+          "par": 3,
+          "yards": 162,
+          "hcp": 11,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 6,
+          "par": 4,
+          "yards": 371,
+          "hcp": 13,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 7,
+          "par": 5,
+          "yards": 525,
+          "hcp": 3,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 8,
+          "par": 3,
+          "yards": 149,
+          "hcp": 17,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 9,
+          "par": 4,
+          "yards": 401,
+          "hcp": 9,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range left is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the left.",
+          "verifiedTarget": "Playable side away from the left range"
+        },
+        {
+          "n": 10,
+          "par": 4,
+          "yards": 458,
+          "hcp": 2,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 11,
+          "par": 5,
+          "yards": 528,
+          "hcp": 10,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 12,
+          "par": 3,
+          "yards": 219,
+          "hcp": 8,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 13,
+          "par": 4,
+          "yards": 371,
+          "hcp": 12,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 14,
+          "par": 4,
+          "yards": 447,
+          "hcp": 6,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 15,
+          "par": 4,
+          "yards": 447,
+          "hcp": 4,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 16,
+          "par": 4,
+          "yards": 345,
+          "hcp": 18,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 17,
+          "par": 3,
+          "yards": 157,
+          "hcp": 16,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 18,
+          "par": 5,
+          "yards": 537,
+          "hcp": 14,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range right is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the right.",
+          "verifiedTarget": "Playable side away from the right range"
+        }
+      ]
+    },
+    {
+      "id": "white",
+      "name": "White",
+      "totalYards": 6579,
+      "frontYards": 3213,
+      "backYards": 3366,
+      "rating": 70.9,
+      "slope": 124,
+      "ratingBasis": "Men",
+      "ratings": [
+        {
+          "basis": "Men",
+          "rating": 70.9,
+          "slope": 124
+        }
+      ],
+      "holes": [
+        {
+          "n": 1,
+          "par": 4,
+          "yards": 418,
+          "hcp": 5,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 2,
+          "par": 5,
+          "yards": 507,
+          "hcp": 1,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 3,
+          "par": 4,
+          "yards": 409,
+          "hcp": 7,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 4,
+          "par": 4,
+          "yards": 357,
+          "hcp": 15,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 5,
+          "par": 3,
+          "yards": 154,
+          "hcp": 11,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 6,
+          "par": 4,
+          "yards": 336,
+          "hcp": 13,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 7,
+          "par": 5,
+          "yards": 506,
+          "hcp": 3,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 8,
+          "par": 3,
+          "yards": 134,
+          "hcp": 17,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 9,
+          "par": 4,
+          "yards": 392,
+          "hcp": 9,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range left is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the left.",
+          "verifiedTarget": "Playable side away from the left range"
+        },
+        {
+          "n": 10,
+          "par": 4,
+          "yards": 434,
+          "hcp": 2,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 11,
+          "par": 5,
+          "yards": 500,
+          "hcp": 10,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 12,
+          "par": 3,
+          "yards": 209,
+          "hcp": 8,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 13,
+          "par": 4,
+          "yards": 364,
+          "hcp": 12,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 14,
+          "par": 4,
+          "yards": 425,
+          "hcp": 6,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 15,
+          "par": 4,
+          "yards": 433,
+          "hcp": 4,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 16,
+          "par": 4,
+          "yards": 341,
+          "hcp": 18,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 17,
+          "par": 3,
+          "yards": 149,
+          "hcp": 16,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 18,
+          "par": 5,
+          "yards": 511,
+          "hcp": 14,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range right is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the right.",
+          "verifiedTarget": "Playable side away from the right range"
+        }
+      ]
+    },
+    {
+      "id": "yellow",
+      "name": "Yellow",
+      "totalYards": 5804,
+      "frontYards": 2860,
+      "backYards": 2944,
+      "rating": 67.3,
+      "slope": 117,
+      "ratingBasis": "Men",
+      "ratings": [
+        {
+          "basis": "Men",
+          "rating": 67.3,
+          "slope": 117
+        },
+        {
+          "basis": "Women",
+          "rating": 73,
+          "slope": 123
+        }
+      ],
+      "holes": [
+        {
+          "n": 1,
+          "par": 4,
+          "yards": 368,
+          "hcp": 5,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 2,
+          "par": 5,
+          "yards": 468,
+          "hcp": 1,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 3,
+          "par": 4,
+          "yards": 374,
+          "hcp": 7,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 4,
+          "par": 4,
+          "yards": 292,
+          "hcp": 15,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 5,
+          "par": 3,
+          "yards": 143,
+          "hcp": 11,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 6,
+          "par": 4,
+          "yards": 290,
+          "hcp": 13,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 7,
+          "par": 5,
+          "yards": 453,
+          "hcp": 3,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 8,
+          "par": 3,
+          "yards": 130,
+          "hcp": 17,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 9,
+          "par": 4,
+          "yards": 342,
+          "hcp": 9,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range left is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the left.",
+          "verifiedTarget": "Playable side away from the left range"
+        },
+        {
+          "n": 10,
+          "par": 4,
+          "yards": 382,
+          "hcp": 2,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 11,
+          "par": 5,
+          "yards": 427,
+          "hcp": 10,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 12,
+          "par": 3,
+          "yards": 186,
+          "hcp": 8,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 13,
+          "par": 4,
+          "yards": 279,
+          "hcp": 12,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 14,
+          "par": 4,
+          "yards": 400,
+          "hcp": 6,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 15,
+          "par": 4,
+          "yards": 372,
+          "hcp": 4,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 16,
+          "par": 4,
+          "yards": 321,
+          "hcp": 18,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 17,
+          "par": 3,
+          "yards": 141,
+          "hcp": 16,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 18,
+          "par": 5,
+          "yards": 436,
+          "hcp": 14,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range right is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the right.",
+          "verifiedTarget": "Playable side away from the right range"
+        }
+      ]
+    },
+    {
+      "id": "red",
+      "name": "Red",
+      "totalYards": 5348,
+      "frontYards": 2678,
+      "backYards": 2670,
+      "rating": 65.2,
+      "slope": 107,
+      "ratingBasis": "Men",
+      "ratings": [
+        {
+          "basis": "Men",
+          "rating": 65.2,
+          "slope": 107
+        },
+        {
+          "basis": "Women",
+          "rating": 70.2,
+          "slope": 122
+        }
+      ],
+      "holes": [
+        {
+          "n": 1,
+          "par": 4,
+          "yards": 354,
+          "hcp": 5,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 2,
+          "par": 5,
+          "yards": 399,
+          "hcp": 3,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 3,
+          "par": 4,
+          "yards": 346,
+          "hcp": 7,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 4,
+          "par": 4,
+          "yards": 283,
+          "hcp": 13,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 5,
+          "par": 3,
+          "yards": 121,
+          "hcp": 15,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 6,
+          "par": 4,
+          "yards": 276,
+          "hcp": 11,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 7,
+          "par": 5,
+          "yards": 453,
+          "hcp": 1,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 8,
+          "par": 3,
+          "yards": 126,
+          "hcp": 17,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 9,
+          "par": 4,
+          "yards": 320,
+          "hcp": 9,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range left is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the left.",
+          "verifiedTarget": "Playable side away from the left range"
+        },
+        {
+          "n": 10,
+          "par": 4,
+          "yards": 350,
+          "hcp": 8,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 11,
+          "par": 5,
+          "yards": 418,
+          "hcp": 4,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 12,
+          "par": 3,
+          "yards": 160,
+          "hcp": 10,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 13,
+          "par": 4,
+          "yards": 279,
+          "hcp": 14,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 14,
+          "par": 4,
+          "yards": 323,
+          "hcp": 12,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 15,
+          "par": 4,
+          "yards": 315,
+          "hcp": 2,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 16,
+          "par": 4,
+          "yards": 267,
+          "hcp": 16,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 17,
+          "par": 3,
+          "yards": 132,
+          "hcp": 18,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 18,
+          "par": 5,
+          "yards": 426,
+          "hcp": 6,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range right is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the right.",
+          "verifiedTarget": "Playable side away from the right range"
+        }
+      ]
+    },
+    {
+      "id": "orange",
+      "name": "Orange",
+      "totalYards": 3875,
+      "frontYards": 1927,
+      "backYards": 1948,
+      "rating": null,
+      "slope": null,
+      "ratingBasis": null,
+      "ratings": [],
+      "playable": false,
+      "unavailableReason": "Official scorecard totals conflict: back holes sum to 1,898 yd; printed back is 1,948. Awaiting course confirmation.",
+      "computedTotalYards": 3825,
+      "holes": [
+        {
+          "n": 1,
+          "par": 4,
+          "yards": 249,
+          "hcp": 5,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 2,
+          "par": 5,
+          "yards": 306,
+          "hcp": 3,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 3,
+          "par": 4,
+          "yards": 256,
+          "hcp": 7,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 4,
+          "par": 4,
+          "yards": 235,
+          "hcp": 13,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 5,
+          "par": 3,
+          "yards": 100,
+          "hcp": 15,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 6,
+          "par": 4,
+          "yards": 207,
+          "hcp": 11,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 7,
+          "par": 5,
+          "yards": 260,
+          "hcp": 1,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 8,
+          "par": 3,
+          "yards": 72,
+          "hcp": 17,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 9,
+          "par": 4,
+          "yards": 242,
+          "hcp": 9,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range left is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the left.",
+          "verifiedTarget": "Playable side away from the left range"
+        },
+        {
+          "n": 10,
+          "par": 4,
+          "yards": 227,
+          "hcp": 8,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 11,
+          "par": 5,
+          "yards": 310,
+          "hcp": 4,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 12,
+          "par": 3,
+          "yards": 79,
+          "hcp": 10,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 13,
+          "par": 4,
+          "yards": 190,
+          "hcp": 14,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 14,
+          "par": 4,
+          "yards": 241,
+          "hcp": 12,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 15,
+          "par": 4,
+          "yards": 243,
+          "hcp": 2,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 16,
+          "par": 4,
+          "yards": 188,
+          "hcp": 16,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 17,
+          "par": 3,
+          "yards": 105,
+          "hcp": 18,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": null,
+          "safestMiss": "Choose the side with the most visible room; no directional safe miss has been verified."
+        },
+        {
+          "n": 18,
+          "par": 5,
+          "yards": 315,
+          "hcp": 6,
+          "strategyBasis": "Stock-yardage planning only; confirm lie, wind and visible hazards on course.",
+          "verifiedHazard": "Driving range right is out of bounds.",
+          "safestMiss": "Favor the playable side away from the driving range on the right.",
+          "verifiedTarget": "Playable side away from the right range"
+        }
+      ]
+    }
+  ]
+}

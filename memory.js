@@ -1,14 +1,15 @@
 /* Portable local round records. Course/player snapshots preserve historical facts. */
 const CaddieMemory = (() => {
  const R=typeof module!=='undefined'?require('./results.js'):RoundResults;
+ const Strategy=typeof module!=='undefined'?require('./strategy.js'):CaddieStrategy;
  const clone=value=>JSON.parse(JSON.stringify(value));
  const empty=()=>({schemaVersion:3,active:null,history:[],preferences:{tees:{}},migrations:[]});
  function courseRound(course,teeId,player){
   const tee=course.tees.find(t=>t.id===teeId);
-  if(!tee||!Array.isArray(tee.holes)||!tee.holes.length)throw Error('Course tee unavailable');
+  if(!tee||tee.playable===false||!Array.isArray(tee.holes)||!tee.holes.length)throw Error('Course tee unavailable');
   const {tees,...facts}=course;
   return {...clone(facts),...clone(tee),id:course.id,courseId:course.id,teeId:tee.id,tee:tee.name,
-   weather:null,gamePlan:clone(tee.gamePlan||course.gamePlan||[]),mission:tee.mission||course.mission||''};
+   holes:clone(tee.holes).map(h=>h.strategyBasis?Strategy.forHole(h,player):h),weather:null,gamePlan:clone(tee.gamePlan||course.gamePlan||[]),mission:tee.mission||course.mission||''};
  }
  function create(config,player,id,time=new Date().toISOString()){
   return {schemaVersion:1,id,courseId:config.courseId,teeId:config.teeId,startedAt:time,
@@ -22,7 +23,12 @@ const CaddieMemory = (() => {
    for(const [n,result] of Object.entries(r.results)){
     if(!result||typeof result!=='object'||!clean[n]||Object.entries(result).some(([field,value])=>clean[n][field]!==value))throw Error('Invalid scorecard; saved data has been left untouched.');
    }
-   if(saved.history.includes(r)&&(!r.completedAt||!r.totals||r.config.holes.some(h=>!Number.isSafeInteger(r.results[h.n]?.score)||r.results[h.n].score<1)))throw Error('Unreadable round history; saved data has been left untouched.');
+   if(saved.history.includes(r)){
+    const played=R.stats(r.config.holes,r.results).played;
+    const knownStatus=r.status===undefined||['partial','complete'].includes(r.status);
+    const correctCompletion=r.status==='partial'?played<r.config.holes.length:played===r.config.holes.length;
+    if(!r.completedAt||!r.totals||!knownStatus||!correctCompletion)throw Error('Unreadable round history; saved data has been left untouched.');
+   }
   }
   return saved;
  }
@@ -44,15 +50,17 @@ const CaddieMemory = (() => {
  }
  function complete(store,time=new Date().toISOString()){
   const r=store.active;
-  if(!r||r.config.holes.some(h=>!Number.isSafeInteger(r.results[h.n]?.score)||r.results[h.n].score<1))throw Error('Record a score for every hole before completing this round.');
+  if(!r)throw Error('No active round to save.');
+  validate(store);
   const saved=clone(r),holes=saved.config.holes;
-  saved.completedAt=time;saved.totals={...R.stats(holes,saved.results),front:R.stats(holes.slice(0,9),saved.results).score,back:R.stats(holes.slice(9),saved.results).score};
+  saved.completedAt=time;saved.status=R.stats(holes,saved.results).played===holes.length?'complete':'partial';saved.totals={...R.stats(holes,saved.results),front:R.stats(holes.slice(0,9),saved.results).score,back:R.stats(holes.slice(9),saved.results).score};
   const next=clone(store);next.history.unshift(saved);next.active=null;return next;
  }
+ function cancel(store){if(!store.active)throw Error('No active round to cancel.');const next=clone(store);next.active=null;return next;}
  function event(record,time=new Date().toISOString()){
   const scored=record.config.holes.filter(h=>record.results[h.n]?.score!==undefined),s=R.stats(scored,record.results);
   return {roundId:record.id,hole:record.activeHole,timestamp:time,order:record.events.length+1,score:s.score,relative:s.relative,holesCompleted:s.played};
  }
- return {clone,empty,courseRound,create,validate,migrate,trackCompletion,complete,event};
+ return {clone,empty,courseRound,create,validate,migrate,trackCompletion,complete,cancel,event};
 })();
 if(typeof module!=='undefined')module.exports=CaddieMemory;

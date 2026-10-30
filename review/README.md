@@ -1,5 +1,7 @@
 # V1.4.1 — Pocket Caddie visual refinement
 
+Historical checklist: V1.5 supersedes the old selector and all-scores-required lifecycle. Use [the V1.5 pilot checklist](../docs/v1.5/README.md).
+
 Built from main `d8b8664`. This changes presentation only. Course/player JSON, scoring, memory, context generation, ChatGPT handoff, exports, Finish Round and round replacement behavior are retained. The current application has no standalone Cancel Round action; this release does not add one. Finish still requires all scores.
 
 The hole selector is the single visible primary identifier; the heading remains available to assistive technology. A preview status appears when viewing another hole. Navigation does not edit results or change the playing hole by itself. Ask Caddie explicitly identifies the playing hole when previewing, and still hands off to ChatGPT. Record Score edits the viewed hole under the existing progression rules.

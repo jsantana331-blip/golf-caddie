@@ -14,9 +14,9 @@ const server=http.createServer((req,res)=>{
  try{
  const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
  const errors=[];context.on('page',p=>p.on('pageerror',e=>errors.push(e.message)));
- const page=await context.newPage();page.setDefaultTimeout(10000);await page.goto(url);await page.locator('[data-course]').waitFor();
+ const page=await context.newPage();page.setDefaultTimeout(10000);await page.goto(url);await page.locator('[data-course]').first().waitFor();
  const key='caddie:/golf-caddie/:memory:v1.3',saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
- const capture=async name=>{if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-'+name+'.png')})};
+ const capture=async name=>{const nav=await page.locator('.app-tabs').boundingBox(),size=page.viewportSize();assert.ok(nav.y>=0&&nav.y+nav.height<=size.height+1,JSON.stringify({name,nav,size}));if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-'+name+'.png')})};
  // Identical fixture supplies honest before/after screenshots, including an active round.
  const mem=M.empty();mem.active=M.create(M.courseRound(course,'blue',player),player,'visual-test');mem.active.activeHole=3;
  for(let n=1;n<=3;n++)mem.active.results[n]={score:5,tee:'Fairway',gir:false,putts:2,penalties:0,note:n===3?'Favor the safe side next time':''};
@@ -31,8 +31,8 @@ const server=http.createServer((req,res)=>{
   await act(page,`[data-tab="${tab}"]`);assert.equal(await page.locator('[aria-current="page"]').getAttribute('data-tab'),tab);assert.deepEqual(await saved(),original);
  }
  assert.equal(await page.locator('h1').innerText(),'Hole 3');
- assert.deepEqual(await page.locator('#jump option').allTextContents(),Array.from({length:18},(_,i)=>'Hole '+(i+1)));
- await route(page,15);assert.equal(await page.locator('.active-context').innerText(),'Preview · playing Hole 3');assert.match(await page.locator('#ask-caddie').innerText(),/playing Hole 3/);assert.equal(await page.locator('h1').evaluate(el=>getComputedStyle(el).position),'absolute');await act(page,'[data-tab="rounds"]');await act(page,'[data-tab="play"]');assert.equal(await page.locator('h1').innerText(),'Hole 3');assert.equal((await saved()).active.activeHole,3);
+ await page.locator('#jump').click();assert.equal(await page.locator('[data-view-hole]').count(),18);await page.locator('#close-picker').click();
+ await route(page,15);assert.equal(await page.locator('.active-context').innerText(),'Preview · playing Hole 3');assert.match(await page.locator('#ask-caddie').innerText(),/playing Hole 3/);assert.equal(await page.locator('select').count(),0);await act(page,'[data-tab="rounds"]');await act(page,'[data-tab="play"]');assert.equal(await page.locator('h1').innerText(),'Hole 3');assert.equal((await saved()).active.activeHole,3);
  // Explicit saving behavior, invalid numbers, close/Escape, focus restoration and modal containment.
  await openScore(page);assert.match(await page.locator('#score-sheet').innerText(),/Valid entries save immediately/);
  await page.locator('[data-field="score"][data-value="7"]').click();await page.locator('#score').fill('0');
@@ -59,7 +59,7 @@ const server=http.createServer((req,res)=>{
  const par3=course.tees[0].holes.find(h=>h.par===3);await route(page,par3.n+1);await openScore(page);assert.equal(await page.locator('[data-field="tee"]').count(),0);assert.equal(await page.locator('#note').count(),1);assert.match(await page.locator('.na').innerText(),/N\/A/);await closeScore(page);
  // Empty Play is actionable; the current history remains independent.
  await act(page,'[data-tab="home"]');const before=await saved();await page.reload();await page.locator('#resume-round').waitFor();assert.deepEqual(await saved(),before);assert.equal(await page.locator('[aria-current="page"]').getAttribute('data-tab'),'home');
- await page.evaluate(k=>localStorage.removeItem(k),key);await page.reload();await page.locator('[data-course]').waitFor();await act(page,'[data-tab="play"]');assert.equal(await page.locator('#choose-course').innerText(),'Start Round');await page.locator('#choose-course').click();assert.equal(await page.locator('[data-course]').count(),1);
+ await page.evaluate(k=>localStorage.removeItem(k),key);await page.reload();await page.locator('[data-course]').first().waitFor();await act(page,'[data-tab="play"]');assert.equal(await page.locator('#choose-course').innerText(),'Start Round');await page.locator('#choose-course').click();assert.equal(await page.locator('[data-course]').count(),2);
  assert.deepEqual(errors,[]);await context.close();console.log('V1.4 tabs, current-hole isolation, scoring sheet validity/persistence/focus, mobile layouts, keyboard viewport, reduced motion, par 3 and Home relaunch passed');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1}).finally(()=>server.close());

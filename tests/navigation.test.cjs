@@ -18,8 +18,8 @@ const server=http.createServer((req,res)=>{
  const key='caddie:/golf-caddie/:memory:v1.3';
  const saved=()=>page.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);
  const roundData=r=>{const {page,...data}=r;return data}; // Saved view is not round progression.
- const home=async()=>{await page.locator('[data-course]').waitFor();assert.equal(await page.locator('h1').innerText(),'Where are we playing?');assert.equal(await page.locator('#jump').count(),0)};
- const setup=async()=>{await page.locator('[data-course]').click();await page.locator('[data-tee]').click();};
+ const home=async()=>{await page.locator('[data-course]').first().waitFor();assert.equal(await page.locator('h1').innerText(),'Where are we playing?');assert.equal(await page.locator('#jump').count(),0)};
+ const setup=async()=>{await page.locator('[data-course="nevel-meade"]').click();await page.locator('[data-tee="blue"]').click();};
  const tap=async(field,value)=>{await openScore(page);await page.locator(`[data-field="${field}"][data-value="${value}"]`).click()};
  await home();assert.equal(await page.locator('#resume-round').count(),0);
  await setup();assert.equal((await saved()).active,null);assert.equal(await page.locator('.screen-course').count(),0);

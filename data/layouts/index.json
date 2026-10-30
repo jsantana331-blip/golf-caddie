@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-29",
+  "coverage": {
+    "nevel-meade": {
+      "available": [],
+      "reason": "No verified, licensed per-hole geometry has been supplied."
+    },
+    "long-run": {
+      "available": [],
+      "reason": "Municipal illustration reviewed; redistribution/derivative rights not established. No geometry inferred from scorecard distances."
+    }
+  },
+  "holes": []
+}
