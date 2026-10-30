@@ -1,5 +1,7 @@
 # Long Run — scorecard verification and data decisions
 
+Update: [the later all-18-hole integration](../long-run-hole-sketches/README.md) adds labeled, approximate Long Run sketches to the live app code. The zero-illustration statements below document V1.5 as originally delivered, not the newer integration.
+
 Verified 2026-10-29. All hole data comes from one municipal scorecard version: **22–23**, hosted in the August 2022 directory and still attached to the municipal course listing. This verifies the currently published card, not an assertion that the course remeasured every hole in 2026.
 
 ## Primary sources

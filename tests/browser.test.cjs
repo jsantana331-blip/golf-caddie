@@ -11,7 +11,7 @@ const oldAssets=['index.html','app.js','results.js','styles.css','service-worker
 const assets=[...oldAssets.filter(f=>f!=='data/current-round.json'),'memory.js','caddie-context.js','handoff.js','external-coach.js','data/player.json','data/courses/index.json','data/courses/nevel-meade.json'];
 const newAssets=['strategy.js','hole-layout.js','data/layouts/index.json','data/courses/long-run.json'];assets.push(...newAssets);
 const baselineRef=process.env.UPGRADE_BASELINE||'903da2e';
-const baselineFiles=baselineRef==='903da2e'?oldAssets:baselineRef==='a587a77'?assets.filter(f=>f!=='external-coach.js'&&!newAssets.includes(f)):assets.filter(f=>!newAssets.includes(f));
+const baselineFiles=baselineRef==='8280908'?assets:baselineRef==='903da2e'?oldAssets:baselineRef==='a587a77'?assets.filter(f=>f!=='external-coach.js'&&!newAssets.includes(f)):assets.filter(f=>!newAssets.includes(f));
 const baselineAssets=Object.fromEntries(baselineFiles.map(file=>[file,execFileSync('git',['show',`${baselineRef}:${file}`],{cwd:root})]));
 let baseline=false;
 const server=http.createServer((req,res)=>{
@@ -235,8 +235,8 @@ const server=http.createServer((req,res)=>{
  baseline=true;
  const upgrade=await browser.newContext();await upgrade.setOffline(false);const old=await upgrade.newPage();old.on('pageerror',e=>errors.push(e.message));await old.goto(url);
  await old.evaluate(()=>navigator.serviceWorker.ready);await old.reload();
- if(baselineRef!=='903da2e'){await old.locator('[data-course="nevel-meade"]').click();await old.locator('[data-tee]').click();if(['6a2f7a2','d8b8664','85e3710'].includes(baselineRef)){await old.locator('#start-round').click();await old.locator('#to-game').click();await old.locator('#to-hole').click();}else{await old.locator('#to-game').click();await old.locator('#start-round').click();}}
- await old.locator('#jump').selectOption('9');if(['d8b8664','85e3710'].includes(baselineRef))await openScore(old);await old.locator('[data-field="score"][data-value="3"]').click();
+ if(baselineRef!=='903da2e'){await old.locator('[data-course="nevel-meade"]').click();await old.locator('[data-tee]').click();if(['6a2f7a2','d8b8664','85e3710','8280908'].includes(baselineRef)){await old.locator('#start-round').click();await old.locator('#to-game').click();await old.locator('#to-hole').click();}else{await old.locator('#to-game').click();await old.locator('#start-round').click();}}
+ await route(old,9);if(['d8b8664','85e3710','8280908'].includes(baselineRef))await openScore(old);await old.locator('[data-field="score"][data-value="3"]').click();
  await old.evaluate(()=>caches.open('unrelated-cache'));
  baseline=false;
  await old.evaluate(async()=>{
@@ -255,7 +255,7 @@ const server=http.createServer((req,res)=>{
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
  if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await route(old,'20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.5-long-run-ios-1'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.5.1-long-run-sketches-1'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));

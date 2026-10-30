@@ -1,5 +1,7 @@
 # Caddie V1.5 — release review
 
+Update: [the later all-18-hole integration](../long-run-hole-sketches/README.md) adds labeled, approximate Long Run sketches to the live app code. The zero-illustration statements below document V1.5 as originally delivered, not the newer integration.
+
 Branch: `feature/v1.5-long-run-ios-redesign`
 
 Base: main `85e3710` (latest main inspected before implementation)

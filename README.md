@@ -67,7 +67,7 @@ Copy for Golf Coach remains separate from the compact live handoff. Active and h
 
 ## Offline and updates
 
-`caddie-v1.5-long-run-ios-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
+`caddie-v1.5.1-long-run-sketches-1` precaches the app shell, modules, player, catalog and all catalog course files. Same-origin resources retain the existing network-first/cache-fallback policy. Old Caddie caches are removed after successful installation; unrelated caches remain. Local scorecards are not in the service-worker cache. The manifest, icons and iPhone metadata are unchanged. First use needs an online load; subsequent library, scoring, history, export/context generation and normal advice work offline. The external ChatGPT conversation needs connectivity.
 
 ## Automated checks
 
@@ -212,3 +212,8 @@ One primary hole selector, explicit preview context, concise strategy without re
 ## V1.5 — Long Run and native iOS experience
 
 See [release review, screenshots, limits and exact pilot steps](docs/v1.5/README.md), [scorecard reconciliation](docs/v1.5/long-run-verification.md), and [the reusable layout contract](docs/v1.5/hole-layouts.md). This release is delivered as an unmerged PR at the owner’s request. Device testing is post-merge pilot validation, not a publication/review gate.
+
+
+## Long Run — all 18 hole sketches
+
+All Long Run active-hole screens now render original, approximate scorecard sketches from the municipal map review. They are labeled as sketches, not surveyed or tee-specific maps. Route/green symbols, illustrative contours and source-supported water context sit below the recommendation. See [the live-app integration, all-18 contact sheet and upgrade proof](docs/long-run-hole-sketches/README.md). The original standalone design gallery is historical. The geometry manifest remains separate from scoring, persistence and Ask Caddie context.
