@@ -221,3 +221,7 @@ All Long Run active-hole screens now render original, approximate scorecard sket
 ## V1.5 dynamic iOS visual system
 
 The Clubhouse, Caddie, and Journal now use distinct compositions, semantic environment colors, contextual hole headers, scorecard-style history and refined sheets. See [the design system, before/after screenshots, regression coverage and pilot steps](docs/dynamic-ios/README.md). Scoring, saved-round schema, course data and ChatGPT handoff stay compatible.
+
+## Cohesive theme and responsive Play
+
+Home, Play and Rounds share a system-font/forest theme and light canvas. Play adds a pinned compacting header, real round-progress feedback and a focused layout sheet. See [research, before/after mobile review and regression results](docs/cohesive-play/README.md). Existing saved rounds, scoring, handoff and offline behavior remain compatible.

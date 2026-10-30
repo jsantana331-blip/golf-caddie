@@ -1134,3 +1134,60 @@ button:active {transform:translateY(1px)}
 }
 @media (min-width:600px) {.play-header {margin:-24px -32px 22px;padding:14px 26px 20px}}
 @media (prefers-reduced-motion:reduce) {button:active {transform:none}* {scroll-behavior:auto!important}}
+
+/* Cohesive conversational theme: one canvas/type system, differentiated composition. */
+:root {--cream:#f5f7f5;--canvas-clubhouse:#f5f7f5;--canvas-play:#f5f7f5;--canvas-journal:#f5f7f5;--forest:#123d30;--green:#123d30;--line:#dbe3dd}
+.environment-clubhouse .brand {margin-bottom:20px}
+.clubhouse-welcome {border-bottom:0;padding-bottom:6px}
+.clubhouse-welcome h1 {font-family:inherit;font-size:34px;font-weight:750;line-height:1.08;max-width:12ch;letter-spacing:-.045em;margin:10px 0}
+.welcome-note {font-size:14px}
+.clubhouse-welcome .eyebrow,.journal-heading .eyebrow {color:var(--green)}
+.course-choice .course-index {font-family:inherit;font-size:12px;font-weight:650;top:20px;color:var(--muted)}
+.environment-clubhouse .course-choice strong {font-size:18px}
+.journal-heading {border-bottom:1px solid var(--line);padding-top:8px;padding-bottom:18px}
+.journal-heading h1 {font-size:34px;line-height:1.08}
+.screen-course .course-heading h1 {font-family:inherit;font-size:32px;font-weight:750}
+.environment-journal .scorecard thead,.environment-journal th:first-child {background:var(--canvas-journal)}
+.round-pulse {font-size:11px;line-height:1.4;color:var(--muted);padding:12px 0 2px}
+.round-pulse>div {display:flex;justify-content:space-between;gap:12px}
+.round-pulse strong {font-weight:600;color:var(--ink)}
+.round-pulse progress {display:block;width:100%;height:3px;margin-top:7px;border:0;border-radius:4px;overflow:hidden;appearance:none;background:#dce6df;color:var(--green)}
+.round-pulse progress::-webkit-progress-bar {background:#dce6df}
+.round-pulse progress::-webkit-progress-value {background:var(--green);border-radius:4px}
+.round-pulse progress::-moz-progress-bar {background:var(--green)}
+.play-header {position:sticky;top:-18px;z-index:4;margin-bottom:18px;border-radius:0 0 18px 18px;padding-bottom:12px;box-shadow:0 6px 12px rgb(18 61 48 / .05)}
+.play-header .round-pulse {color:var(--on-forest-muted);padding:7px 6px 0}
+.play-header .round-pulse strong {color:#fff}
+.play-header .round-pulse progress,.play-header .round-pulse progress::-webkit-progress-bar {background:#45695a}
+.play-header .round-pulse progress::-webkit-progress-value {background:#bddac8}
+.play-header .round-pulse progress::-moz-progress-bar {background:#bddac8}
+.header-compact .play-header {padding-top:5px;padding-bottom:8px;box-shadow:0 5px 16px rgb(18 61 48 / .18)}
+.header-compact .play-header .round-toolbar {margin-bottom:0}
+.header-compact .play-header #jump {font-size:22px}
+.header-compact .play-header .hole-distance b {font-size:24px}
+.header-compact .play-header .round-pulse {padding-top:3px}
+.header-compact .play-header .round-pulse progress {margin-top:4px}
+.layout-expand {display:flex;align-items:center;justify-content:space-between;width:100%;border:0;border-radius:0;color:var(--green);min-height:44px;padding:4px 0;font-size:12px;font-weight:650}
+.layout-expand span {font-size:17px}
+.screen-hole .hole-actions {margin-top:2px}
+#layout-sheet .hole-layout svg {height:min(58dvh,500px)}
+#layout-sheet figcaption {font-size:12px;margin-top:12px}
+#layout-sheet .sketch-label {font-size:3px}
+@media(max-width:360px){.play-header {top:-14px}.clubhouse-welcome h1 {font-size:32px}}
+@media(min-width:600px){.play-header {top:-24px}}
+@media(prefers-reduced-motion:no-preference){
+ .play-header {transition:padding .16s ease,box-shadow .16s ease}
+ .play-header #jump,.play-header .hole-distance b {transition:font-size .16s ease}
+ .round-pulse progress::-webkit-progress-value {transition:width .18s ease}
+}
+/* Preserve the SVG's aspect ratio in the focused view instead of letterboxing it. */
+#layout-sheet .hole-layout svg {height:auto;max-height:60dvh;aspect-ratio:8 / 5}
+/* Short screens keep the action area in reach before scrolling. */
+@media(max-height:667px){
+ .play-header {padding-top:5px;padding-bottom:8px;margin-bottom:10px}
+ .play-header .round-toolbar {margin-bottom:0}
+ .play-header #jump {font-size:22px}
+ .play-header .hole-distance b {font-size:24px}
+ .play-header .round-pulse {padding-top:3px}
+ .play-header .round-pulse progress {margin-top:4px}
+}
