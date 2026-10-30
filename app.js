@@ -68,8 +68,25 @@ function shell(body){app.innerHTML=`<section class="screen environment-${screenM
 function libraryLink(){return '<button id="library" class="text-control">Home</button>'}
 function activeRoundDetails(){
  const r=memory.active;if(!r)return '';
- const stats=RoundResults.stats(r.config.holes,r.results);
- return `<p class="intro">${esc(r.config.course)} · ${esc(r.config.tee)}<br>Hole ${r.activeHole}${stats.played?' · '+RoundResults.relativeLabel(stats):''}</p>`;
+ return `<p class="intro">${esc(r.config.course)} · ${esc(r.config.tee)} · Hole ${r.activeHole}</p>${roundPulse(r)}`;
+}
+// Presentation only: derive progress from scored holes, never the viewed hole.
+function roundPulse(record){
+ const stats=RoundResults.stats(record.config.holes,record.results),total=record.config.holes.length;
+ return `<div class="round-pulse"><div><span>${stats.played} of ${total} scored</span><strong>${stats.played?esc(RoundResults.relativeLabel(stats))+' · '+stats.score+' strokes':'No scores recorded'}</strong></div><progress value="${stats.played}" max="${total}" aria-label="Scored holes">${stats.played}/${total}</progress></div>`;
+}
+function bindPlayPresentation(){
+ const content=document.querySelector('.screen-hole .content');if(!content)return;
+ const sync=()=>{const compact=content.classList.contains('header-compact');if(content.scrollTop>64&&!compact)content.classList.add('header-compact');else if(content.scrollTop<12&&compact)content.classList.remove('header-compact')};
+ content.addEventListener('scroll',sync,{passive:true});sync();
+ document.querySelector('#expand-layout')?.addEventListener('click',()=>{
+  const h=pages()[idx].h,geometry=HoleLayout.find(layouts,round.courseId,round.teeId,h.n);
+  if(!geometry)return;
+  const dialog=document.createElement('dialog');dialog.id='layout-sheet';dialog.className='bottom-sheet';dialog.setAttribute('aria-labelledby','layout-title');
+  dialog.innerHTML=`<header class="sheet-heading"><h2 id="layout-title">Hole ${h.n} · Layout</h2><button id="close-layout" aria-label="Close hole layout">×</button></header><div class="sheet-body">${HoleLayout.render(geometry)}</div>`;
+  const close=()=>{dialog.close();dialog.remove();document.querySelector('#expand-layout')?.focus({preventScroll:true})};
+  document.body.append(dialog);dialog.showModal();dialog.querySelector('#close-layout').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
+ });
 }
 function exitHome(){if(saveMemory())showLibrary()}
 function showLibrary(){
@@ -144,14 +161,14 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  const par=round.holes.reduce((n,h)=>n+h.par,0);
  body=`<div class="eyebrow">CADDIE / COURSE OVERVIEW</div><header class="course-heading"><h1>${esc(round.course)}</h1><p class="location">${esc(fact(round.location))}</p></header><div class="course-primary">${metric('Tee',fact(round.tee))}${metric('Yards',fact(round.totalYards))}${metric('Par',par)}</div><div class="course-secondary">${metric('Rating',fact(round.rating))}${metric('Slope',fact(round.slope))}${metric('Par 3 / 4 / 5',[3,4,5].map(p=>round.holes.filter(h=>h.par===p).length).join(' / '))}</div>${round.ratings?.length?`<p class="rating-note muted">${round.ratings.map(r=>esc(r.basis)+': '+r.rating+' / '+r.slope).join(' · ')}</p>`:''}<section class="course-facts" aria-label="Course information">${[['Course style / type',round.courseStyle],['Grass type',round.grassType],['Driving range',round.drivingRange],['Practice green',round.practiceGreen],['Weather / forecast',round.weather]].map(([l,v])=>`<div class="summaryrow"><span>${l}</span><b>${esc(fact(v))}</b></div>`).join('')}</section>`;
  }else if(p.type==='game')body=`<div class="eyebrow">BEFORE THE FIRST TEE</div><h1>Game Plan</h1><section class="mission"><h2>Scoring Mission</h2><p class="strategy">${esc(round.mission)}</p></section><div class="briefing">${round.gamePlan.map(([title,text])=>`<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}</div><section class="club-distances"><h2>Your club distances</h2><div class="clubgrid">${state.player.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b><span>${y} yd</span></div>`).join('')}</div></section>`;
- else if(p.type==='hole'){const h=p.h;body=`<section class="hero recommendation" aria-label="Caddie recommendation"><p class="eyebrow">TEE SHOT</p><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target"><span class="target-label">Target</span><span class="target-value">${esc(h.target)}</span></p><p class="strategy">${esc(recommendation(h))}</p></section>${HoleLayout.render(HoleLayout.find(layouts,round.courseId,round.teeId,h.n))}<div class="hole-actions"><button id="ask-caddie" class="ask-control">${CaddieHandoff.mark}<span><strong>Ask Caddie</strong><small>${h.n===state.activeHole?'Copy context · continue in ChatGPT':'ChatGPT · playing Hole '+state.activeHole}</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button id="record-score" class="primary">${state.results[h.n]?.score!==undefined?'Score '+state.results[h.n].score+' · Edit':'Record Score'}</button></div>`}
+ else if(p.type==='hole'){const h=p.h;body=`<section class="hero recommendation" aria-label="Caddie recommendation"><p class="eyebrow">TEE SHOT</p><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target"><span class="target-label">Target</span><span class="target-value">${esc(h.target)}</span></p><p class="strategy">${esc(recommendation(h))}</p></section>${HoleLayout.render(HoleLayout.find(layouts,round.courseId,round.teeId,h.n))}${HoleLayout.find(layouts,round.courseId,round.teeId,h.n)?'<button id="expand-layout" class="layout-expand" aria-haspopup="dialog">Expand layout <span aria-hidden="true">↗</span></button>':''}<div class="hole-actions"><button id="ask-caddie" class="ask-control">${CaddieHandoff.mark}<span><strong>Ask Caddie</strong><small>${h.n===state.activeHole?'Copy context · continue in ChatGPT':'ChatGPT · playing Hole '+state.activeHole}</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button id="record-score" class="primary">${state.results[h.n]?.score!==undefined?'Score '+state.results[h.n].score+' · Edit':'Record Score'}</button></div>`}
  else body=summary();
  if(p.type==='course')body+='<button id="to-game" class="primary flow-action">Game Plan →</button>';
  if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
  body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
  const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(p.h.n===state.activeHole?'On course':'Preview · playing Hole '+state.activeHole):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">Summary</button><button id="round-menu" class="text-control" aria-label="Round menu">•••</button></div>`:'';
  const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">‹</button><h1><button id="jump" data-page="${idx}" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></h1><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">›</button><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
- app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}</header>`:toolbar}${body}</div>${appTabs()}</section>`;
+ app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${appTabs()}</section>`;
  const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
  document.querySelector('#prev')?.addEventListener('click',()=>go(-1));document.querySelector('#next')?.addEventListener('click',()=>go(1));document.querySelector('#jump')?.addEventListener('click',showHolePicker);
  document.querySelector('#round-menu')?.addEventListener('click',showRoundMenu);
@@ -170,7 +187,7 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  document.querySelector('#cancel-round')?.addEventListener('click',cancelRound);
  document.querySelector('#history-list')?.addEventListener('click',showHistory);
  document.querySelector('#ask-caddie')?.addEventListener('click',()=>CaddieHandoff.show(memory.active,event=>{const destination=[memory.active,...memory.history].find(r=>r?.id===event.roundId);if(!destination)return false;destination.events.push({...event,order:destination.events.length+1});return saveMemory()}));
- updateStatus();
+ bindPlayPresentation();updateStatus();
 }
 async function copyForCoach(){
  const button=document.querySelector('#copy-coach'),status=document.querySelector('#copy-status');

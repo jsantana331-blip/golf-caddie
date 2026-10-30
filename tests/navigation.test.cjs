@@ -52,7 +52,7 @@ const server=http.createServer((req,res)=>{
  await act(page,'#exit-home');assert.equal(await page.locator('.screen-summary').count(),1);assert.match(await page.locator('#storage-warning').innerText(),/Quota/);
  await page.evaluate(()=>Storage.prototype.setItem=window.originalSet);
  const beforeExit=await saved();await act(page,'#exit-home');await home();assert.deepEqual(await saved(),beforeExit);
- assert.match(await page.locator('.intro').first().innerText(),/Nevel Meade Golf Course · Blue\nHole 3 · \+2/);
+ assert.match(await page.locator('.intro').first().innerText(),/Nevel Meade Golf Course · Blue · Hole 3/);assert.match(await page.locator('.round-pulse').innerText(),/\+2/);
  if(process.env.REVIEW_SCREENSHOT)await page.screenshot({path:process.env.REVIEW_SCREENSHOT.replace('.png','-home.png')});
  await page.locator('#resume-round').click();assert.equal(await page.locator('h1').innerText(),'Hole 3');assert.deepEqual(roundData((await saved()).active),played);
  // Any saved round view, including a look-ahead hole, launches Home and resumes Hole 3.
