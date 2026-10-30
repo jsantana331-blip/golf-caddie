@@ -1032,3 +1032,105 @@ body:has(dialog[open]) .content {
   stroke-width:.35;
   stroke-dasharray:1 1;
 }
+
+/* V1.5 dynamic visual system: environments are semantic, never alternating decoration. */
+:root {
+  --canvas-clubhouse:#f4f1e9;
+  --canvas-play:#f1f5f1;
+  --canvas-journal:#fff;
+  --forest:#123d30;
+  --on-forest:#fff;
+  --on-forest-muted:#c4d9ce;
+  --accent:#a1c6ac;
+  --radius-sheet:24px;
+}
+.environment-clubhouse {background:var(--canvas-clubhouse)}
+.environment-caddie {background:var(--canvas-play)}
+.environment-journal {background:var(--canvas-journal)}
+.environment-clubhouse .brand {margin-bottom:28px;letter-spacing:-.03em}
+.clubhouse-welcome {padding:0 0 22px;border-bottom:1px solid #d6d1c5}
+.clubhouse-welcome h1 {font-family:Georgia,"Times New Roman",serif;font-size:40px;font-weight:400;line-height:1.04;max-width:10ch;letter-spacing:-.045em;margin:12px 0}
+.welcome-note {color:var(--muted);font-size:14px}
+.library-heading {font-size:13px;letter-spacing:.04em;margin-top:24px}
+.environment-clubhouse .library-list {margin:8px 0 20px}
+.environment-clubhouse [data-course] {padding:18px 22px 18px 38px}
+.course-choice .course-index {position:absolute;left:0;top:15px;font-family:Georgia,serif;font-size:20px;color:#716956}
+.environment-clubhouse .course-choice strong {font-size:19px;letter-spacing:-.025em}
+.environment-clubhouse .course-choice span:not(.course-index) {font-size:12px}
+.library-resume {margin-top:20px;text-align:left;position:relative;border-radius:14px;min-height:54px}
+.library-resume::after {content:'↗';position:absolute;right:16px;font-size:20px}
+.library-resume+.intro {font-size:13px;margin:10px 0 0;padding-left:2px}
+/* The hole header anchors place; advice and diagram remain an open editorial flow. */
+.play-header {background:var(--forest);color:var(--on-forest);margin:-18px -22px 22px;padding:10px 16px 18px;border-radius:0 0 22px 22px}
+.play-header .round-toolbar {margin-bottom:9px}
+.play-header .active-context,.play-header .hole-distance span {color:var(--on-forest-muted)}
+.play-header button,.play-header .round-toolbar button {color:var(--on-forest)}
+.play-header button:active {background:#285643}
+.play-header #jump svg {stroke:var(--on-forest-muted)}
+.play-header .hole-nav {margin-bottom:0}
+.play-header .hole-distance b {font-size:30px}
+.play-header #jump {font-size:26px}
+.screen-hole .recommendation {position:relative;padding-left:15px;padding-bottom:10px;border-left:3px solid #82a88d}
+.screen-hole .recommended-club {font-size:38px;letter-spacing:-.05em}
+.screen-hole .target {font-size:20px;color:var(--forest);font-weight:600}
+.screen-hole .strategy {font-size:15px;line-height:1.5;margin-top:10px}
+.screen-hole .hole-layout {margin:4px -6px 0;padding:0}
+.screen-hole .hole-layout svg {background:#e5ede2;border-radius:16px;height:clamp(145px,21dvh,205px)}
+.screen-hole .hole-layout figcaption {padding:4px 6px 0;font-size:10px}
+.screen-hole .hole-actions {margin-top:14px;gap:8px}
+.hole-actions .ask-control {background:var(--forest);color:#fff;border-radius:16px;min-height:64px;padding:10px 14px}
+.hole-actions .ask-control small {color:var(--on-forest-muted);font-size:11px}
+.hole-actions .intelligence-mark {color:#bddac8;width:34px;height:34px}
+.hole-actions .ask-control:active {background:#285643}
+.hole-actions #record-score {background:#fff;color:var(--forest);border:1px solid #b4c7b9;border-radius:13px;min-height:50px}
+/* Journal: tabular ink, ruled entries, and explicit round status. */
+.journal-heading {padding:8px 0 22px;border-bottom:2px solid var(--ink)}
+.journal-heading h1 {font-size:34px;letter-spacing:-.045em;margin:8px 0}
+.journal-heading>p:last-child {font-size:13px;color:var(--muted)}
+.environment-journal .library-list {margin-top:0}
+.history-entry {padding:20px 22px 18px 0}
+.history-entry strong {font-size:16px;max-width:26ch}
+.history-entry .history-score {font-size:32px;letter-spacing:-.04em;margin:10px 0}
+.round-badge {font-style:normal;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:3px 6px;margin-right:4px;border-radius:4px;background:#e6eee8;color:#24513b}
+.round-badge.partial {background:#f5ecd9;color:#745421}
+.screen-summary .round-totals {border-top:2px solid var(--ink);border-bottom:1px solid var(--line);padding:16px 0 20px;margin-top:20px}
+.screen-summary .totals {grid-template-columns:1fr 1fr;gap:20px 12px}
+.screen-summary .totals .metric:nth-child(-n+2) b {font-size:48px}
+.screen-summary .scorecard-section {margin-top:22px}
+.environment-journal .scorecard thead,.environment-journal th:first-child {background:#fff}
+.environment-journal .scorecard tbody tr:nth-child(3n) {background:#f5f7f5}
+.screen-summary .round-stats {grid-template-columns:1fr 1fr;border-top:0;margin-top:12px;padding-top:8px}
+/* Facts read as a compact reference strip; the game plan reads as a briefing. */
+.screen-course .course-primary {padding:18px 0;border-top:2px solid var(--green);border-bottom:1px solid var(--line)}
+.screen-course .course-heading h1 {font-family:Georgia,serif;font-weight:400;font-size:36px}
+.screen-game .mission {background:var(--forest);color:#fff;margin:20px -6px;padding:20px;border-radius:16px}
+.screen-game .mission h2 {color:var(--on-forest-muted)}
+.screen-game .briefing section {display:grid;grid-template-columns:90px 1fr;gap:12px}
+.screen-game .briefing h2 {font-size:13px}
+/* Sheets share native affordances while content retains its own hierarchy. */
+.bottom-sheet,#ask-sheet {border-radius:var(--radius-sheet) var(--radius-sheet) 0 0;padding-top:10px}
+.bottom-sheet::before,#ask-sheet::before {content:'';display:block;flex-shrink:0;width:34px;height:4px;border-radius:3px;background:#bac4bc;margin:0 auto 12px}
+.sheet-heading {padding-bottom:8px;border-bottom:1px solid var(--line)}
+#ask-sheet .sheet-heading {color:var(--forest);border-bottom:0}
+#ask-sheet .sheet-heading h2 {font-size:18px;letter-spacing:-.03em;text-transform:none}
+#ask-sheet>p:first-of-type {font-size:21px;line-height:1.3;font-weight:600;letter-spacing:-.025em}
+#ask-sheet .sheet-actions {background:#edf3ee;padding:10px;border-radius:16px}
+#score-sheet .choices {background:#edf1ed;padding:4px;gap:4px}
+#score-sheet .choices button {background:transparent}
+#score-sheet .choices button.active {background:var(--forest);color:#fff}
+#hole-picker .nine h3 {font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.app-tabs {gap:8px;padding-top:6px;box-shadow:0 -4px 16px rgb(20 40 27 / .025)}
+.app-tabs button {min-height:50px;gap:4px;font-size:10px;border-radius:12px}
+.app-tabs button[aria-current] svg {box-shadow:none;background:none;border-radius:0;stroke-width:2.3}
+.app-tabs button[aria-current] {background:#edf3ee}
+button:active {transform:translateY(1px)}
+@media (max-width:360px) {
+ .play-header {margin:-14px -16px 18px;padding:8px 10px 14px}
+ .play-header #jump {font-size:22px}
+ .play-header .hole-distance b {font-size:25px}
+ .clubhouse-welcome h1 {font-size:36px}
+ .screen-hole .recommended-club {font-size:34px}
+ .screen-game .briefing section {grid-template-columns:1fr;gap:2px}
+}
+@media (min-width:600px) {.play-header {margin:-24px -32px 22px;padding:14px 26px 20px}}
+@media (prefers-reduced-motion:reduce) {button:active {transform:none}* {scroll-behavior:auto!important}}
