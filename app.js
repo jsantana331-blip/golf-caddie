@@ -2,7 +2,21 @@ let round,idx=0,key,state,exactScoreHole=null;
 let player,courses=[],catalog,memory,lastStored=null,locked=false,unavailable=false,preview=false,historical=false,screenMode='library',saveError='';
 const app=document.querySelector('#app');
 let scoreSheet=null,scoreHole=null,layouts=null;
-const tabIcons={home:'M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9',play:'M6 21V3l13 4-13 5',rounds:'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5'};
+const icons={
+ home:'M3 10 12 3l9 7M5 9v12h5v-7h4v7h5V9',
+ play:'M6 21V3l13 4-13 5M3 21h7',
+ rounds:'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5',
+ left:'m14 6-6 6 6 6',right:'m10 6 6 6-6 6',
+ grid:'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z',
+ more:'M5 12h1m5.5 0h1m5.5 0h1',close:'m6 6 12 12M18 6 6 18',
+ edit:'m14 6 4 4M4 20l4.5-1 12-12-4-4-12 12L4 20Z',
+ target:'M12 2v4m0 12v4M2 12h4m12 0h4M18 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0Z',
+ hazard:'M12 3 2 20h20L12 3Zm0 6v4m0 3v.1',
+ expand:'M14 4h6v6m0-6-6 6m-4 10H4v-6m0 6 6-6'
+};
+function icon(name){
+ return `<svg class="ui-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="${icons[name]}"/></svg>`;
+}
 const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const fact=v=>v===null||v===undefined||v===''?'Unknown':typeof v==='boolean'?(v?'Yes':'No'):v;
 let storageOK=true;
@@ -51,7 +65,7 @@ async function init(){
 function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
 function appTabs(){
  const selected=historical||screenMode==='history'?'rounds':screenMode==='round'||screenMode==='empty-play'?'play':'home';
- return `<nav class="app-tabs" aria-label="App navigation">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${tabIcons[id]}"/></svg><span>${label}</span></button>`).join('')}</nav>`;
+ return `<nav class="app-tabs" aria-label="App navigation">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}>${icon(id)}<span>${label}</span></button>`).join('')}</nav>`;
 }
 function bindTabs(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
  if(memory.active&&!saveMemory())return;
@@ -65,7 +79,7 @@ function showPlay(){
 }
 function shell(body){app.innerHTML=`<section class="screen environment-${screenMode==='history'?'journal':screenMode==='empty-play'?'caddie':'clubhouse'}"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div>${appTabs()}</section>`;bindTabs();updateStatus()}
 
-function libraryLink(){return '<button id="library" class="text-control">Home</button>'}
+function libraryLink(){return `<button id="library" class="text-control">${icon('left')} Home</button>`}
 function activeRoundDetails(){
  const r=memory.active;if(!r)return '';
  return `<p class="intro">${esc(r.config.course)} · ${esc(r.config.tee)} · Hole ${r.activeHole}</p>${roundPulse(r)}`;
@@ -83,7 +97,7 @@ function bindPlayPresentation(){
   const h=pages()[idx].h,geometry=HoleLayout.find(layouts,round.courseId,round.teeId,h.n);
   if(!geometry)return;
   const dialog=document.createElement('dialog');dialog.id='layout-sheet';dialog.className='bottom-sheet';dialog.setAttribute('aria-labelledby','layout-title');
-  dialog.innerHTML=`<header class="sheet-heading"><h2 id="layout-title">Hole ${h.n} · Layout</h2><button id="close-layout" aria-label="Close hole layout">×</button></header><div class="sheet-body">${HoleLayout.render(geometry)}</div>`;
+  dialog.innerHTML=`<header class="sheet-heading"><h2 id="layout-title">Hole ${h.n} · Layout</h2><button id="close-layout" aria-label="Close hole layout">${icon('close')}</button></header><div class="sheet-body">${HoleLayout.render(geometry)}</div>`;
   const close=()=>{dialog.close();dialog.remove();document.querySelector('#expand-layout')?.focus({preventScroll:true})};
   document.body.append(dialog);dialog.showModal();dialog.querySelector('#close-layout').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  });
@@ -91,7 +105,12 @@ function bindPlayPresentation(){
 function exitHome(){if(saveMemory())showLibrary()}
 function showLibrary(){
  screenMode='library';preview=false;historical=false;
- shell(`<div class="brand"><span class="brand-mark" aria-hidden="true">C</span><span>Caddie</span></div><header class="clubhouse-welcome"><p class="eyebrow">THE CLUBHOUSE</p><h1>Where are we playing?</h1><p class="welcome-note">A clear plan. A better round.</p></header>${memory.active?`<button id="resume-round" class="primary library-resume">Resume Round</button>${activeRoundDetails()}`:''}<h2 class="library-heading">${memory.active?'Start a new round':'Start Round'}</h2><div class="library-list">${courses.map(c=>{const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];return `<button class="course-choice" data-course="${esc(c.id)}"><span class="course-index" aria-hidden="true">${String(courses.indexOf(c)+1).padStart(2,'0')}</span><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><span>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</span></button>`}).join('')}</div>`);
+ shell(`<header class="clubhouse-welcome"><div class="brand"><span class="brand-mark" aria-hidden="true">C</span><span>Caddie</span></div><h1>Where are we playing?</h1></header>
+ ${memory.active?`<section class="resume-section" aria-label="Active round">${activeRoundDetails()}<button id="resume-round" class="primary library-resume">Resume Round ${icon('right')}</button></section>`:''}
+ <section aria-labelledby="course-library-title"><h2 id="course-library-title" class="library-heading">Course Library</h2><div class="library-list">${courses.map(c=>{
+  const t=c.tees.find(t=>t.id===memory.preferences.tees[c.id])||c.tees[0];
+  return `<button class="course-choice library-course" data-course="${esc(c.id)}"><span class="course-emblem">${icon('play')}</span><span class="course-description"><strong>${esc(c.course)}</strong><span>${esc(c.location)}</span><small>${esc(t.name)} · ${t.totalYards.toLocaleString()} yd · ${esc(t.rating??'Unknown')} / ${esc(t.slope??'Unknown')}</small></span>${icon('right')}</button>`;
+ }).join('')}</div></section>`);
  document.querySelector('#resume-round')?.addEventListener('click',resumeRound);
  document.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>showTees(courses.find(c=>c.id===b.dataset.course)));
 
@@ -123,7 +142,7 @@ function startRound(){
  else alert('The new round could not be saved. Your current round has been kept.');
 }
 function showHistory(){
- screenMode='history';historical=false;preview=false;shell(`<header class="journal-heading"><p class="eyebrow">THE JOURNAL</p><h1>Recent rounds</h1><p>Your game, one round at a time.</p></header><div class="library-list">${memory.history.length?memory.history.map(r=>`<button class="course-choice history-entry" data-history="${esc(r.id)}"><strong>${esc(r.config.course)} · ${esc(r.config.tee)}</strong><span class="history-score">${r.totals.played?r.totals.score:'—'} · ${RoundResults.relativeLabel(r.totals)}</span><span><em class="round-badge ${r.status==='partial'?'partial':'complete'}">${r.status==='partial'?'Partial':'Complete'}</em> ${r.totals.played}/${r.config.holes.length} holes · ${esc(new Date(r.startedAt).toLocaleDateString())}</span></button>`).join(''):'<p class="intro">Saved rounds will stay here on this device.</p>'}</div>`);
+ screenMode='history';historical=false;preview=false;shell(`<header class="journal-heading"><p class="eyebrow">THE JOURNAL</p><h1>Recent rounds</h1></header><div class="library-list">${memory.history.length?memory.history.map(r=>`<button class="course-choice history-entry" data-history="${esc(r.id)}"><strong>${esc(r.config.course)}</strong><span class="history-score">${r.totals.played?r.totals.score:'—'}<small>${RoundResults.relativeLabel(r.totals)}</small></span><span class="history-meta">${esc(r.config.tee)} tees · <em class="round-badge ${r.status==='partial'?'partial':'complete'}">${r.status==='partial'?'Partial':'Complete'}</em> · ${r.totals.played}/${r.config.holes.length} holes · ${esc(new Date(r.startedAt).toLocaleDateString())}</span></button>`).join(''):'<p class="intro">Saved rounds will stay here on this device.</p>'}</div>`);
  document.querySelectorAll('[data-history]').forEach(b=>b.onclick=()=>openHistory(b.dataset.history));
 }
 function openHistory(id){state=memory.history.find(r=>r.id===id);if(!state)return;round=state.config;historical=true;preview=false;screenMode='round';idx=0;render()}
@@ -153,22 +172,44 @@ function recommendation(h){
  const original='Driver toward center-left. A good one may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.';
  return h.advice===original?'A good driver toward center-left may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.':h.advice||h.plan;
 }
+function askEntry(h){
+ const prompt=h.n===state.activeHole?'Need help with your next shot?':'ChatGPT · playing Hole '+state.activeHole;
+ return `<button id="ask-caddie" class="ask-control" aria-haspopup="dialog">${CaddieHandoff.mark}<span><strong>Ask Caddie</strong><small>${prompt}</small></span>${icon('right')}</button>`;
+}
+function holeBrief(h){
+ const geometry=HoleLayout.find(layouts,round.courseId,round.teeId,h.n);
+ const hazard=h.danger&&!h.danger.startsWith('Specific hazards unverified;')?h.danger:'';
+ return `<section class="hero recommendation" aria-label="Caddie recommendation">
+ <p class="eyebrow">Tee shot</p><h2 class="recommended-club">${esc(h.teeClub)}</h2>
+ <p class="target">${icon('target')}<span><span class="target-label">Target</span> <span class="target-value">${esc(h.target)}</span></span></p>
+ <p class="strategy">${esc(recommendation(h))}</p>
+ ${hazard?`<p class="hazard">${icon('hazard')}<span><strong>Hazard</strong> ${esc(hazard)}</span></p>`:''}
+ </section>${geometry?`<section class="layout-stage" aria-label="Hole layout">${HoleLayout.render(geometry)}<button id="expand-layout" class="layout-expand" aria-haspopup="dialog">Expand layout ${icon('expand')}</button></section>`:HoleLayout.render(geometry)}
+ <div class="hole-actions">${askEntry(h)}</div>`;
+}
+function scoreDock(h){
+ const score=state.results[h.n]?.score;
+ return `<div class="score-dock"><button id="record-score" class="primary" aria-haspopup="dialog">${icon('edit')}${score===undefined?'Record Score':'Score '+score+' · Edit'}</button></div>`;
+}
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
  return `<div class="eyebrow">ROUND SUMMARY</div><h1>Your round</h1><p>${esc(round.course)} · ${esc(round.tee)} tees</p><section class="round-totals"><p class="eyebrow">${s.played}/${round.holes.length} holes scored${historical?(state.status==='partial'?' · Saved partial round':' · Saved complete round'):''}</p><div class="totals">${metric(s.played===round.holes.length?'Total score':historical?'Recorded strokes':'Score so far',s.played?s.score:'—')}${metric('Relative to par · scored holes',s.played?rel:'—')}${metric('Front nine',totalLabel(round.holes.slice(0,9)))}${metric('Back nine',totalLabel(round.holes.slice(9)))}</div></section><div class="summary-actions">${!historical?`<button id="back-active" class="primary">Back to Hole ${state.activeHole}</button>`:''}<button id="copy-coach" class="secondary">Copy for Golf Coach</button><p id="copy-status" role="status" aria-live="polite"></p><div id="copy-fallback" hidden><label for="coach-text">Golf Coach report</label><textarea id="coach-text" readonly rows="8"></textarea><button id="select-report" class="secondary">Select report text</button><p>Touch and hold the selected text, choose Copy, then paste into your Golf Coach project.</p></div></div><section class="round-stats"><div class="stat"><div class="summaryrow"><span>Fairways hit / eligible</span><b>${s.fairways} / ${s.eligible}</b></div><p class="muted">${s.teeRecorded}/${s.eligible} tee results recorded</p></div><div class="stat"><div class="summaryrow"><span>GIR</span><b>${s.gir} / ${round.holes.length}</b></div><p class="muted">${s.girRecorded}/${round.holes.length} GIR results recorded</p></div><div class="stat"><div class="summaryrow"><span>Putts recorded</span><b>${s.putts}</b></div><p class="muted">${s.puttsRecorded}/${round.holes.length} holes recorded</p></div><div class="stat"><div class="summaryrow"><span>Penalty strokes recorded</span><b>${s.penalties}</b></div><p class="muted">${s.penaltiesRecorded}/${round.holes.length} holes recorded</p></div></section><section class="scorecard-section"><h2>Scorecard</h2><p>${historical?'Saved round · read-only.':'Tap a hole to edit.'} Use this for manual entry into TheGrint. Swipe the table sideways for all columns. — means not recorded.</p><div class="scorecard" tabindex="0" role="region" aria-label="${round.holes.length}-hole scorecard"><table><thead><tr>${['Hole','Par','Score','Tee','GIR','Putts','Pen.','Note'].map(v=>`<th scope="col">${v}</th>`).join('')}</tr></thead><tbody>${round.holes.map(h=>{const r=state.results[h.n]||{};return `<tr><th scope="row">${historical?h.n:`<button data-hole="${h.n}">${h.n}</button>`}</th><td>${h.par}</td><td>${r.score??'—'}</td><td>${h.par===3?'N/A':r.tee??'—'}</td><td>${r.gir===undefined?'—':r.gir?'Yes':'No'}</td><td>${r.putts??'—'}</td><td>${r.penalties??'—'}</td><td class="note-cell">${esc(r.note||'—')}</td></tr>`}).join('')}</tbody></table></div></section><section class="new-round-section">${historical?'<button id="history-list" class="secondary">Back to Round History</button>':`<button id="complete-round" class="primary">Finish &amp; Save</button><p class="muted">Save all or part of your round. Unscored holes stay blank.</p><button id="cancel-round" class="destructive">Cancel Round</button>`}${!historical?'<button id="exit-home" class="secondary">Exit to Home</button>':''}<p class="muted">Round History stays on this device. Clearing browser data removes it.</p></section>`;
+}
+function holeContext(h){
+ return h.n===state.activeHole?round.course+' · '+round.tee+' tees':'Preview · playing Hole '+state.activeHole;
 }
 function render(){const ps=pages(),p=ps[idx];let body='';
  if(p.type==='course'){
  const par=round.holes.reduce((n,h)=>n+h.par,0);
  body=`<div class="eyebrow">CADDIE / COURSE OVERVIEW</div><header class="course-heading"><h1>${esc(round.course)}</h1><p class="location">${esc(fact(round.location))}</p></header><div class="course-primary">${metric('Tee',fact(round.tee))}${metric('Yards',fact(round.totalYards))}${metric('Par',par)}</div><div class="course-secondary">${metric('Rating',fact(round.rating))}${metric('Slope',fact(round.slope))}${metric('Par 3 / 4 / 5',[3,4,5].map(p=>round.holes.filter(h=>h.par===p).length).join(' / '))}</div>${round.ratings?.length?`<p class="rating-note muted">${round.ratings.map(r=>esc(r.basis)+': '+r.rating+' / '+r.slope).join(' · ')}</p>`:''}<section class="course-facts" aria-label="Course information">${[['Course style / type',round.courseStyle],['Grass type',round.grassType],['Driving range',round.drivingRange],['Practice green',round.practiceGreen],['Weather / forecast',round.weather]].map(([l,v])=>`<div class="summaryrow"><span>${l}</span><b>${esc(fact(v))}</b></div>`).join('')}</section>`;
  }else if(p.type==='game')body=`<div class="eyebrow">BEFORE THE FIRST TEE</div><h1>Game Plan</h1><section class="mission"><h2>Scoring Mission</h2><p class="strategy">${esc(round.mission)}</p></section><div class="briefing">${round.gamePlan.map(([title,text])=>`<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}</div><section class="club-distances"><h2>Your club distances</h2><div class="clubgrid">${state.player.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b><span>${y} yd</span></div>`).join('')}</div></section>`;
- else if(p.type==='hole'){const h=p.h;body=`<section class="hero recommendation" aria-label="Caddie recommendation"><p class="eyebrow">TEE SHOT</p><h2 class="recommended-club">${esc(h.teeClub)}</h2><p class="target"><span class="target-label">Target</span><span class="target-value">${esc(h.target)}</span></p><p class="strategy">${esc(recommendation(h))}</p></section>${HoleLayout.render(HoleLayout.find(layouts,round.courseId,round.teeId,h.n))}${HoleLayout.find(layouts,round.courseId,round.teeId,h.n)?'<button id="expand-layout" class="layout-expand" aria-haspopup="dialog">Expand layout <span aria-hidden="true">↗</span></button>':''}<div class="hole-actions"><button id="ask-caddie" class="ask-control">${CaddieHandoff.mark}<span><strong>Ask Caddie</strong><small>${h.n===state.activeHole?'Copy context · continue in ChatGPT':'ChatGPT · playing Hole '+state.activeHole}</small></span><span class="ask-arrow" aria-hidden="true">＋</span></button><button id="record-score" class="primary">${state.results[h.n]?.score!==undefined?'Score '+state.results[h.n].score+' · Edit':'Record Score'}</button></div>`}
+ else if(p.type==='hole')body=holeBrief(p.h);
  else body=summary();
  if(p.type==='course')body+='<button id="to-game" class="primary flow-action">Game Plan →</button>';
  if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
  body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
- const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(p.h.n===state.activeHole?'On course':'Preview · playing Hole '+state.activeHole):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">Summary</button><button id="round-menu" class="text-control" aria-label="Round menu">•••</button></div>`:'';
- const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">‹</button><h1><button id="jump" data-page="${idx}" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}<svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg></button></h1><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">›</button><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
- app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${appTabs()}</section>`;
+ const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(esc(holeContext(p.h))):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">${icon('rounds')}<span>Summary</span></button><button id="round-menu" class="text-control" aria-label="Round menu" aria-haspopup="dialog">${icon('more')}</button></div>`:'';
+ const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">${icon('left')}</button><h1><button id="jump" data-page="${idx}" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}${icon('grid')}</button></h1><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">${icon('right')}</button><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
+ app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${p.type==='hole'?scoreDock(p.h):''}${appTabs()}</section>`;
  const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
  document.querySelector('#prev')?.addEventListener('click',()=>go(-1));document.querySelector('#next')?.addEventListener('click',()=>go(1));document.querySelector('#jump')?.addEventListener('click',showHolePicker);
  document.querySelector('#round-menu')?.addEventListener('click',showRoundMenu);
@@ -220,7 +261,7 @@ function closeScore(){
 }
 function showScore(h){
  scoreHole=h;exactScoreHole=null;scoreSheet=document.createElement('dialog');scoreSheet.id='score-sheet';scoreSheet.className='bottom-sheet';scoreSheet.setAttribute('aria-labelledby','score-title');
- scoreSheet.innerHTML=`<header class="sheet-heading"><h2 id="score-title">Hole ${h.n} · Record score</h2><button id="close-score" aria-label="Close score entry">×</button></header><div class="sheet-body">${tracker(h)}</div><footer class="sheet-footer"><button id="score-done" class="primary">Done</button></footer>`;
+ scoreSheet.innerHTML=`<header class="sheet-heading"><h2 id="score-title">Hole ${h.n} · Record score</h2><button id="close-score" aria-label="Close score entry">${icon('close')}</button></header><div class="sheet-body">${tracker(h)}</div><footer class="sheet-footer"><button id="score-done" class="primary">Done</button></footer>`;
  document.body.append(scoreSheet);scoreSheet.showModal();bindTracker(h);updateStatus();
  document.querySelector('#close-score').onclick=closeScore;scoreSheet.addEventListener('cancel',e=>{e.preventDefault();closeScore()});
  document.querySelector('#score-done').onclick=()=>{for(const input of scoreSheet.querySelectorAll('input'))if(!input.reportValidity())return;closeScore()};
@@ -228,15 +269,15 @@ function showScore(h){
 function showHolePicker(){
  const dialog=document.createElement('dialog');dialog.className='bottom-sheet';dialog.id='hole-picker';dialog.setAttribute('aria-labelledby','picker-title');
  const viewed=pages()[idx].h.n;
- dialog.innerHTML=`<header class="sheet-heading"><h2 id="picker-title">Choose a hole</h2><button id="close-picker" aria-label="Close hole selection">×</button></header><p class="muted">Preview any hole. Scores stay on the hole you record.</p><div class="sheet-body">${[0,9].map(start=>`<section class="nine"><h3>${start===0?'Front nine':'Back nine'}</h3><div class="hole-grid">${round.holes.slice(start,start+9).map(h=>`<button data-view-hole="${h.n}" aria-pressed="${h.n===viewed}" aria-label="Hole ${h.n}, par ${h.par}${h.n===state.activeHole?', playing':''}"><b>${h.n}</b><small>${state.results[h.n]?.score??'—'}</small>${h.n===state.activeHole?'<span class="playing-dot" aria-hidden="true"></span>':''}</button>`).join('')}</div></section>`).join('')}</div><p class="muted">Dot = playing hole · lower number = recorded score</p>`;
+ dialog.innerHTML=`<header class="sheet-heading"><h2 id="picker-title">Choose a hole</h2><button id="close-picker" aria-label="Close hole selection">${icon('close')}</button></header><p class="muted">Preview any hole. Scores stay on the hole you record.</p><div class="sheet-body">${[0,9].map(start=>`<section class="nine"><h3>${start===0?'Front nine':'Back nine'}</h3><div class="hole-grid">${round.holes.slice(start,start+9).map(h=>`<button data-view-hole="${h.n}" aria-pressed="${h.n===viewed}" aria-label="Hole ${h.n}, par ${h.par}${h.n===state.activeHole?', playing':''}"><b>${h.n}</b><small>${state.results[h.n]?.score??'—'}</small>${h.n===state.activeHole?'<span class="playing-dot" aria-hidden="true"></span>':''}</button>`).join('')}</div></section>`).join('')}</div><p class="muted">Dot = playing hole · lower number = recorded score</p>`;
  const close=()=>{dialog.close();dialog.remove();document.querySelector('#jump')?.focus({preventScroll:true})};
  document.body.append(dialog);dialog.showModal();dialog.querySelector('#close-picker').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  dialog.querySelectorAll('[data-view-hole]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.viewHole);close();navigate(round.holes.findIndex(h=>h.n===n)+2);document.querySelector('#jump')?.focus({preventScroll:true})});
 }
 function showRoundMenu(){
  const dialog=document.createElement('dialog');dialog.className='bottom-sheet';dialog.id='round-sheet';dialog.setAttribute('aria-labelledby','round-title');
- dialog.innerHTML=`<header class="sheet-heading"><h2 id="round-title">Your round</h2><button id="close-round-menu" aria-label="Close round menu">×</button></header><div class="sheet-body menu-items"><button data-section="0">Course Overview</button><button data-section="1">Game Plan</button><button data-section="${round.holes.findIndex(h=>h.n===state.activeHole)+2}">Current Hole ${state.activeHole}</button><button data-section="${pages().length-1}">Round Summary</button><button id="menu-home">Exit to Home</button></div>`;
- const close=()=>{dialog.close();dialog.remove()};document.body.append(dialog);dialog.showModal();
+ dialog.innerHTML=`<header class="sheet-heading"><h2 id="round-title">Your round</h2><button id="close-round-menu" aria-label="Close round menu">${icon('close')}</button></header><div class="sheet-body menu-items"><button data-section="0">Course Overview</button><button data-section="1">Game Plan</button><button data-section="${round.holes.findIndex(h=>h.n===state.activeHole)+2}">Current Hole ${state.activeHole}</button><button data-section="${pages().length-1}">Round Summary</button><button id="menu-home">Exit to Home</button></div>`;
+ const close=()=>{dialog.close();dialog.remove();document.querySelector('#round-menu')?.focus({preventScroll:true})};document.body.append(dialog);dialog.showModal();
  dialog.querySelector('#close-round-menu').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  dialog.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>{close();navigate(Number(b.dataset.section))});dialog.querySelector('#menu-home').onclick=()=>{close();exitHome()};
 }
@@ -253,7 +294,7 @@ function validScoreInputs(){for(const input of scoreSheet.querySelectorAll('inpu
 function bindTracker(h){
  const result=()=>state.results[h.n]||(state.results[h.n]={});
  let before={...(state.results[h.n]||{})};
- const saveResult=()=>{state.activeHole=RoundResults.afterEntry(round.holes,state.activeHole,h.n,before,result());CaddieMemory.trackCompletion(state,h.n,before,result());before={...result()};persist();const label=document.querySelector('.active-context');if(label)label.textContent=h.n===state.activeHole?'On course':'Preview · playing Hole '+state.activeHole};
+ const saveResult=()=>{state.activeHole=RoundResults.afterEntry(round.holes,state.activeHole,h.n,before,result());CaddieMemory.trackCompletion(state,h.n,before,result());before={...result()};persist();const label=document.querySelector('.active-context');if(label)label.textContent=holeContext(h)};
  document.querySelectorAll('[data-value]').forEach(b=>b.onclick=()=>{if(!validScoreInputs())return;const f=b.dataset.field;const v=f==='tee'?b.dataset.value:f==='gir'?b.dataset.value==='true':Number(b.dataset.value);const r=result();if(b.getAttribute('aria-pressed')==='true'){delete r[f];if(f==='score')exactScoreHole=null}else{r[f]=v;if(f==='score')exactScoreHole=b.dataset.scorePlus?h.n:null}saveResult();redraw()});
  document.querySelectorAll('[data-step]').forEach(b=>b.onclick=()=>{if(!validScoreInputs())return;const f=b.dataset.field,r=result(),min=f==='score'?1:f==='putts'?3:2;r[f]=Math.max(min,(r[f]??(f==='score'?h.par:min))+Number(b.dataset.step));saveResult();redraw()});
  document.querySelectorAll('[data-number]').forEach(input=>input.oninput=()=>{const r=result(),v=Number(input.value);if(input.validity.badInput){input.setCustomValidity('Enter a whole number');input.reportValidity();return}if(input.value===''){delete r[input.dataset.number];input.setCustomValidity('')}else if(Number.isSafeInteger(v)&&v>=Number(input.min)){r[input.dataset.number]=v;input.setCustomValidity('')}else {input.setCustomValidity('Enter a whole number of at least '+input.min);input.reportValidity();return}saveResult();syncChoices()});

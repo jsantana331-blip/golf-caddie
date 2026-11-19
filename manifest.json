@@ -4,8 +4,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f5f1e8",
-  "theme_color": "#12372a",
+  "background_color": "#F4F0E7",
+  "theme_color": "#153D30",
   "description": "Personal mobile golf caddie for pre-round strategy and on-course decisions.",
   "icons": [
     {
