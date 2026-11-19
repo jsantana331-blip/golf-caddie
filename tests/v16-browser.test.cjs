@@ -54,7 +54,7 @@ async function assertDock(page) {
     const score = await page.locator('#record-score').boundingBox();
     const tabs = await page.locator('.app-tabs').boundingBox();
     assert.ok(score.height >= 44 && score.y >= 0 && score.y + score.height <= tabs.y);
-    assert.ok(tabs.y + tabs.height <= viewport.height + 1);
+    assert.ok(Math.abs(tabs.y + tabs.height - viewport.height) <= 1);
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.locator('#record-score').click();
     await page.locator('#score-done').click();
@@ -101,6 +101,13 @@ async function exercise(browser, url) {
     await page.locator('[data-field="score"][data-value="5"]').click();
     await capture(page, 'score-entry');
     await page.locator('#score-done').click();
+    if (!baseline) {
+      assert.equal(await page.locator('h1').innerText(), 'Hole 2');
+      assert.equal(await page.locator('.content').evaluate(el => el.scrollTop), 0);
+      await page.locator('#record-score').click();
+      await page.locator('#score-done').click();
+      assert.equal(await page.locator('h1').innerText(), 'Hole 2');
+    }
     await navigate(page, '[data-tab="home"]');
     await capture(page, 'home');
     await navigate(page, '[data-tab="play"]');
@@ -114,9 +121,14 @@ async function exercise(browser, url) {
       await context.setOffline(true);
       await page.reload();
       await page.locator('#resume-round').click();
+      assert.equal(await page.locator('h1').innerText(), 'Hole 2');
+      await page.locator('#prev').click();
       assert.equal(await page.locator('#record-score').innerText(), 'Score 5 · Edit');
+      await page.locator('#record-score').click();
+      await page.locator('#score-done').click();
+      assert.equal(await page.locator('h1').innerText(), 'Hole 2');
       assert.ok(await page.locator('.hole-layout svg').isVisible());
-      assert.match(await page.locator('.play-header progress').getAttribute('value'), /^1$/);
+      assert.equal(await page.locator('.play-header progress').getAttribute('value'), '1');
     }
     await navigate(page, '#open-summary');
     await capture(page, 'round-summary');
@@ -125,6 +137,21 @@ async function exercise(browser, url) {
     await navigate(page, '[data-tab="rounds"]');
     assert.match(await page.locator('.round-badge').innerText(), /partial/i);
     await capture(page, 'round-history');
+    if (!baseline) {
+      await navigate(page, '[data-tab="home"]');
+      await page.locator('[data-course="long-run"]').click();
+      await page.locator('[data-tee="blue"]').click();
+      await page.locator('#start-round').click();
+      await navigate(page, '#to-game');
+      await navigate(page, '#to-hole');
+      await page.locator('#jump').click();
+      await page.locator('[data-view-hole="18"]').click();
+      await page.locator('#record-score').click();
+      await page.locator('[data-field="score"]').first().click();
+      await page.locator('#score-done').click();
+      assert.equal(await page.locator('h1').innerText(), 'Hole 18');
+      assert.match(await page.locator('#record-score').innerText(), /^Score /);
+    }
     assert.deepEqual(errors, []);
   } finally {
     await context.close();

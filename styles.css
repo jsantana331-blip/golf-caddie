@@ -32,7 +32,8 @@ html,body {
 body {
   position:fixed;
   inset:0;
-  height:100dvh;
+  /* Fixed edges fill the standalone viewport, including the Home indicator area. */
+  height:auto;
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)
 }
 #app {
