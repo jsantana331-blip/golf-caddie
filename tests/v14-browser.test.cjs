@@ -45,7 +45,11 @@ const server=http.createServer((req,res)=>{
  await openScore(page);await page.locator('#score').fill('');assert.equal((await saved()).active.results[3].score,undefined);await page.locator('#close-score').click();await openScore(page);assert.equal(await page.locator('[data-field="score"][aria-pressed="true"]').count(),0);await closeScore(page);
  for(const size of [{width:320,height:568},{width:375,height:667},{width:390,height:844},{width:430,height:932},{width:844,height:390},{width:390,height:400}]){
   await page.setViewportSize(size);await route(page,4);
-  for(const sel of ['#record-score','#ask-caddie']){const box=await page.locator(sel).boundingBox();assert.ok(box.width>=44&&box.height>=44);if(size.height>=568)assert.ok(box.y+box.height<size.height-60,JSON.stringify({size,sel,box}))}
+  const tabs=await page.locator('.app-tabs').boundingBox(),score=await page.locator('#record-score').boundingBox();
+  assert.ok(score.width>=44&&score.height>=44&&score.y+score.height<=tabs.y,JSON.stringify({size,score,tabs}));
+  await page.locator('#ask-caddie').scrollIntoViewIfNeeded();
+  const ask=await page.locator('#ask-caddie').boundingBox();
+  assert.ok(ask.width>=44&&ask.height>=44&&ask.y+ask.height<=score.y,JSON.stringify({size,ask,score}));
   assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await openScore(page);
   const box=await page.locator('#score-sheet').boundingBox();assert.ok(box.x>=0&&box.y>=0&&box.x+box.width<=size.width+1&&box.y+box.height<=size.height+1,JSON.stringify({size,box}));
