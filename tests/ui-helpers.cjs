@@ -1,5 +1,5 @@
 // Shared public navigation for V1.5 and baseline screenshots of earlier releases.
-async function closeScore(page){if(await page.locator('#score-sheet').count())await page.locator('#score-done').click()}
+async function closeScore(page){if(await page.locator('#score-sheet').count())await page.locator('#close-score').click()}
 async function openScore(page){if(!await page.locator('#score-sheet').count())await page.locator('#record-score').click()}
 async function act(page,selector){await closeScore(page);await page.locator(selector).click()}
 async function route(page,index){

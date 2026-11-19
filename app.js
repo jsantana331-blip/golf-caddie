@@ -255,16 +255,22 @@ function redraw(){
  pane.innerHTML=tracker(scoreHole);bindTracker(scoreHole);updateStatus();
  if(selector)pane.querySelector(selector)?.focus({preventScroll:true});pane.scrollTop=y;
 }
-function closeScore(){
+function closeScore(advance=false){
  if(!scoreSheet)return;scoreSheet.close();scoreSheet.remove();scoreSheet=null;scoreHole=null;
- const y=document.querySelector('.content').scrollTop;render();document.querySelector('.content').scrollTop=y;document.querySelector('#record-score')?.focus({preventScroll:true});
+ if(advance)go(1);
+ else{const content=document.querySelector('.content'),y=content.scrollTop;render();document.querySelector('.content').scrollTop=y}
+ document.querySelector('#record-score')?.focus({preventScroll:true});
 }
 function showScore(h){
  scoreHole=h;exactScoreHole=null;scoreSheet=document.createElement('dialog');scoreSheet.id='score-sheet';scoreSheet.className='bottom-sheet';scoreSheet.setAttribute('aria-labelledby','score-title');
  scoreSheet.innerHTML=`<header class="sheet-heading"><h2 id="score-title">Hole ${h.n} · Record score</h2><button id="close-score" aria-label="Close score entry">${icon('close')}</button></header><div class="sheet-body">${tracker(h)}</div><footer class="sheet-footer"><button id="score-done" class="primary">Done</button></footer>`;
  document.body.append(scoreSheet);scoreSheet.showModal();bindTracker(h);updateStatus();
- document.querySelector('#close-score').onclick=closeScore;scoreSheet.addEventListener('cancel',e=>{e.preventDefault();closeScore()});
- document.querySelector('#score-done').onclick=()=>{for(const input of scoreSheet.querySelectorAll('input'))if(!input.reportValidity())return;closeScore()};
+ document.querySelector('#close-score').onclick=()=>closeScore();scoreSheet.addEventListener('cancel',e=>{e.preventDefault();closeScore()});
+ document.querySelector('#score-done').onclick=()=>{
+  if(!validScoreInputs())return;
+  const hasScore=state.results[h.n]?.score!==undefined;
+  closeScore(storageOK&&hasScore&&pages()[idx+1]?.type==='hole');
+ };
 }
 function showHolePicker(){
  const dialog=document.createElement('dialog');dialog.className='bottom-sheet';dialog.id='hole-picker';dialog.setAttribute('aria-labelledby','picker-title');
