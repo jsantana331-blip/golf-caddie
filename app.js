@@ -65,7 +65,7 @@ async function init(){
 function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
 function appTabs(){
  const selected=historical||screenMode==='history'?'rounds':screenMode==='round'||screenMode==='empty-play'?'play':'home';
- return `<nav class="app-tabs" aria-label="App navigation">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}>${icon(id)}<span>${label}</span></button>`).join('')}</nav>`;
+ return `<nav class="app-tabs" aria-label="App navigation"><div class="tab-track">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}>${icon(id)}<span>${label}</span></button>`).join('')}</div></nav>`;
 }
 function bindTabs(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
  if(memory.active&&!saveMemory())return;
@@ -315,9 +315,16 @@ function go(d){if(!round||screenMode!=='round'||historical||document.querySelect
 // Use explicit hole controls; horizontal page gestures compete with iOS and scorecard scrolling.
 function fitViewport(){
  const viewport=window.visualViewport;if(!viewport)return;
- document.documentElement.style.setProperty('--visual-height',viewport.height+'px');
- document.documentElement.style.setProperty('--keyboard-bottom',Math.max(0,innerHeight-viewport.height-viewport.offsetTop)+'px');
- if(document.activeElement?.matches('dialog input,dialog textarea'))document.activeElement.scrollIntoView({block:'nearest'});
+ const root=document.documentElement;
+ const editing=document.activeElement?.matches('dialog input,dialog textarea');
+ // Standalone Safari can report different layout and visible viewport edges.
+ // Keep the shell stable during keyboard entry or pinch zoom.
+ if(viewport.scale===1&&!editing&&viewport.height>0){
+  root.style.setProperty('--app-viewport-bottom',Math.round(viewport.offsetTop+viewport.height)+'px');
+ }
+ root.style.setProperty('--visual-height',viewport.height+'px');
+ root.style.setProperty('--keyboard-bottom',Math.max(0,innerHeight-viewport.height-viewport.offsetTop)+'px');
+ if(editing)document.activeElement.scrollIntoView({block:'nearest'});
 }
 window.visualViewport?.addEventListener('resize',fitViewport);window.visualViewport?.addEventListener('scroll',fitViewport);fitViewport();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).catch(console.error);

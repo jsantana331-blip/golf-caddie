@@ -50,6 +50,9 @@ async function assertDock(page) {
     { width: 844, height: 390 }
   ]) {
     await page.setViewportSize(viewport);
+    await page.waitForFunction(height =>
+      Math.abs(document.querySelector('.app-tabs').getBoundingClientRect().bottom - height) <= 1,
+    viewport.height);
     await page.locator('.content').evaluate(el => { el.scrollTop = 0; });
     const score = await page.locator('#record-score').boundingBox();
     const tabs = await page.locator('.app-tabs').boundingBox();
@@ -60,6 +63,35 @@ async function assertDock(page) {
     await page.locator('#score-done').click();
   }
   await page.setViewportSize({ width: 390, height: 844 });
+  await page.waitForFunction(() => document.querySelector('.app-tabs').getBoundingClientRect().bottom === 844);
+}
+
+async function assertVisualViewportDock(page) {
+  const edges = await page.evaluate(() => {
+    const viewport = window.visualViewport;
+    const bottom = () => document.querySelector('.app-tabs').getBoundingClientRect().bottom;
+    const simulate = (height, offsetTop, scale) => {
+      Object.defineProperties(viewport, {
+        height: { value: height, configurable: true },
+        offsetTop: { value: offsetTop, configurable: true },
+        scale: { value: scale, configurable: true }
+      });
+      viewport.dispatchEvent(new Event('resize'));
+      return bottom();
+    };
+    try {
+      const shorter = simulate(innerHeight - 64, 4, 1);
+      const taller = simulate(innerHeight + 48, 0, 1);
+      const zoomed = simulate(innerHeight / 2, 0, 2);
+      return { shorter, taller, zoomed, layout: innerHeight };
+    } finally {
+      for (const property of ['height', 'offsetTop', 'scale']) delete viewport[property];
+      viewport.dispatchEvent(new Event('resize'));
+    }
+  });
+  assert.equal(edges.shorter, edges.layout - 60);
+  assert.equal(edges.taller, edges.layout + 48);
+  assert.equal(edges.zoomed, edges.taller);
 }
 
 async function exercise(browser, url) {
@@ -84,11 +116,14 @@ async function exercise(browser, url) {
       assert.equal(await page.locator('h1').innerText(), 'Hole 1');
       assert.match(await page.locator('.active-context').innerText(), /Long Run.*Blue/);
       assert.ok(await page.locator('.target-value').isVisible());
-      assert.equal(await page.locator('.app-tabs button[aria-current]').evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
+      const current = page.locator('.tab-track button[aria-current]');
+      assert.equal(await current.innerText(), 'Play');
+      assert.notEqual(await current.evaluate(el => getComputedStyle(el).backgroundColor), 'rgba(0, 0, 0, 0)');
       const ask = await page.locator('#ask-caddie').boundingBox();
       const score = await page.locator('#record-score').boundingBox();
       assert.ok(ask.y + ask.height < score.y);
       await assertDock(page);
+      await assertVisualViewportDock(page);
     }
     await page.locator('#expand-layout').click();
     await capture(page, 'hole-diagram');
