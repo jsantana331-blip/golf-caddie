@@ -63,9 +63,9 @@ async function init(){
  }catch(e){app.innerHTML='<section class="loading"><div class="mark">C</div><h1>Caddie</h1><p>Course library unavailable. Reconnect once, then reopen.</p></section>';console.error(e)}
 }
 function pages(){return historical?[{type:'summary'}]:[{type:'course'},{type:'game'},...round.holes.map(h=>({type:'hole',h})),{type:'summary'}]}
-function appTabs(){
+function appFooter(h){
  const selected=historical||screenMode==='history'?'rounds':screenMode==='round'||screenMode==='empty-play'?'play':'home';
- return `<nav class="app-tabs" aria-label="App navigation"><div class="tab-track">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}>${icon(id)}<span>${label}</span></button>`).join('')}</div></nav>`;
+ return `<footer class="app-footer"><nav class="app-tabs" aria-label="App navigation"><div class="tab-track">${[['home','Home'],['play','Play'],['rounds','Rounds']].map(([id,label])=>`<button data-tab="${id}" ${selected===id?'aria-current="page"':''}>${icon(id)}<span>${label}</span></button>`).join('')}</div></nav>${h?recordScoreButton(h):''}</footer>`;
 }
 function bindTabs(){document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{
  if(memory.active&&!saveMemory())return;
@@ -77,7 +77,7 @@ function showPlay(){
  shell('<h1>Start a round</h1><p class="intro">Choose a course and tee to get your game plan.</p><button id="choose-course" class="primary flow-action">Start Round</button>');
  document.querySelector('#choose-course').onclick=showLibrary;
 }
-function shell(body){app.innerHTML=`<section class="screen environment-${screenMode==='history'?'journal':screenMode==='empty-play'?'caddie':'clubhouse'}"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div>${appTabs()}</section>`;bindTabs();updateStatus()}
+function shell(body){app.innerHTML=`<section class="screen environment-${screenMode==='history'?'journal':screenMode==='empty-play'?'caddie':'clubhouse'}"><div class="content"><p id="storage-warning" class="storage-warning" role="status" hidden></p>${body}</div>${appFooter()}</section>`;bindTabs();updateStatus()}
 
 function libraryLink(){return `<button id="library" class="text-control">${icon('left')} Home</button>`}
 function activeRoundDetails(){
@@ -187,9 +187,9 @@ function holeBrief(h){
  </section>${geometry?`<section class="layout-stage" aria-label="Hole layout">${HoleLayout.render(geometry)}<button id="expand-layout" class="layout-expand" aria-haspopup="dialog">Expand layout ${icon('expand')}</button></section>`:HoleLayout.render(geometry)}
  <div class="hole-actions">${askEntry(h)}</div>`;
 }
-function scoreDock(h){
+function recordScoreButton(h){
  const score=state.results[h.n]?.score;
- return `<div class="score-dock"><button id="record-score" class="primary" aria-haspopup="dialog">${icon('edit')}${score===undefined?'Record Score':'Score '+score+' · Edit'}</button></div>`;
+ return `<button id="record-score" class="primary" aria-haspopup="dialog">${icon('edit')}${score===undefined?'Record Score':'Score '+score+' · Edit'}</button>`;
 }
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
  return `<h1>Round summary</h1><p>${esc(round.course)} · ${esc(round.tee)} tees</p><section class="round-totals"><p class="eyebrow">${s.played}/${round.holes.length} holes scored${historical?(state.status==='partial'?' · Saved partial round':' · Saved complete round'):''}</p><div class="totals">${metric(s.played===round.holes.length?'Total score':historical?'Recorded strokes':'Score so far',s.played?s.score:'—')}${metric('Relative to par · scored holes',s.played?rel:'—')}${metric('Front nine',totalLabel(round.holes.slice(0,9)))}${metric('Back nine',totalLabel(round.holes.slice(9)))}</div></section><div class="summary-actions">${!historical?`<button id="back-active" class="primary">Back to Hole ${state.activeHole}</button>`:''}<button id="copy-coach" class="secondary">Copy for Golf Coach</button><p id="copy-status" role="status" aria-live="polite"></p><div id="copy-fallback" hidden><label for="coach-text">Golf Coach report</label><textarea id="coach-text" readonly rows="8"></textarea><button id="select-report" class="secondary">Select report text</button><p>Touch and hold the selected text, choose Copy, then paste into your Golf Coach project.</p></div></div><section class="round-stats"><div class="stat"><div class="summaryrow"><span>Fairways hit / eligible</span><b>${s.fairways} / ${s.eligible}</b></div><p class="muted">${s.teeRecorded}/${s.eligible} tee results recorded</p></div><div class="stat"><div class="summaryrow"><span>GIR</span><b>${s.gir} / ${round.holes.length}</b></div><p class="muted">${s.girRecorded}/${round.holes.length} GIR results recorded</p></div><div class="stat"><div class="summaryrow"><span>Putts recorded</span><b>${s.putts}</b></div><p class="muted">${s.puttsRecorded}/${round.holes.length} holes recorded</p></div><div class="stat"><div class="summaryrow"><span>Penalty strokes recorded</span><b>${s.penalties}</b></div><p class="muted">${s.penaltiesRecorded}/${round.holes.length} holes recorded</p></div></section><section class="scorecard-section"><h2>Scorecard</h2><p>${historical?'Saved round · read-only.':'Tap a hole to edit.'} Use this for manual entry into TheGrint. Swipe the table sideways for all columns. — means not recorded.</p><div class="scorecard" tabindex="0" role="region" aria-label="${round.holes.length}-hole scorecard"><table><thead><tr>${['Hole','Par','Score','Tee','GIR','Putts','Pen.','Note'].map(v=>`<th scope="col">${v}</th>`).join('')}</tr></thead><tbody>${round.holes.map(h=>{const r=state.results[h.n]||{};return `<tr><th scope="row">${historical?h.n:`<button data-hole="${h.n}">${h.n}</button>`}</th><td>${h.par}</td><td>${r.score??'—'}</td><td>${h.par===3?'N/A':r.tee??'—'}</td><td>${r.gir===undefined?'—':r.gir?'Yes':'No'}</td><td>${r.putts??'—'}</td><td>${r.penalties??'—'}</td><td class="note-cell">${esc(r.note||'—')}</td></tr>`}).join('')}</tbody></table></div></section><section class="new-round-section">${historical?'<button id="history-list" class="secondary">Back to Round History</button>':`<button id="complete-round" class="primary">Finish &amp; Save</button><p class="muted">Save all or part of your round. Unscored holes stay blank.</p><button id="cancel-round" class="destructive">Cancel Round</button>`}${!historical?'<button id="exit-home" class="secondary">Exit to Home</button>':''}<p class="muted">Round History stays on this device. Clearing browser data removes it.</p></section>`;
@@ -209,7 +209,7 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
  const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(esc(holeContext(p.h))):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">${icon('rounds')}<span>Summary</span></button><button id="round-menu" class="text-control" aria-label="Round menu" aria-haspopup="dialog">${icon('more')}</button></div>`:'';
  const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">${icon('left')}</button><h1><button id="jump" data-page="${idx}" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}${icon('grid')}</button></h1><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">${icon('right')}</button><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
- app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${p.type==='hole'?scoreDock(p.h):''}${appTabs()}</section>`;
+ app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${appFooter(p.h)}</section>`;
  const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
  document.querySelector('#prev')?.addEventListener('click',()=>go(-1));document.querySelector('#next')?.addEventListener('click',()=>go(1));document.querySelector('#jump')?.addEventListener('click',showHolePicker);
  document.querySelector('#round-menu')?.addEventListener('click',showRoundMenu);
@@ -317,15 +317,11 @@ function fitViewport(){
  const viewport=window.visualViewport;if(!viewport)return;
  const root=document.documentElement;
  const editing=document.activeElement?.matches('dialog input,dialog textarea');
- // Standalone Safari can report different layout and visible viewport edges.
- // Keep the shell stable during keyboard entry or pinch zoom.
- if(viewport.scale===1&&!editing&&viewport.height>0){
-  root.style.setProperty('--app-viewport-bottom',Math.round(viewport.offsetTop+viewport.height)+'px');
- }
  root.style.setProperty('--visual-height',viewport.height+'px');
  root.style.setProperty('--keyboard-bottom',Math.max(0,innerHeight-viewport.height-viewport.offsetTop)+'px');
  if(editing)document.activeElement.scrollIntoView({block:'nearest'});
 }
+if(navigator.standalone===true)document.documentElement.classList.add('standalone');
 window.visualViewport?.addEventListener('resize',fitViewport);window.visualViewport?.addEventListener('scroll',fitViewport);fitViewport();
 if('serviceWorker'in navigator)navigator.serviceWorker.register('./service-worker.js',{updateViaCache:'none'}).catch(console.error);
 init();

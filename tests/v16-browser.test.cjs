@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 
 const root = path.join(__dirname, '..');
 const output = process.env.V16_SCREENSHOTS;
-const base = '819c454';
+const base = process.env.V16_BASELINE || '819c454';
 const originPath = '/golf-caddie/';
 const mime = { '.css': 'text/css', '.js': 'application/javascript', '.json': 'application/json', '.png': 'image/png' };
 const baselineFiles = new Map();
@@ -51,25 +51,30 @@ async function assertDock(page) {
   ]) {
     await page.setViewportSize(viewport);
     await page.waitForFunction(height =>
-      Math.abs(document.querySelector('.app-tabs').getBoundingClientRect().bottom - height) <= 1,
+      Math.abs(document.querySelector('.app-footer').getBoundingClientRect().bottom - height) <= 1,
     viewport.height);
     await page.locator('.content').evaluate(el => { el.scrollTop = 0; });
     const score = await page.locator('#record-score').boundingBox();
     const tabs = await page.locator('.app-tabs').boundingBox();
-    assert.ok(score.height >= 44 && score.y >= 0 && score.y + score.height <= tabs.y);
-    assert.ok(Math.abs(tabs.y + tabs.height - viewport.height) <= 1);
+    const footer = await page.locator('.app-footer').boundingBox();
+    assert.ok(score.height >= 44 && score.width >= 44);
+    assert.ok(Math.abs((score.y + score.height / 2) - (tabs.y + tabs.height / 2)) <= 1);
+    assert.ok(score.x >= tabs.x + tabs.width);
+    assert.ok(Math.abs(footer.y + footer.height - viewport.height) <= 1);
+    assert.ok(footer.height <= 58);
+    assert.ok(await page.locator('[data-tab]').evaluateAll(tabs => tabs.every(tab => tab.offsetHeight >= 44)));
     assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
     await page.locator('#record-score').click();
     await page.locator('#score-done').click();
   }
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.waitForFunction(() => document.querySelector('.app-tabs').getBoundingClientRect().bottom === 844);
+  await page.waitForFunction(() => document.querySelector('.app-footer').getBoundingClientRect().bottom === 844);
 }
 
-async function assertVisualViewportDock(page) {
+async function assertStandaloneFooter(page) {
   const edges = await page.evaluate(() => {
     const viewport = window.visualViewport;
-    const bottom = () => document.querySelector('.app-tabs').getBoundingClientRect().bottom;
+    const bottom = () => document.querySelector('.app-footer').getBoundingClientRect().bottom;
     const simulate = (height, offsetTop, scale) => {
       Object.defineProperties(viewport, {
         height: { value: height, configurable: true },
@@ -83,20 +88,23 @@ async function assertVisualViewportDock(page) {
       const shorter = simulate(innerHeight - 64, 4, 1);
       const taller = simulate(innerHeight + 48, 0, 1);
       const zoomed = simulate(innerHeight / 2, 0, 2);
-      return { shorter, taller, zoomed, layout: innerHeight };
+      const standalone = document.documentElement.classList.contains('standalone');
+      return { shorter, taller, zoomed, layout: innerHeight, standalone };
     } finally {
       for (const property of ['height', 'offsetTop', 'scale']) delete viewport[property];
       viewport.dispatchEvent(new Event('resize'));
     }
   });
-  assert.equal(edges.shorter, edges.layout - 60);
-  assert.equal(edges.taller, edges.layout + 48);
-  assert.equal(edges.zoomed, edges.taller);
+  assert.equal(edges.standalone, true);
+  assert.equal(edges.shorter, edges.layout);
+  assert.equal(edges.taller, edges.layout);
+  assert.equal(edges.zoomed, edges.layout);
 }
 
 async function exercise(browser, url) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
     reducedMotion: 'reduce', serviceWorkers: baseline ? 'block' : 'allow' });
+  if (!baseline) await context.addInitScript(() => Object.defineProperty(navigator, 'standalone', { value: true }));
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', error => errors.push(error.message));
@@ -123,7 +131,7 @@ async function exercise(browser, url) {
       const score = await page.locator('#record-score').boundingBox();
       assert.ok(ask.y + ask.height < score.y);
       await assertDock(page);
-      await assertVisualViewportDock(page);
+      await assertStandaloneFooter(page);
     }
     await page.locator('#expand-layout').click();
     await capture(page, 'hole-diagram');
@@ -225,7 +233,7 @@ async function run() {
     }
     await exercise(browser, url);
     if (output) await writeComparisons(browser);
-    console.log('V1.6 score dock, dialog focus, five viewports, offline reload, diagram and partial history passed.');
+    console.log('Compact standalone footer, viewport and zoom stability, score entry, offline reload, and partial history passed.');
   } finally {
     await browser.close();
   }
