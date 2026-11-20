@@ -173,11 +173,11 @@ function recommendation(h){
  const original='Driver toward center-left. A good one may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.';
  return h.advice===original?'A good driver toward center-left may leave around 175 yards. Go for it only from a clean lie with a clear line; otherwise set up a wedge. 3H can finish among the staggered bunkers.':h.advice||h.plan;
 }
-function askEntry(h){
- const prompt=h.n===state.activeHole?'Need help with your next shot?':'ChatGPT · playing Hole '+state.activeHole;
+function askEntry(h,activeHole){
+ const prompt=h.n===activeHole?'Need help with your next shot?':'ChatGPT · playing Hole '+activeHole;
  return `<button id="ask-caddie" class="ask-control" aria-haspopup="dialog">${CaddieHandoff.mark}<span><strong>Ask Caddie</strong><small>${prompt}</small></span>${icon('right')}</button>`;
 }
-function holeBrief(h){
+function holeBrief(h,activeHole){
  const geometry=HoleLayout.find(layouts,round.courseId,round.teeId,h.n);
  const hazard=h.danger&&!h.danger.startsWith('Specific hazards unverified;')?h.danger:'';
  return `<section class="hero recommendation" aria-label="Caddie recommendation">
@@ -186,7 +186,7 @@ function holeBrief(h){
  <p class="strategy">${esc(recommendation(h))}</p>
  ${hazard?`<p class="hazard">${icon('hazard')}<span><strong>Hazard</strong> ${esc(hazard)}</span></p>`:''}
  </section>${geometry?`<section class="layout-stage" aria-label="Hole layout">${HoleLayout.render(geometry)}<button id="expand-layout" class="layout-expand" aria-haspopup="dialog">Expand layout ${icon('expand')}</button></section>`:HoleLayout.render(geometry)}
- <div class="hole-actions">${askEntry(h)}</div>`;
+ <div class="hole-actions">${askEntry(h,activeHole)}</div>`;
 }
 function recordScoreButton(h){
  const score=state.results[h.n]?.score;
@@ -195,22 +195,27 @@ function recordScoreButton(h){
 function summary(){const s=RoundResults.stats(round.holes,state.results),rel=RoundResults.relativeLabel(s);
  return `<h1>Round summary</h1><p>${esc(round.course)} · ${esc(round.tee)} tees</p><section class="round-totals"><p class="eyebrow">${s.played}/${round.holes.length} holes scored${historical?(state.status==='partial'?' · Saved partial round':' · Saved complete round'):''}</p><div class="totals">${metric(s.played===round.holes.length?'Total score':historical?'Recorded strokes':'Score so far',s.played?s.score:'—')}${metric('Relative to par · scored holes',s.played?rel:'—')}${metric('Front nine',totalLabel(round.holes.slice(0,9)))}${metric('Back nine',totalLabel(round.holes.slice(9)))}</div></section><div class="summary-actions">${!historical?`<button id="back-active" class="primary">Back to Hole ${state.activeHole}</button>`:''}<button id="copy-coach" class="secondary">Copy for Golf Coach</button><p id="copy-status" role="status" aria-live="polite"></p><div id="copy-fallback" hidden><label for="coach-text">Golf Coach report</label><textarea id="coach-text" readonly rows="8"></textarea><button id="select-report" class="secondary">Select report text</button><p>Touch and hold the selected text, choose Copy, then paste into your Golf Coach project.</p></div></div><section class="round-stats"><div class="stat"><div class="summaryrow"><span>Fairways hit / eligible</span><b>${s.fairways} / ${s.eligible}</b></div><p class="muted">${s.teeRecorded}/${s.eligible} tee results recorded</p></div><div class="stat"><div class="summaryrow"><span>GIR</span><b>${s.gir} / ${round.holes.length}</b></div><p class="muted">${s.girRecorded}/${round.holes.length} GIR results recorded</p></div><div class="stat"><div class="summaryrow"><span>Putts recorded</span><b>${s.putts}</b></div><p class="muted">${s.puttsRecorded}/${round.holes.length} holes recorded</p></div><div class="stat"><div class="summaryrow"><span>Penalty strokes recorded</span><b>${s.penalties}</b></div><p class="muted">${s.penaltiesRecorded}/${round.holes.length} holes recorded</p></div></section><section class="scorecard-section"><h2>Scorecard</h2><p>${historical?'Saved round · read-only.':'Tap a hole to edit.'} Use this for manual entry into TheGrint. Swipe the table sideways for all columns. — means not recorded.</p><div class="scorecard" tabindex="0" role="region" aria-label="${round.holes.length}-hole scorecard"><table><thead><tr>${['Hole','Par','Score','Tee','GIR','Putts','Pen.','Note'].map(v=>`<th scope="col">${v}</th>`).join('')}</tr></thead><tbody>${round.holes.map(h=>{const r=state.results[h.n]||{};return `<tr><th scope="row">${historical?h.n:`<button data-hole="${h.n}">${h.n}</button>`}</th><td>${h.par}</td><td>${r.score??'—'}</td><td>${h.par===3?'N/A':r.tee??'—'}</td><td>${r.gir===undefined?'—':r.gir?'Yes':'No'}</td><td>${r.putts??'—'}</td><td>${r.penalties??'—'}</td><td class="note-cell">${esc(r.note||'—')}</td></tr>`}).join('')}</tbody></table></div></section><section class="new-round-section">${historical?'<button id="history-list" class="secondary">Back to Round History</button>':`<button id="complete-round" class="primary">Finish &amp; Save</button><p class="muted">Save all or part of your round. Unscored holes stay blank.</p><button id="cancel-round" class="destructive">Cancel Round</button>`}${!historical?'<button id="exit-home" class="secondary">Exit to Home</button>':''}<p class="muted">Round History stays on this device. Clearing browser data removes it.</p></section>`;
 }
-function holeContext(h){
- return h.n===state.activeHole?round.course+' · '+round.tee+' tees':'Preview · playing Hole '+state.activeHole;
+function holeContext(h,activeHole=state.activeHole){
+ return h.n===activeHole?round.course+' · '+round.tee+' tees':'Preview · playing Hole '+activeHole;
+}
+function roundToolbar(h,activeHole=state.activeHole){
+ return historical?'':`<div class="round-toolbar"><span class="active-context">${h?esc(holeContext(h,activeHole)):'Playing Hole '+activeHole}</span><button id="open-summary" class="text-control summary-control">${icon('rounds')}<span>Summary</span></button><button id="round-menu" class="text-control round-menu-control" aria-label="Round menu" aria-haspopup="dialog">${icon('more')}</button></div>`;
+}
+function holePanel(h,page,activeHole=state.activeHole){
+ const holes=`<nav class="hole-nav" aria-label="Hole navigation"><h1><button id="jump" class="hole-picker-trigger" data-page="${page}" aria-keyshortcuts="ArrowLeft ArrowRight" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${h.n}">Hole ${h.n}${icon('grid')}</button></h1><div class="hole-distance"><b>${h.yards}<small> yd</small></b><span>Par ${h.par} · HCP ${h.hcp}</span></div></nav>`;
+ return `<header class="play-header">${roundToolbar(h,activeHole)}${holes}${roundPulse(state)}</header><p id="storage-warning" class="storage-warning" role="status" hidden></p>${holeBrief(h,activeHole)}`;
 }
 function render(){const ps=pages(),p=ps[idx];let body='';
  if(p.type==='course'){
  const par=round.holes.reduce((n,h)=>n+h.par,0);
  body=`<div class="eyebrow">Course overview</div><header class="course-heading"><h1>${esc(round.course)}</h1><p class="location">${esc(fact(round.location))}</p></header><div class="course-primary">${metric('Tee',fact(round.tee))}${metric('Yards',fact(round.totalYards))}${metric('Par',par)}</div><div class="course-secondary">${metric('Rating',fact(round.rating))}${metric('Slope',fact(round.slope))}${metric('Par 3 / 4 / 5',[3,4,5].map(p=>round.holes.filter(h=>h.par===p).length).join(' / '))}</div>${round.ratings?.length?`<p class="rating-note muted">${round.ratings.map(r=>esc(r.basis)+': '+r.rating+' / '+r.slope).join(' · ')}</p>`:''}<section class="course-facts" aria-label="Course information">${[['Course style / type',round.courseStyle],['Grass type',round.grassType],['Driving range',round.drivingRange],['Practice green',round.practiceGreen],['Weather / forecast',round.weather]].map(([l,v])=>`<div class="summaryrow"><span>${l}</span><b>${esc(fact(v))}</b></div>`).join('')}</section>`;
  }else if(p.type==='game')body=`<h1>Game plan</h1><section class="mission"><h2>Scoring Mission</h2><p class="strategy">${esc(round.mission)}</p></section><div class="briefing">${round.gamePlan.map(([title,text])=>`<section><h2>${esc(title)}</h2><p>${esc(text)}</p></section>`).join('')}</div><section class="club-distances"><h2>Your club distances</h2><div class="clubgrid">${state.player.clubs.map(([c,y])=>`<div class="club"><b>${esc(c)}</b><span>${y} yd</span></div>`).join('')}</div></section>`;
- else if(p.type==='hole')body=holeBrief(p.h);
- else body=summary();
+ else if(p.type==='summary')body=summary();
  if(p.type==='course')body+='<button id="to-game" class="primary flow-action">Game Plan →</button>';
  if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
  body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
- const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(esc(holeContext(p.h))):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">${icon('rounds')}<span>Summary</span></button><button id="round-menu" class="text-control" aria-label="Round menu" aria-haspopup="dialog">${icon('more')}</button></div>`:'';
- const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><h1><button id="jump" data-page="${idx}" aria-keyshortcuts="ArrowLeft ArrowRight" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}${icon('grid')}</button></h1><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
- app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${appFooter(p.h)}</section>`;
+ const content=p.type==='hole'?`<div class="hole-stage"><div class="content">${holePanel(p.h,idx)}</div></div>`:`<div class="content">${roundToolbar()}${body}</div>`;
+ app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}">${content}${appFooter(p.h)}</section>`;
  const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
  const picker=document.querySelector('#jump');
  picker?.addEventListener('click',showHolePicker);
@@ -324,30 +329,86 @@ function go(d){if(!round||screenMode!=='round'||historical||document.querySelect
  navigate(next);
 }
 function bindHoleSwipe(content){
- let start=null;
+ const stage=content.parentElement,motion=matchMedia('(prefers-reduced-motion: reduce)');
  const passive={passive:true};
+ let touch=null,preview=null,direction=0,offset=0,settling=false;
+ const transform=x=>'translate3d('+x+'px,0,0)';
+ function clear(){
+  preview?.remove();preview=null;direction=0;offset=0;settling=false;
+  content.style.transform='';stage.classList.remove('swipe-active');
+ }
+ function move(dx){
+  const d=dx<0?1:-1,width=stage.clientWidth;
+  if(d!==direction){
+   preview?.remove();preview=null;direction=d;
+   const target=pages()[idx+d];
+   if(target?.type==='hole'){
+    const active=d===1?RoundResults.afterAdvance(round.holes,state.results,state.activeHole,pages()[idx].h.n):state.activeHole;
+    preview=document.createElement('div');preview.className='content hole-preview';
+    preview.inert=true;preview.setAttribute('aria-hidden','true');
+    preview.innerHTML=holePanel(target.h,idx+d,active);
+    preview.querySelectorAll('[id]').forEach(el=>el.removeAttribute('id'));
+    stage.append(preview);
+   }
+  }
+  offset=preview?Math.max(-width,Math.min(width,dx)):dx/(4+Math.abs(dx)/width);
+  content.style.transform=transform(offset);
+  if(preview)preview.style.transform=transform(offset+direction*width);
+  stage.classList.add('swipe-active');
+ }
+ function settle(advance,speed=0){
+  if(!offset&&!preview){clear();return}
+  settling=true;
+  const width=stage.clientWidth,d=direction,finish=advance?-d*width:0;
+  const duration=Math.max(110,Math.min(245,80+Math.abs(finish-offset)/Math.max(1.65,speed*1.5)));
+  const options={duration,easing:'cubic-bezier(.18,.78,.22,1)',fill:'forwards'};
+  const slide=(el,from,to)=>el.animate([{transform:transform(from)},{transform:transform(to)}],options);
+  const outgoing=slide(content,offset,finish);
+  const incoming=preview&&slide(preview,offset+d*width,finish+d*width);
+  outgoing.finished.then(()=>{if(advance&&content.isConnected)go(d)},()=>{}).finally(()=>{
+   outgoing.cancel();incoming?.cancel();clear();
+  });
+ }
  content.addEventListener('touchstart',event=>{
-  start=null;
-  if(event.touches.length!==1||event.target.closest('button,a,input,select,textarea,label'))return;
-  const touch=event.touches[0];
+  if(settling)return;
+  if(event.touches.length!==1){touch=null;settle(false);return}
+  if(event.target.closest('button,a,input,select,textarea,label'))return;
+  const point=event.touches[0];
   // Leave the screen edges to iOS and Safari gestures.
-  if(touch.clientX<24||touch.clientX>innerWidth-24)return;
-  start=touch;
+  if(point.clientX<24||point.clientX>innerWidth-24)return;
+  touch={point,x:point.clientX,time:event.timeStamp,velocity:0,dragging:false};
  },passive);
  content.addEventListener('touchmove',event=>{
-  if(!start)return;
-  if(event.touches.length!==1){start=null;return}
-  const touch=event.touches[0];
-  const dx=touch.clientX-start.clientX,dy=touch.clientY-start.clientY;
-  if(Math.abs(dy)>24&&Math.abs(dy)>Math.abs(dx))start=null;
+  if(!touch)return;
+  if(event.touches.length!==1){touch=null;settle(false);return}
+  const point=event.touches[0],dx=point.clientX-touch.point.clientX,dy=point.clientY-touch.point.clientY;
+  if(!touch.dragging){
+   if(Math.abs(dy)>16&&Math.abs(dy)>Math.abs(dx)){touch=null;return}
+   if(Math.abs(dx)<12||Math.abs(dx)<=1.5*Math.abs(dy))return;
+   touch.dragging=true;
+  }
+  const elapsed=event.timeStamp-touch.time;
+  if(elapsed>0)touch.velocity=(point.clientX-touch.x)/elapsed;
+  touch.x=point.clientX;touch.time=event.timeStamp;
+  if(!motion.matches&&content.animate)move(dx);
  },passive);
- content.addEventListener('touchcancel',()=>{start=null},passive);
+ content.addEventListener('touchcancel',()=>{if(touch){touch=null;settle(false)}},passive);
  content.addEventListener('touchend',event=>{
-  const origin=start;start=null;
+  const origin=touch;touch=null;
   const end=event.changedTouches[0];
-  if(!origin||event.touches.length||!end||end.identifier!==origin.identifier)return;
-  const dx=end.clientX-origin.clientX,dy=end.clientY-origin.clientY;
-  if(Math.abs(dx)>=56&&Math.abs(dx)>1.5*Math.abs(dy))go(dx<0?1:-1);
+  if(!origin)return;
+  if(event.touches.length||!end||end.identifier!==origin.point.identifier){settle(false);return}
+  const dx=end.clientX-origin.point.clientX,dy=end.clientY-origin.point.clientY;
+  const horizontal=Math.abs(dx)>1.5*Math.abs(dy);
+  if(motion.matches||!content.animate){
+   clear();if(horizontal&&Math.abs(dx)>=56)go(dx<0?1:-1);return;
+  }
+  if(!horizontal){settle(false);return}
+  const speed=event.timeStamp-origin.time<90?origin.velocity*Math.sign(dx):0;
+  const flick=Math.abs(dx)>=44&&speed>.45;
+  const farEnough=Math.abs(dx)>=Math.min(110,stage.clientWidth*.24);
+  if(!origin.dragging&&!farEnough){settle(false);return}
+  move(dx);settle(Boolean(preview)&&(farEnough||flick),speed);
  },passive);
 }
 function fitViewport(){

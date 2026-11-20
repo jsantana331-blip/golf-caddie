@@ -125,6 +125,39 @@ async function assertTouchNavigation(context, page) {
   }
 }
 
+async function assertSwipeMotion(page) {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  try {
+    for (const [distance, expected, elapsed] of [[-30, 'Hole 1', 300], [-50, 'Hole 2', 25], [-125, 'Hole 2', 300]]) {
+      const surface = page.locator('.hole-stage > .content').first();
+      await surface.evaluate((el, { distance, elapsed }) => {
+        const touch = x => new Touch({ identifier: 1, target: el, clientX: x, clientY: 250 });
+        for (const [type, x, timeStamp] of [['touchstart', 200, 100], ['touchmove', 200 + distance, 100 + elapsed]]) {
+          const event = new TouchEvent(type, { bubbles: true, touches: [touch(x)] });
+          Object.defineProperty(event, 'timeStamp', { value: timeStamp });
+          el.dispatchEvent(event);
+        }
+      }, { distance, elapsed });
+      assert.equal(await surface.evaluate(el => new DOMMatrixReadOnly(getComputedStyle(el).transform).m41), distance);
+      const preview = page.locator('.hole-preview');
+      assert.equal(await preview.getAttribute('aria-hidden'), 'true');
+      assert.equal(await preview.locator('h1').innerText(), 'Hole 2');
+      assert.equal(await page.locator('#jump').count(), 1);
+      await surface.evaluate((el, { distance, elapsed }) => {
+        const end = new Touch({ identifier: 1, target: el, clientX: 200 + distance, clientY: 250 });
+        const event = new TouchEvent('touchend', { bubbles: true, changedTouches: [end] });
+        Object.defineProperty(event, 'timeStamp', { value: 105 + elapsed });
+        el.dispatchEvent(event);
+      }, { distance, elapsed });
+      await page.locator('.swipe-active').waitFor({ state: 'detached' });
+      assert.equal(await page.locator('#jump').innerText(), expected);
+      if (expected === 'Hole 2') await page.locator('#jump').press('ArrowLeft');
+    }
+  } finally {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+  }
+}
+
 async function exercise(browser, url) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
     reducedMotion: 'reduce', serviceWorkers: baseline ? 'block' : 'allow' });
@@ -157,6 +190,7 @@ async function exercise(browser, url) {
       await assertDock(page);
       await assertStandaloneFooter(page);
       await assertTouchNavigation(context, page);
+      await assertSwipeMotion(page);
     }
     await page.locator('#expand-layout').click();
     await capture(page, 'hole-diagram');

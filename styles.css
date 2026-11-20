@@ -300,7 +300,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
   min-width:44px;
   color:var(--ink)
 }
-.screen-summary #open-summary {
+.screen-summary .summary-control {
   display:none
 }
 .hole-nav {
@@ -323,7 +323,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
   font-size:26px;
   padding:0
 }
-.hole-nav #jump {
+.hole-nav .hole-picker-trigger {
   display:flex;
   align-items:center;
   gap:4px;
@@ -333,7 +333,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
   width:100%;
   text-align:left
 }
-.hole-nav #jump svg {
+.hole-nav .hole-picker-trigger svg {
   width:15px;
   height:15px;
   fill:none;
@@ -984,7 +984,7 @@ body:has(dialog[open]) .content {
     gap:2px;
     margin-bottom:16px
   }
-  .hole-nav #jump {
+  .hole-nav .hole-picker-trigger {
     font-size:22px
   }
   .hole-distance {
@@ -1125,7 +1125,10 @@ body:has(.screen-hole) {
   background:linear-gradient(var(--green) 0 env(safe-area-inset-top,0px),var(--cream) 0);
 }
 .environment-caddie {background:var(--canvas-play)}
-.screen-hole .content {touch-action:pan-y pinch-zoom}
+.hole-stage {position:relative;display:flex;flex:1;min-height:0;overflow:hidden}
+.hole-stage > .content {min-width:0;touch-action:pan-y pinch-zoom;background:var(--canvas-play)}
+.hole-stage > .hole-preview {position:absolute;inset:0;pointer-events:none}
+.hole-stage.swipe-active > .content {will-change:transform}
 .play-header {
   position:sticky;
   top:calc(-1 * var(--content-top));
@@ -1138,20 +1141,20 @@ body:has(.screen-hole) {
 .play-header .round-toolbar {margin:0}
 .play-header .active-context,.play-header .hole-distance span,.play-header .round-pulse {color:var(--on-green-muted)}
 .play-header button,.play-header .round-pulse strong {color:var(--paper)}
-.play-header #jump svg {stroke:currentColor}
+.play-header .hole-picker-trigger svg {stroke:currentColor}
 .play-header .round-pulse progress {accent-color:var(--on-green-muted)}
-.round-toolbar #open-summary {display:inline-flex;align-items:center;gap:5px}
-.screen-summary #open-summary {display:none}
-.round-toolbar #round-menu {padding:0;border-radius:50%}
-.play-header #round-menu {background:rgb(255 255 255 / .10)}
-.play-header #round-menu:active {background:rgb(255 255 255 / .19)}
+.round-toolbar .summary-control {display:inline-flex;align-items:center;gap:5px}
+.screen-summary .summary-control {display:none}
+.round-toolbar .round-menu-control {padding:0;border-radius:50%}
+.play-header .round-menu-control {background:rgb(255 255 255 / .10)}
+.play-header .round-menu-control:active {background:rgb(255 255 255 / .19)}
 .play-header button:active {background:rgb(255 255 255 / .13)}
 .play-header .hole-nav {margin:0}
 .play-header .hole-distance b {font-size:1.75rem}
-.play-header #jump {font-size:1.75rem;gap:8px}
+.play-header .hole-picker-trigger {font-size:1.75rem;gap:8px}
 .header-compact .play-header {padding-top:3px;padding-bottom:6px;box-shadow:0 4px 12px rgb(21 61 48 / .15)}
 .header-compact .play-header .hole-distance b {font-size:1.375rem}
-.header-compact .play-header #jump {font-size:1.375rem}
+.header-compact .play-header .hole-picker-trigger {font-size:1.375rem}
 .header-compact .play-header .round-pulse {padding-top:3px}
 .recommendation {padding-bottom:15px}
 .recommendation > .eyebrow {display:block;color:var(--earth);margin-bottom:3px}
@@ -1288,10 +1291,10 @@ body:has(.screen-hole) {
 
 @media (max-width:360px) {
   :root {--content-gutter:16px;--content-top:14px}
-  .play-header #jump {font-size:1.25rem}
+  .play-header .hole-picker-trigger {font-size:1.25rem}
   .play-header .hole-distance b {font-size:1.375rem}
   .round-toolbar {gap:3px}
-  .round-toolbar #open-summary span {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+  .round-toolbar .summary-control span {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
   .screen-game .briefing section {grid-template-columns:1fr;gap:2px}
 }
 @media (min-width:600px) {:root {--content-gutter:32px;--content-top:24px}}

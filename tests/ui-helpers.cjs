@@ -20,6 +20,7 @@ async function swipe(page, selector, dx, dy = 0, startX = 160) {
     el.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, touches: [end] }));
     el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, changedTouches: [end] }));
   }, { dx, dy, startX });
+  await page.locator('.swipe-active').waitFor({ state: 'detached' });
 }
 async function swipeHole(page, direction) {await closeScore(page);await swipe(page,'.recommendation',direction === 'next' ? -110 : 110)}
 module.exports={closeScore,openScore,act,route,swipe,swipeHole};
