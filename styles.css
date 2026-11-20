@@ -305,7 +305,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
 }
 .hole-nav {
   display:grid;
-  grid-template-columns:44px minmax(94px,1fr) 44px auto;
+  grid-template-columns:minmax(0,1fr) auto;
   gap:4px;
   align-items:center;
   margin-bottom:20px
@@ -981,7 +981,6 @@ body:has(dialog[open]) .content {
     padding:14px 16px 20px
   }
   .hole-nav {
-    grid-template-columns:44px minmax(90px,1fr) 44px auto;
     gap:2px;
     margin-bottom:16px
   }
@@ -1126,6 +1125,7 @@ body:has(.screen-hole) {
   background:linear-gradient(var(--green) 0 env(safe-area-inset-top,0px),var(--cream) 0);
 }
 .environment-caddie {background:var(--canvas-play)}
+.screen-hole .content {touch-action:pan-y pinch-zoom}
 .play-header {
   position:sticky;
   top:calc(-1 * var(--content-top));
@@ -1146,10 +1146,9 @@ body:has(.screen-hole) {
 .play-header #round-menu {background:rgb(255 255 255 / .10)}
 .play-header #round-menu:active {background:rgb(255 255 255 / .19)}
 .play-header button:active {background:rgb(255 255 255 / .13)}
-.play-header .hole-nav {margin:0;grid-template-columns:44px minmax(0,1fr) 44px auto}
-.hole-nav > button {font-size:1rem}
+.play-header .hole-nav {margin:0}
 .play-header .hole-distance b {font-size:1.75rem}
-.play-header #jump {font-size:1.5rem;gap:7px}
+.play-header #jump {font-size:1.75rem;gap:8px}
 .header-compact .play-header {padding-top:3px;padding-bottom:6px;box-shadow:0 4px 12px rgb(21 61 48 / .15)}
 .header-compact .play-header .hole-distance b {font-size:1.375rem}
 .header-compact .play-header #jump {font-size:1.375rem}

@@ -101,6 +101,30 @@ async function assertStandaloneFooter(page) {
   assert.equal(edges.zoomed, edges.layout);
 }
 
+async function assertTouchNavigation(context, page) {
+  const session = await context.newCDPSession(page);
+  const box = await page.locator('.recommendation').boundingBox();
+  const y = Math.round(box.y + box.height / 2);
+  const left = Math.round(box.x + 34);
+  const right = Math.round(box.x + box.width - 34);
+  async function drag(from, to) {
+    await session.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: from, y }] });
+    for (let step = 1; step <= 5; step++) {
+      const x = Math.round(from + (to - from) * step / 5);
+      await session.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y }] });
+    }
+    await session.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  }
+  try {
+    await drag(right, left);
+    await page.locator('#jump').filter({ hasText: 'Hole 2' }).waitFor({ timeout: 4000 });
+    await drag(left, right);
+    await page.locator('#jump').filter({ hasText: 'Hole 1' }).waitFor({ timeout: 4000 });
+  } finally {
+    await session.detach();
+  }
+}
+
 async function exercise(browser, url) {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true,
     reducedMotion: 'reduce', serviceWorkers: baseline ? 'block' : 'allow' });
@@ -132,6 +156,7 @@ async function exercise(browser, url) {
       assert.ok(ask.y + ask.height < score.y);
       await assertDock(page);
       await assertStandaloneFooter(page);
+      await assertTouchNavigation(context, page);
     }
     await page.locator('#expand-layout').click();
     await capture(page, 'hole-diagram');
@@ -165,7 +190,7 @@ async function exercise(browser, url) {
       await page.reload();
       await page.locator('#resume-round').click();
       assert.equal(await page.locator('h1').innerText(), 'Hole 2');
-      await page.locator('#prev').click();
+      await page.locator('#jump').press('ArrowLeft');
       assert.equal(await page.locator('#record-score').innerText(), 'Score 5 · Edit');
       await page.locator('#record-score').click();
       await page.locator('#score-done').click();

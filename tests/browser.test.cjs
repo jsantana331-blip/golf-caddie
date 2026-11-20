@@ -1,4 +1,4 @@
-const {route,openScore,closeScore,act}=require('./ui-helpers.cjs');
+const {route,openScore,closeScore,act,swipe,swipeHole}=require('./ui-helpers.cjs');
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const http=require('node:http');
@@ -165,16 +165,15 @@ const server=http.createServer((req,res)=>{
   await style.evaluate(el=>el.remove());
  }
 
- const swipe=async(selector,dx,dy=0)=>page.locator(selector).evaluate((el,{dx,dy})=>{
-  const touch=(x,y)=>new Touch({identifier:1,target:el,clientX:x,clientY:y});
-  el.dispatchEvent(new TouchEvent('touchstart',{bubbles:true,touches:[touch(200,200)]}));
-  el.dispatchEvent(new TouchEvent('touchend',{bubbles:true,changedTouches:[touch(200+dx,200+dy)]}));
- },{dx,dy});
- await openScore(page);await swipe('#note',-120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
- await closeScore(page);await swipe('.hero',-120,150);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
- await swipe('.hero',-120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');await act(page,'#next');
- await act(page,'#prev');assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
- await act(page,'#next');assert.equal(await page.locator('#jump').getAttribute('data-page'),'3');
+ await openScore(page);await swipe(page,'#note',-120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await closeScore(page);await swipe(page,'.hero',-120,150);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipe(page,'.hero',120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipe(page,'.hero',-120,0,385);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipe(page,'.hero',-35);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipe(page,'#jump',-120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipe(page,'.hero',-120);assert.equal(await page.locator('#jump').getAttribute('data-page'),'3');
+ await swipeHole(page,'previous');assert.equal(await page.locator('#jump').getAttribute('data-page'),'2');
+ await swipeHole(page,'next');assert.equal(await page.locator('#jump').getAttribute('data-page'),'3');
  await context.setOffline(true);await page.reload();await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.deepEqual((await saved()).results,expected);
  await route(page,'20');assert.equal(await page.locator('tbody tr').count(),18);
@@ -212,11 +211,11 @@ const server=http.createServer((req,res)=>{
  for(const h of round.holes){await route(page,String(h.n+1));await act(page,'#open-summary');assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');}
  await page.locator('[data-hole="1"]').click();await tap('score',6);
  await act(page,'#open-summary');assert.equal(await page.locator('#back-active').innerText(),'Back to Hole 8');
- await act(page,'#back-active');await act(page,'#next');assert.equal((await saved()).activeHole,9);
- await act(page,'#next');assert.equal((await saved()).activeHole,9); // Unscored nine: viewing ten is only browsing.
- await route(page,'15');await act(page,'#next');assert.equal((await saved()).activeHole,9);
+ await act(page,'#back-active');await swipeHole(page,'next');assert.equal((await saved()).activeHole,9);
+ await swipeHole(page,'next');assert.equal((await saved()).activeHole,9); // Unscored nine: viewing ten is only browsing.
+ await route(page,'15');await swipeHole(page,'next');assert.equal((await saved()).activeHole,9);
  await act(page,'#open-summary');await act(page,'#back-active');
- await tap('score',4);await act(page,'#next');assert.equal((await saved()).activeHole,10);
+ await tap('score',4);await swipeHole(page,'next');assert.equal((await saved()).activeHole,10);
  await page.close();page=await context.newPage();await page.goto(url);await page.locator('#resume-round').click();await page.locator('#jump').waitFor();
  assert.equal((await saved()).activeHole,10);
  await context.setOffline(true);await page.reload();await page.locator('#resume-round').click();await act(page,'#open-summary');
@@ -255,7 +254,7 @@ const server=http.createServer((req,res)=>{
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
  if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await route(old,'20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.6-native-ios-5'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.6-native-ios-6'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
