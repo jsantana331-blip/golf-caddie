@@ -254,7 +254,7 @@ const server=http.createServer((req,res)=>{
  const upgraded=await old.evaluate(k=>JSON.parse(localStorage.getItem(k)),key);assert.equal(upgraded.active.results[8].score,3);assert.equal(upgraded.active.activeHole,8);
  if(baselineRef==='903da2e')assert.equal(await old.evaluate(k=>JSON.parse(localStorage.getItem(k)).results[8].score,oldKey),3);
  await route(old,'20');await old.locator('#copy-coach').waitFor();
- assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.6-native-ios-6'));
+ assert.ok((await old.evaluate(()=>caches.keys())).includes('caddie-v1.6-native-ios-7'));
   await upgrade.close();
  const blocked=await browser.newContext();
  await blocked.addInitScript(()=>Object.defineProperty(window,'localStorage',{get(){throw new Error('Storage blocked');}}));
