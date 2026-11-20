@@ -46,7 +46,7 @@ const server=http.createServer((req,res)=>{
  for(const size of [{width:320,height:568},{width:375,height:667},{width:390,height:844},{width:430,height:932},{width:844,height:390},{width:390,height:400}]){
   await page.setViewportSize(size);await route(page,4);
   const tabs=await page.locator('.app-tabs').boundingBox(),score=await page.locator('#record-score').boundingBox();
-  assert.ok(score.width>=44&&score.height>=44&&score.y+score.height<=tabs.y,JSON.stringify({size,score,tabs}));
+  assert.ok(score.width>=44&&score.height>=44&&Math.abs((score.y+score.height/2)-(tabs.y+tabs.height/2))<=1,JSON.stringify({size,score,tabs}));
   await page.locator('#ask-caddie').scrollIntoViewIfNeeded();
   const ask=await page.locator('#ask-caddie').boundingBox();
   assert.ok(ask.width>=44&&ask.height>=44&&ask.y+ask.height<=score.y,JSON.stringify({size,ask,score}));
