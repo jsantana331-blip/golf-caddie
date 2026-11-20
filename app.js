@@ -93,6 +93,7 @@ function bindPlayPresentation(){
  const content=document.querySelector('.screen-hole .content');if(!content)return;
  const sync=()=>{const compact=content.classList.contains('header-compact');if(content.scrollTop>64&&!compact)content.classList.add('header-compact');else if(content.scrollTop<12&&compact)content.classList.remove('header-compact')};
  content.addEventListener('scroll',sync,{passive:true});sync();
+ bindHoleSwipe(content);
  document.querySelector('#expand-layout')?.addEventListener('click',()=>{
   const h=pages()[idx].h,geometry=HoleLayout.find(layouts,round.courseId,round.teeId,h.n);
   if(!geometry)return;
@@ -208,10 +209,18 @@ function render(){const ps=pages(),p=ps[idx];let body='';
  if(p.type==='game')body+=`<button id="to-hole" class="primary flow-action">Go to Hole ${state.activeHole} →</button>`;
  body='<p id="storage-warning" class="storage-warning" role="status" hidden></p>'+body;
  const toolbar=!historical?`<div class="round-toolbar"><span class="active-context">${p.type==='hole'?(esc(holeContext(p.h))):'Playing Hole '+state.activeHole}</span><button id="open-summary" class="text-control">${icon('rounds')}<span>Summary</span></button><button id="round-menu" class="text-control" aria-label="Round menu" aria-haspopup="dialog">${icon('more')}</button></div>`:'';
- const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><button id="prev" ${idx===2?'disabled':''} aria-label="Previous hole">${icon('left')}</button><h1><button id="jump" data-page="${idx}" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}${icon('grid')}</button></h1><button id="next" ${idx===round.holes.length+1?'disabled':''} aria-label="Next hole">${icon('right')}</button><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
+ const holes=p.type==='hole'?`<nav class="hole-nav" aria-label="Hole navigation"><h1><button id="jump" data-page="${idx}" aria-keyshortcuts="ArrowLeft ArrowRight" aria-haspopup="dialog" aria-label="Choose hole, viewing Hole ${p.h.n}">Hole ${p.h.n}${icon('grid')}</button></h1><div class="hole-distance"><b>${p.h.yards}<small> yd</small></b><span>Par ${p.h.par} · HCP ${p.h.hcp}</span></div></nav>`:'';
  app.innerHTML=`<section class="screen screen-${p.type} environment-${historical||p.type==='summary'?'journal':'caddie'}"><div class="content">${p.type==='hole'?`<header class="play-header">${toolbar}${holes}${roundPulse(state)}</header>`:toolbar}${body}</div>${appFooter(p.h)}</section>`;
  const scorecard=document.querySelector('.scorecard-section'),stats=document.querySelector('.round-stats');if(scorecard&&stats)stats.before(scorecard);
- document.querySelector('#prev')?.addEventListener('click',()=>go(-1));document.querySelector('#next')?.addEventListener('click',()=>go(1));document.querySelector('#jump')?.addEventListener('click',showHolePicker);
+ const picker=document.querySelector('#jump');
+ picker?.addEventListener('click',showHolePicker);
+ picker?.addEventListener('keydown',event=>{
+  if(event.altKey||event.ctrlKey||event.metaKey||event.shiftKey)return;
+  if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+  event.preventDefault();
+  go(event.key==='ArrowLeft'?-1:1);
+  document.querySelector('#jump')?.focus({preventScroll:true});
+ });
  document.querySelector('#round-menu')?.addEventListener('click',showRoundMenu);
  document.querySelector('#record-score')?.addEventListener('click',()=>showScore(p.h));
  bindTabs();
@@ -275,7 +284,7 @@ function showScore(h){
 function showHolePicker(){
  const dialog=document.createElement('dialog');dialog.className='bottom-sheet';dialog.id='hole-picker';dialog.setAttribute('aria-labelledby','picker-title');
  const viewed=pages()[idx].h.n;
- dialog.innerHTML=`<header class="sheet-heading"><h2 id="picker-title">Choose a hole</h2><button id="close-picker" aria-label="Close hole selection">${icon('close')}</button></header><p class="muted">Preview any hole. Scores stay on the hole you record.</p><div class="sheet-body">${[0,9].map(start=>`<section class="nine"><h3>${start===0?'Front nine':'Back nine'}</h3><div class="hole-grid">${round.holes.slice(start,start+9).map(h=>`<button data-view-hole="${h.n}" aria-pressed="${h.n===viewed}" aria-label="Hole ${h.n}, par ${h.par}${h.n===state.activeHole?', playing':''}"><b>${h.n}</b><small>${state.results[h.n]?.score??'—'}</small>${h.n===state.activeHole?'<span class="playing-dot" aria-hidden="true"></span>':''}</button>`).join('')}</div></section>`).join('')}</div><p class="muted">Dot = playing hole · lower number = recorded score</p>`;
+ dialog.innerHTML=`<header class="sheet-heading"><h2 id="picker-title">Choose a hole</h2><button id="close-picker" aria-label="Close hole selection">${icon('close')}</button></header><p class="muted">Tap a hole to jump, or swipe across the hole view to browse.</p><div class="sheet-body">${[0,9].map(start=>`<section class="nine"><h3>${start===0?'Front nine':'Back nine'}</h3><div class="hole-grid">${round.holes.slice(start,start+9).map(h=>`<button data-view-hole="${h.n}" aria-pressed="${h.n===viewed}" aria-label="Hole ${h.n}, par ${h.par}${h.n===state.activeHole?', playing':''}"><b>${h.n}</b><small>${state.results[h.n]?.score??'—'}</small>${h.n===state.activeHole?'<span class="playing-dot" aria-hidden="true"></span>':''}</button>`).join('')}</div></section>`).join('')}</div><p class="muted">Dot = playing hole · lower number = recorded score</p>`;
  const close=()=>{dialog.close();dialog.remove();document.querySelector('#jump')?.focus({preventScroll:true})};
  document.body.append(dialog);dialog.showModal();dialog.querySelector('#close-picker').onclick=close;dialog.addEventListener('cancel',e=>{e.preventDefault();close()});
  dialog.querySelectorAll('[data-view-hole]').forEach(b=>b.onclick=()=>{const n=Number(b.dataset.viewHole);close();navigate(round.holes.findIndex(h=>h.n===n)+2);document.querySelector('#jump')?.focus({preventScroll:true})});
@@ -308,11 +317,39 @@ function bindTracker(h){
 }
 function navigate(n){if(historical)return;exactScoreHole=null;idx=n;state.page=idx;persist();render()}
 function go(d){if(!round||screenMode!=='round'||historical||document.querySelector('dialog[open]'))return;
- const p=pages()[idx];if(p.type!=='hole')return;
+ const ps=pages(),p=ps[idx];if(p.type!=='hole')return;
+ const next=idx+d;
+ if(ps[next]?.type!=='hole')return;
  if(d===1)state.activeHole=RoundResults.afterAdvance(round.holes,state.results,state.activeHole,p.h.n);
- navigate(Math.max(2,Math.min(round.holes.length+1,idx+d)));
+ navigate(next);
 }
-// Use explicit hole controls; horizontal page gestures compete with iOS and scorecard scrolling.
+function bindHoleSwipe(content){
+ let start=null;
+ const passive={passive:true};
+ content.addEventListener('touchstart',event=>{
+  start=null;
+  if(event.touches.length!==1||event.target.closest('button,a,input,select,textarea,label'))return;
+  const touch=event.touches[0];
+  // Leave the screen edges to iOS and Safari gestures.
+  if(touch.clientX<24||touch.clientX>innerWidth-24)return;
+  start=touch;
+ },passive);
+ content.addEventListener('touchmove',event=>{
+  if(!start)return;
+  if(event.touches.length!==1){start=null;return}
+  const touch=event.touches[0];
+  const dx=touch.clientX-start.clientX,dy=touch.clientY-start.clientY;
+  if(Math.abs(dy)>24&&Math.abs(dy)>Math.abs(dx))start=null;
+ },passive);
+ content.addEventListener('touchcancel',()=>{start=null},passive);
+ content.addEventListener('touchend',event=>{
+  const origin=start;start=null;
+  const end=event.changedTouches[0];
+  if(!origin||event.touches.length||!end||end.identifier!==origin.identifier)return;
+  const dx=end.clientX-origin.clientX,dy=end.clientY-origin.clientY;
+  if(Math.abs(dx)>=56&&Math.abs(dx)>1.5*Math.abs(dy))go(dx<0?1:-1);
+ },passive);
+}
 function fitViewport(){
  const viewport=window.visualViewport;if(!viewport)return;
  const root=document.documentElement;

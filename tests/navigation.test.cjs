@@ -1,4 +1,4 @@
-const {route,openScore,closeScore,act}=require('./ui-helpers.cjs');
+const {route,openScore,closeScore,act,swipeHole}=require('./ui-helpers.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
 const root=path.resolve(__dirname,'..');
@@ -26,10 +26,10 @@ const server=http.createServer((req,res)=>{
  await page.locator('#start-round').click();await page.locator('.screen-course').waitFor();
  const initial=(await saved()).active;assert.ok(initial.id&&initial.startedAt);assert.equal(initial.activeHole,1);assert.equal(initial.courseId,'nevel-meade');assert.equal(initial.teeId,'blue');
  await page.locator('#to-game').click();await page.locator('.screen-game').waitFor();await page.locator('#to-hole').click();
- assert.equal(await page.locator('h1').innerText(),'Hole 1');assert.equal(await page.locator('#prev').isDisabled(),true);
+ assert.equal(await page.locator('h1').innerText(),'Hole 1');assert.equal(await page.locator('#prev,#next').count(),0);
  for(let n=1;n<=3;n++){
   await tap('score',5);await tap('tee','Fairway');await tap('gir',true);await tap('putts',2);await tap('penalties',0);await page.locator('#note').fill(`Navigation note ${n}`);
-  if(n<3)await act(page,'#next');
+  if(n<3)await swipeHole(page,'next');
  }
  await context.grantPermissions(['clipboard-read','clipboard-write']);
  await act(page,'#ask-caddie');await page.locator('#just-copy').click();await page.getByText('✓ Context copied — ask away',{exact:true}).waitFor();await page.locator('#close-ask').click();

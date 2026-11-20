@@ -12,4 +12,14 @@ async function route(page,index){
   else{await page.locator('#jump').click();await page.locator(`[data-view-hole="${n-1}"]`).click();}
  }else{await page.locator('#round-menu').click();await page.locator(`[data-section="${n}"]`).click()}
 }
-module.exports={closeScore,openScore,act,route};
+async function swipe(page, selector, dx, dy = 0, startX = 160) {
+  await page.locator(selector).evaluate((el, { dx, dy, startX }) => {
+    const touch = (x, y) => new Touch({ identifier: 1, target: el, clientX: x, clientY: y });
+    el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: [touch(startX, 140)] }));
+    const end = touch(startX + dx, 140 + dy);
+    el.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, touches: [end] }));
+    el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, changedTouches: [end] }));
+  }, { dx, dy, startX });
+}
+async function swipeHole(page, direction) {await closeScore(page);await swipe(page,'.recommendation',direction === 'next' ? -110 : 110)}
+module.exports={closeScore,openScore,act,route,swipe,swipeHole};

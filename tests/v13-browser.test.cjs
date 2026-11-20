@@ -1,4 +1,4 @@
-const {route,openScore,closeScore,act}=require('./ui-helpers.cjs');
+const {route,openScore,closeScore,act,swipeHole}=require('./ui-helpers.cjs');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),http=require('node:http');
 const {chromium}=require('playwright');
 const M=require('../memory.js'),C=require('../caddie-context.js'),course=require('../data/courses/nevel-meade.json');
@@ -27,7 +27,7 @@ const server=http.createServer((req,res)=>{
  const firstId=(await saved()).active.id;assert.equal(await page.locator('h1').innerText(),'Hole 1');
  for(const h of course.tees[0].holes){await route(page,String(h.n+1));assert.equal(await page.locator('#ask-caddie strong').innerText(),'Ask Caddie')}
  await route(page,'2');await tap('score',5);await tap('tee','Left');await tap('gir',false);await tap('putts',3);await tap('penalties',1);await page.locator('#note').fill('Driver leaked right <safe>');
- await act(page,'#next');assert.equal((await saved()).active.activeHole,2);
+ await swipeHole(page,'next');assert.equal((await saved()).active.activeHole,2);
  await tap('putts',2);await tap('penalties',0); // Unfinished hole metrics must not contaminate live completed-hole metrics.
  await route(page,'15');await act(page,'#ask-caddie');
  assert.ok((await page.locator('#ask-sheet').innerText()).includes('active Hole 2'));
