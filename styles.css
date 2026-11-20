@@ -29,11 +29,11 @@ html,body {
   line-height:1.45;
   font-variant-numeric:tabular-nums
 }
+html {background:var(--paper)}
 body {
   position:fixed;
   inset:0;
-  /* Fixed edges fill the standalone viewport, including the Home indicator area. */
-  height:auto;
+  height:var(--app-viewport-bottom,auto);
   padding:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) 0 env(safe-area-inset-left,0px)
 }
 #app {
@@ -243,12 +243,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
 }
 .app-tabs {
   flex-shrink:0;
+  padding:5px var(--content-gutter) max(5px,env(safe-area-inset-bottom,0px));
+  background:var(--paper);
+}
+.tab-track {
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  padding:4px 12px max(4px,env(safe-area-inset-bottom,0px));
-  border-top:1px solid var(--line);
-  background:var(--paper)
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:3px;
+  padding:3px;
+  border:1px solid var(--line);
+  border-radius:28px;
+  background:#f0f3f0;
 }
 .app-tabs button {
   display:flex;
@@ -256,28 +261,21 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,.scorecard:focus
   align-items:center;
   justify-content:center;
   gap:2px;
-  min-height:48px;
+  min-height:44px;
+  padding:3px 4px;
   border:0;
+  border-radius:23px;
   color:var(--muted);
-  font-size:11px
+  font-size:.6875rem;
 }
 .app-tabs button[aria-current] {
-  color:var(--green)
+  color:var(--green);
+  background:var(--paper);
+  box-shadow:0 1px 3px rgb(21 61 48 / .13);
+  font-weight:750;
 }
-.app-tabs button[aria-current] svg {
-  background:var(--selected);
-  border-radius:8px;
-  box-shadow:0 0 0 5px var(--selected)
-}
-.app-tabs svg {
-  width:21px;
-  height:21px;
-  fill:none;
-  stroke:currentColor;
-  stroke-width:1.7;
-  stroke-linecap:round;
-  stroke-linejoin:round
-}
+.app-tabs svg {width:20px;height:20px}
+.app-tabs button[aria-current] svg {stroke-width:2.35}
 .round-toolbar {
   display:flex;
   align-items:center;
@@ -1045,7 +1043,7 @@ body:has(dialog[open]) .content {
   --radius-control:14px;
   --radius-sheet:26px;
   --touch:44px;
-  --display-font:ui-serif,Georgia,serif;
+  --page-title-size:clamp(2rem,8vw,2.75rem);
   --content-gutter:22px;
   --content-top:18px;
 }
@@ -1062,19 +1060,6 @@ body:has(dialog[open]) .content {
   vertical-align:middle;
 }
 .primary,.secondary {border-radius:var(--radius-control)}
-.app-tabs {
-  gap:4px;
-  padding:2px 12px max(2px,env(safe-area-inset-bottom,0px));
-  box-shadow:0 -2px 12px rgb(21 61 48 / .04);
-}
-.app-tabs button,.app-tabs button[aria-current] {background:transparent;border-radius:8px;min-height:48px}
-.app-tabs button {gap:3px;font-size:.6875rem}
-.app-tabs button[aria-current] {font-weight:750}
-.app-tabs button[aria-current] svg {
-  background:none;
-  box-shadow:none;
-  stroke-width:2.35;
-}
 button:focus-visible {outline:2px solid var(--green);outline-offset:-3px}
 .play-header button:focus-visible {outline-color:#fff}
 
@@ -1086,9 +1071,10 @@ button:focus-visible {outline:2px solid var(--green);outline-offset:-3px}
 }
 .clubhouse-welcome .brand {margin-bottom:23px}
 .clubhouse-welcome h1 {
-  max-width:13ch;
+  max-width:15ch;
   margin:0;
-  font:400 clamp(2.25rem,10vw,3.125rem)/1.02 var(--display-font);
+  font-size:var(--page-title-size);
+  line-height:1.06;
   letter-spacing:-.048em;
 }
 .environment-clubhouse .course-choice {border-color:var(--line-warm)}
@@ -1115,7 +1101,12 @@ button:focus-visible {outline:2px solid var(--green);outline-offset:-3px}
 }
 .course-description strong {font-size:1.0625rem}
 .course-description small {display:block;margin-top:4px;font-size:.75rem}
-.resume-section {padding:14px 0 17px;border-bottom:1px solid var(--line-warm)}
+.resume-section {
+  margin:16px 0 0;
+  padding:14px;
+  border-radius:var(--radius-control);
+  background:var(--paper);
+}
 .resume-section .intro {margin:0;font-size:.875rem;font-weight:650;color:var(--ink)}
 .library-resume {display:flex;justify-content:space-between;align-items:center;margin-top:12px}
 .round-pulse {font-size:.75rem;line-height:1.4;color:var(--muted);padding:9px 0 0}
@@ -1144,7 +1135,9 @@ body:has(.screen-hole) {
 .play-header .round-pulse progress {accent-color:var(--on-green-muted)}
 .round-toolbar #open-summary {display:inline-flex;align-items:center;gap:5px}
 .screen-summary #open-summary {display:none}
-.round-toolbar #round-menu {padding:0}
+.round-toolbar #round-menu {padding:0;border-radius:50%}
+.play-header #round-menu {background:rgb(255 255 255 / .10)}
+.play-header #round-menu:active {background:rgb(255 255 255 / .19)}
 .play-header button:active {background:rgb(255 255 255 / .13)}
 .play-header .hole-nav {margin:0;grid-template-columns:44px minmax(0,1fr) 44px auto}
 .hole-nav > button {font-size:1rem}
@@ -1217,11 +1210,17 @@ body:has(.screen-hole) {
 }
 
 /* Course reference, briefing, and scorecard journal. */
-.screen-course .course-heading h1 {font:400 2.25rem/1.1 var(--display-font)}
+.screen-course .course-heading h1,
+.screen-game h1,
+.screen-summary h1,
+.journal-heading h1 {
+  font-size:var(--page-title-size);
+  line-height:1.08;
+  letter-spacing:-.045em;
+}
 .screen-course .course-primary {
   padding:12px 0;
-  border-top:2px solid var(--green);
-  border-bottom:1px solid var(--line);
+  border-block:1px solid var(--line);
 }
 .screen-game .mission {
   margin:16px 0 0;
@@ -1231,8 +1230,7 @@ body:has(.screen-hole) {
 .screen-game .briefing section {display:grid;grid-template-columns:6rem minmax(0,1fr);gap:9px}
 .screen-game .briefing h2 {font-size:.875rem}
 .environment-journal {background:var(--paper)}
-.journal-heading {padding:4px 0 12px;border-bottom:2px solid var(--ink)}
-.journal-heading h1 {font-size:2.125rem}
+.journal-heading {padding:4px 0 16px;border-bottom:1px solid var(--line)}
 .environment-journal .library-list {margin-top:0}
 .history-entry {
   display:grid;
@@ -1254,7 +1252,7 @@ body:has(.screen-hole) {
 .history-meta {grid-area:meta}
 .round-badge {font-style:normal;font-size:.75rem;font-weight:700;color:var(--green)}
 .round-badge.partial {color:var(--earth)}
-.screen-summary .round-totals {border-top:2px solid var(--ink);border-bottom:1px solid var(--line)}
+.screen-summary .round-totals {border-block:1px solid var(--line);padding-block:12px}
 .screen-summary .totals {grid-template-columns:1fr 1fr;gap:16px}
 .screen-summary .totals .metric:nth-child(-n+2) b {font-size:2.5rem}
 .screen-summary .round-stats {grid-template-columns:1fr 1fr}
@@ -1272,7 +1270,7 @@ body:has(.screen-hole) {
   margin:0 auto 8px;
 }
 .sheet-heading {border-bottom:1px solid var(--line);padding-bottom:3px}
-.sheet-heading button {color:var(--muted);font-size:1rem}
+.sheet-heading button {color:var(--muted);font-size:1rem;border-radius:50%}
 #ask-sheet .sheet-heading h2 {font-size:1.125rem;letter-spacing:-.02em}
 #ask-sheet > p:first-of-type {font-size:1.375rem;font-weight:650;line-height:1.25}
 .sheet-actions button {font-size:.9375rem}
